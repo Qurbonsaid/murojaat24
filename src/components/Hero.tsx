@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-image.jpg";
 
 const Hero = () => {
@@ -13,8 +14,8 @@ const Hero = () => {
             Murojaat yuborishning qulay va tez usuli
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button size="lg" className="text-lg h-14 px-8">
-              Murojaat Yuborish
+            <Button size="lg" className="text-lg h-14 px-8" asChild>
+              <Link to="/murojaat-yuborish">Murojaat Yuborish</Link>
             </Button>
             <Button size="lg" variant="outline" className="text-lg h-14 px-8">
               Murojaatni Kuzatish
