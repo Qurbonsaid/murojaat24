@@ -8,6 +8,7 @@ import SubmitRequest from "./pages/SubmitRequest";
 import TrackRequest from "./pages/TrackRequest";
 import Login from "./pages/Login";
 import OperatorDashboard from "./pages/OperatorDashboard";
+import DispatcherDashboard from "./pages/DispatcherDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/kuzatish" element={<TrackRequest />} />
           <Route path="/login" element={<Login />} />
           <Route path="/operator-dashboard" element={<OperatorDashboard />} />
+          <Route path="/dispatcher-dashboard" element={<DispatcherDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
