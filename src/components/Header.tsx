@@ -24,6 +24,9 @@ const Header = () => {
           <Link to="/kuzatish" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Murojaatni kuzatish
           </Link>
+          <Link to="/statistika" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            Statistika
+          </Link>
         </nav>
 
         <Link to="/login">
