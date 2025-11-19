@@ -10,12 +10,15 @@ const Header = () => {
           <FileText className="h-8 w-8 text-primary" />
           <span className="text-2xl font-bold text-foreground">Murojaat24</span>
         </Link>
-        
+
         <nav className="hidden md:flex items-center gap-6">
           <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Bosh sahifa
           </Link>
-          <Link to="/murojaat-yuborish" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link
+            to="/murojaat-yuborish"
+            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+          >
             Murojaat yuborish
           </Link>
           <Link to="/kuzatish" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
@@ -23,7 +26,9 @@ const Header = () => {
           </Link>
         </nav>
 
-        <Button size="lg">Kirish</Button>
+        <Link to="/login">
+          <Button size="lg">Kirish</Button>
+        </Link>
       </div>
     </header>
   );
