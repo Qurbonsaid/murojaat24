@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, UserCircle, MapPin, BarChart2 } from "lucide-react";
+import { FileText, UserCircle, MapPin, BarChart2, Shield } from "lucide-react";
 
 const RoleSelect = () => {
   const navigate = useNavigate();
@@ -45,6 +45,16 @@ const RoleSelect = () => {
       route: "/manager-dashboard",
       sessionKey: "manager_session",
       userData: { name: "Gulnora Saidova", role: "Menjer" }
+    },
+    {
+      id: "admin",
+      title: "Administrator",
+      description: "Tizimni boshqarish va sozlash",
+      icon: Shield,
+      color: "bg-red-500",
+      route: "/admin-dashboard",
+      sessionKey: "operator_session",
+      userData: { name: "Admin User", role: "Administrator" }
     },
   ];
 
