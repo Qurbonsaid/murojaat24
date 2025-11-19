@@ -17,8 +17,8 @@ const Hero = () => {
             <Button size="lg" className="text-lg h-14 px-8" asChild>
               <Link to="/murojaat-yuborish">Murojaat Yuborish</Link>
             </Button>
-            <Button size="lg" variant="outline" className="text-lg h-14 px-8">
-              Murojaatni Kuzatish
+            <Button size="lg" variant="outline" className="text-lg h-14 px-8" asChild>
+              <Link to="/kuzatish">Murojaatni Kuzatish</Link>
             </Button>
           </div>
         </div>
