@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SubmitRequest from "./pages/SubmitRequest";
 import TrackRequest from "./pages/TrackRequest";
+import Login from "./pages/Login";
+import OperatorDashboard from "./pages/OperatorDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/murojaat-yuborish" element={<SubmitRequest />} />
           <Route path="/kuzatish" element={<TrackRequest />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/operator-dashboard" element={<OperatorDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
