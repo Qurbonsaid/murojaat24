@@ -18,9 +18,9 @@ const Header = () => {
           <Link to="/murojaat-yuborish" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Murojaat yuborish
           </Link>
-          <a href="#" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link to="/kuzatish" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Murojaatni kuzatish
-          </a>
+          </Link>
         </nav>
 
         <Button size="lg">Kirish</Button>
