@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import AddUserModal from "@/components/AddUserModal";
 import { Users, FileText, CheckCircle, Clock, Search, Plus, Edit, Trash2 } from "lucide-react";
 import OperatorSidebar from "@/components/OperatorSidebar";
+import { organizations } from "@/lib/organizations";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -92,15 +93,11 @@ const AdminDashboard = () => {
     },
   ];
 
-  const requestTypes = [
-    { id: 1, name: "Elektr energiyasi", icon: "⚡" },
-    { id: 2, name: "Suv ta'minoti", icon: "💧" },
-    { id: 3, name: "Gaz ta'minoti", icon: "🔥" },
-    { id: 4, name: "Kanalizatsiya", icon: "🚰" },
-    { id: 5, name: "Axlat chiqarish", icon: "🗑️" },
-    { id: 6, name: "Ko'cha yoritish", icon: "💡" },
-    { id: 7, name: "Yo'l ta'miri", icon: "🛣️" },
-  ];
+  const [searchOrg, setSearchOrg] = useState("");
+  
+  const filteredOrganizations = organizations.filter(org => 
+    org.toLowerCase().includes(searchOrg.toLowerCase())
+  );
 
   const smsTemplates = [
     { id: 1, name: "Qabul qilindi", content: "Hurmatli {name}, murojaatingiz qabul qilindi. Raqam: {number}" },
@@ -267,34 +264,42 @@ const AdminDashboard = () => {
           <CardContent>
             <Tabs defaultValue="types">
               <TabsList className="mb-6">
-                <TabsTrigger value="types">Murojaat turlari</TabsTrigger>
+                <TabsTrigger value="types">Tashkilotlar</TabsTrigger>
                 <TabsTrigger value="templates">Bildirishnoma shablonlari</TabsTrigger>
                 <TabsTrigger value="general">Umumiy sozlamalar</TabsTrigger>
               </TabsList>
 
               <TabsContent value="types" className="space-y-4">
-                <div className="flex justify-end mb-4">
+                <div className="flex gap-4 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Tashkilot qidirish..." 
+                      className="pl-10"
+                      value={searchOrg}
+                      onChange={(e) => setSearchOrg(e.target.value)}
+                    />
+                  </div>
                   <Button size="sm">
                     <Plus className="mr-2 h-4 w-4" />
-                    Yangi tur qo'shish
+                    Yangi tashkilot
                   </Button>
                 </div>
-                {requestTypes.map((type) => (
-                  <div key={type.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{type.icon}</span>
-                      <span className="font-medium">{type.name}</span>
+                <div className="max-h-96 overflow-y-auto space-y-2">
+                  {filteredOrganizations.map((org, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
+                      <span className="font-medium text-sm">{org}</span>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </TabsContent>
 
               <TabsContent value="templates" className="space-y-4">

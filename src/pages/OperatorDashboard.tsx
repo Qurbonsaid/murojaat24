@@ -12,14 +12,27 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle, Clock, AlertCircle, Timer, MapPin, Eye } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CheckCircle, Clock, AlertCircle, Timer, MapPin, Eye, Check, ChevronsUpDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { organizations } from "@/lib/organizations";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Ism familiya majburiy"),
   phone: z.string().regex(/^\+998\s\d{2}\s\d{3}\s\d{2}\s\d{2}$/, "Telefon raqam formati noto'g'ri"),
-  requestType: z.string().min(1, "Murojaat turini tanlang"),
+  requestType: z.string().min(1, "Tashkilotni tanlang"),
   description: z.string().min(10, "Kamida 10 ta belgi kiriting").max(500),
   address: z.string().min(1, "Manzil majburiy"),
   additionalInfo: z.string().optional(),
@@ -31,6 +44,7 @@ const OperatorDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [openOrg, setOpenOrg] = useState(false);
 
   useEffect(() => {
     const session = localStorage.getItem("operator_session");
@@ -168,22 +182,50 @@ const OperatorDashboard = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="requestType">Murojaat turi *</Label>
-                <Select onValueChange={(value) => setValue("requestType", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Murojaat turini tanlang" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="elektr">Elektr energiyasi</SelectItem>
-                    <SelectItem value="gaz">Gaz ta'minoti</SelectItem>
-                    <SelectItem value="suv">Suv ta'minoti</SelectItem>
-                    <SelectItem value="kanalizatsiya">Kanalizatsiya</SelectItem>
-                    <SelectItem value="axlat">Axlat chiqarish</SelectItem>
-                    <SelectItem value="yoritish">Ko'cha yoritish</SelectItem>
-                    <SelectItem value="yol">Yo'l ta'miri</SelectItem>
-                    <SelectItem value="boshqa">Boshqa</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="requestType">Tashkilotni tanlang *</Label>
+                <Popover open={openOrg} onOpenChange={setOpenOrg}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn(
+                        "w-full justify-between font-normal",
+                        !watch("requestType") && "text-muted-foreground"
+                      )}
+                    >
+                      {watch("requestType")
+                        ? organizations.find((org) => org === watch("requestType"))
+                        : "Tashkilotni tanlang"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Qidirish..." />
+                      <CommandEmpty>Tashkilot topilmadi.</CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-auto">
+                        {organizations.map((org) => (
+                          <CommandItem
+                            key={org}
+                            value={org}
+                            onSelect={() => {
+                              setValue("requestType", org);
+                              setOpenOrg(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                org === watch("requestType") ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            {org}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 {errors.requestType && (
                   <p className="text-sm text-destructive">{errors.requestType.message}</p>
                 )}
