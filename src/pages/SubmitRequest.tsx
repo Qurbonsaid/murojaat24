@@ -8,13 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Form,
   FormControl,
   FormField,
@@ -22,23 +15,26 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Upload, MapPin, Loader2 } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { MapPin, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import SuccessModal from "@/components/SuccessModal";
-
-const requestTypes = [
-  "Elektr energiyasi",
-  "Gaz ta'minoti",
-  "Suv ta'minoti",
-  "Kanalizatsiya",
-  "Axlat chiqarish",
-  "Ko'cha yoritish",
-  "Yo'l ta'miri",
-  "Boshqa",
-];
+import { organizations } from "@/lib/organizations";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  requestType: z.string().min(1, { message: "Murojaat turini tanlang" }),
+  requestType: z.string().min(1, { message: "Tashkilotni tanlang" }),
   description: z
     .string()
     .min(10, { message: "Tavsif kamida 10 ta belgidan iborat bo'lishi kerak" })
@@ -60,6 +56,7 @@ const SubmitRequest = () => {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [descriptionLength, setDescriptionLength] = useState(0);
+  const [openOrg, setOpenOrg] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -127,27 +124,58 @@ const SubmitRequest = () => {
                     setUploadedImage={setUploadedImage}
                   />
 
-                  {/* Request Type */}
+                  {/* Organization Selection */}
                   <FormField
                     control={form.control}
                     name="requestType"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Murojaat turi *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Murojaat turini tanlang" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {requestTypes.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Tashkilotni tanlang *</FormLabel>
+                        <Popover open={openOrg} onOpenChange={setOpenOrg}>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "justify-between font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? organizations.find((org) => org === field.value)
+                                  : "Tashkilotni tanlang"}
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-full p-0" align="start">
+                            <Command>
+                              <CommandInput placeholder="Qidirish..." />
+                              <CommandEmpty>Tashkilot topilmadi.</CommandEmpty>
+                              <CommandGroup className="max-h-64 overflow-auto">
+                                {organizations.map((org) => (
+                                  <CommandItem
+                                    key={org}
+                                    value={org}
+                                    onSelect={() => {
+                                      form.setValue("requestType", org);
+                                      setOpenOrg(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        org === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {org}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
