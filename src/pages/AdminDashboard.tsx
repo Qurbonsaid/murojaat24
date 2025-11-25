@@ -13,6 +13,7 @@ import AddUserModal from "@/components/AddUserModal";
 import { Users, FileText, CheckCircle, Clock, Search, Plus, Edit, Trash2 } from "lucide-react";
 import OperatorSidebar from "@/components/OperatorSidebar";
 import { organizations } from "@/lib/organizations";
+import { governanceCategories } from "@/lib/governance";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -115,7 +116,7 @@ const AdminDashboard = () => {
       
       <main className="flex-1 ml-64 p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Administrator Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Hokimiyat Dashboard</h1>
           <p className="text-muted-foreground">Tizimni boshqarish va sozlash</p>
         </div>
 
@@ -262,12 +263,42 @@ const AdminDashboard = () => {
             <CardTitle>Tizim sozlamalari</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="types">
+            <Tabs defaultValue="governance">
               <TabsList className="mb-6">
+                <TabsTrigger value="governance">Rahbariyat</TabsTrigger>
                 <TabsTrigger value="types">Tashkilotlar</TabsTrigger>
                 <TabsTrigger value="templates">Bildirishnoma shablonlari</TabsTrigger>
                 <TabsTrigger value="general">Umumiy sozlamalar</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="governance" className="space-y-4">
+                <div className="flex gap-4 mb-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Rahbariyat qidirish..." 
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="max-h-96 overflow-y-auto space-y-4">
+                  {Object.entries(governanceCategories).map(([category, orgs]) => (
+                    <div key={category} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-lg">{category}</h4>
+                        <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                      </div>
+                      <div className="space-y-2">
+                        {orgs.map((org, index) => (
+                          <div key={index} className="text-sm text-muted-foreground pl-4 border-l-2 border-muted py-1">
+                            {org}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
 
               <TabsContent value="types" className="space-y-4">
                 <div className="flex gap-4 mb-4">

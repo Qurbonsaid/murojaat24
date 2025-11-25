@@ -5,7 +5,7 @@ import { MapPin, Clock, Zap, Droplet, Wrench } from "lucide-react";
 
 interface TaskCardProps {
   requestNumber: string;
-  type: string;
+  organization: string;
   address: string;
   distance: string;
   time: string;
@@ -14,13 +14,13 @@ interface TaskCardProps {
   onClick: () => void;
 }
 
-const getTypeIcon = (type: string) => {
-  if (type.includes("Elektr")) return <Zap className="h-4 w-4" />;
-  if (type.includes("Suv")) return <Droplet className="h-4 w-4" />;
+const getTypeIcon = (organization: string) => {
+  if (organization.includes("elektr")) return <Zap className="h-4 w-4" />;
+  if (organization.includes("suv")) return <Droplet className="h-4 w-4" />;
   return <Wrench className="h-4 w-4" />;
 };
 
-const TaskCard = ({ requestNumber, type, address, distance, time, status, urgent, onClick }: TaskCardProps) => {
+const TaskCard = ({ requestNumber, organization, address, distance, time, status, urgent, onClick }: TaskCardProps) => {
   const statusColor = status === "new" ? "bg-blue-500" : "bg-yellow-500";
   const buttonText = status === "new" ? "Qabul qilish" : "Davom etish";
 
@@ -33,8 +33,8 @@ const TaskCard = ({ requestNumber, type, address, distance, time, status, urgent
             <p className="font-semibold text-foreground">{requestNumber}</p>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline" className="text-xs">
-                {getTypeIcon(type)}
-                <span className="ml-1">{type}</span>
+                {getTypeIcon(organization)}
+                <span className="ml-1 line-clamp-1">{organization}</span>
               </Badge>
               {urgent && (
                 <Badge className="bg-red-500 hover:bg-red-600 text-xs">
