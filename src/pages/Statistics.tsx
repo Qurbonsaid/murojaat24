@@ -42,13 +42,13 @@ const Statistics = () => {
     { name: "Boshqa", value: 15, color: "#6b7280" },
   ];
 
-  // Mock data for charts
-  const sectorData = [
-    { name: "Elektr energiyasi", value: 35, color: "#3b82f6" },
-    { name: "Suv ta'minoti", value: 25, color: "#10b981" },
-    { name: "Gaz ta'minoti", value: 20, color: "#f59e0b" },
-    { name: "Ko'cha yoritish", value: 15, color: "#8b5cf6" },
-    { name: "Boshqa", value: 5, color: "#6b7280" },
+  // Top organizations by task count
+  const organizationData = [
+    { name: "Termiz shahar elektr ta'minoti korxonasi", value: 45, color: "#3b82f6" },
+    { name: "Termiz shahar suv ta'minoti bo'limi", value: 38, color: "#10b981" },
+    { name: "Termiz shahar Obodonlashtirish boshqarmasi", value: 32, color: "#f59e0b" },
+    { name: "Termiz shahar tibbiyot birlashmasi", value: 28, color: "#8b5cf6" },
+    { name: "Boshqa", value: 25, color: "#6b7280" },
   ];
 
   const dailyData = [
@@ -67,20 +67,13 @@ const Statistics = () => {
     { name: "Bajarilgan", count: 128, color: "#10b981" },
   ];
 
-  const regionData = [
-    { name: "Yunusobod", count: 45 },
-    { name: "Chilonzor", count: 38 },
-    { name: "Mirzo Ulug'bek", count: 35 },
-    { name: "Olmazor", count: 28 },
-    { name: "Sergeli", count: 22 },
-  ];
 
   const detailedData = [
     {
       date: "19.11.2024",
       number: "MUR-2024-001234",
-      type: "Elektr",
-      address: "Yunusobod, A.Qodiriy ko'chasi, 12",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
+      address: "Termiz shahar, A.Qodiriy ko'chasi, 12",
       status: "completed",
       specialist: "Akmal Rahimov",
       duration: "2.5 soat",
@@ -88,8 +81,8 @@ const Statistics = () => {
     {
       date: "19.11.2024",
       number: "MUR-2024-001235",
-      type: "Suv",
-      address: "Chilonzor, Bunyodkor ko'chasi, 45",
+      organization: "Termiz shahar suv ta'minoti bo'limi",
+      address: "Termiz shahar, Bunyodkor ko'chasi, 45",
       status: "in-progress",
       specialist: "Bobur Toshmatov",
       duration: "1.2 soat",
@@ -97,8 +90,8 @@ const Statistics = () => {
     {
       date: "19.11.2024",
       number: "MUR-2024-001236",
-      type: "Kanalizatsiya",
-      address: "M.Ulug'bek, Shifokorlar ko'chasi, 23",
+      organization: '"BIO TEXNO EKO" MChJ Termiz shahar filiali',
+      address: "Termiz shahar, Shifokorlar ko'chasi, 23",
       status: "completed",
       specialist: "Davron Yusupov",
       duration: "3.0 soat",
@@ -106,8 +99,8 @@ const Statistics = () => {
     {
       date: "19.11.2024",
       number: "MUR-2024-001237",
-      type: "Yo'l",
-      address: "Olmazor, Mustaqillik ko'chasi, 78",
+      organization: "Termiz shahar Obodonlashtirish boshqarmasi",
+      address: "Termiz shahar, Mustaqillik ko'chasi, 78",
       status: "completed",
       specialist: "Eldor Karimov",
       duration: "4.5 soat",
@@ -115,8 +108,8 @@ const Statistics = () => {
     {
       date: "19.11.2024",
       number: "MUR-2024-001238",
-      type: "Gaz",
-      address: "Sergeli, Yangi hayot ko'chasi, 34",
+      organization: '"Janubgazta\'minot" UK "Termizshahargaz" filiali',
+      address: "Termiz shahar, Yangi hayot ko'chasi, 34",
       status: "new",
       specialist: "-",
       duration: "-",
@@ -124,8 +117,8 @@ const Statistics = () => {
     {
       date: "18.11.2024",
       number: "MUR-2024-001239",
-      type: "Elektr",
-      address: "Yunusobod, Amir Temur ko'chasi, 56",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
+      address: "Termiz shahar, Amir Temur ko'chasi, 56",
       status: "completed",
       specialist: "Akmal Rahimov",
       duration: "1.8 soat",
@@ -133,8 +126,8 @@ const Statistics = () => {
     {
       date: "18.11.2024",
       number: "MUR-2024-001240",
-      type: "Yoritish",
-      address: "Chilonzor, Qatortol ko'chasi, 89",
+      organization: "Termiz shahar energiya sotish bo'limi",
+      address: "Termiz shahar, Qatortol ko'chasi, 89",
       status: "completed",
       specialist: "Eldor Karimov",
       duration: "2.3 soat",
@@ -142,8 +135,8 @@ const Statistics = () => {
     {
       date: "18.11.2024",
       number: "MUR-2024-001241",
-      type: "Suv",
-      address: "M.Ulug'bek, Universitet ko'chasi, 12",
+      organization: "Termiz shahar suv ta'minoti bo'limi",
+      address: "Termiz shahar, Universitet ko'chasi, 12",
       status: "in-progress",
       specialist: "Bobur Toshmatov",
       duration: "0.5 soat",
@@ -176,7 +169,7 @@ const Statistics = () => {
         {/* Filters */}
         <Card className="mb-8">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Vaqt oralig'i (dan)</label>
                 <Popover>
@@ -247,20 +240,6 @@ const Statistics = () => {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mintaqa</label>
-                <Select defaultValue="all">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Tanlang" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Barcha mintaqalar</SelectItem>
-                    <SelectItem value="yunusobod">Yunusobod</SelectItem>
-                    <SelectItem value="chilonzor">Chilonzor</SelectItem>
-                    <SelectItem value="mirzo">Mirzo Ulug'bek</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium invisible">Action</label>
@@ -347,20 +326,21 @@ const Statistics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={sectorData}
+                    data={organizationData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {sectorData.map((entry, index) => (
+                    {organizationData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -408,23 +388,6 @@ const Statistics = () => {
             </CardContent>
           </Card>
 
-          {/* Horizontal Bar Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mintaqalar bo'yicha</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={regionData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={100} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Detailed Table */}
@@ -438,7 +401,7 @@ const Statistics = () => {
                 <TableRow>
                   <TableHead>Sana</TableHead>
                   <TableHead>Raqam</TableHead>
-                  <TableHead>Turi</TableHead>
+                  <TableHead>Tashkilot</TableHead>
                   <TableHead>Manzil</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Mutaxassis</TableHead>
@@ -450,7 +413,7 @@ const Statistics = () => {
                   <TableRow key={row.number}>
                     <TableCell>{row.date}</TableCell>
                     <TableCell className="font-medium">{row.number}</TableCell>
-                    <TableCell>{row.type}</TableCell>
+                    <TableCell className="max-w-xs truncate">{row.organization}</TableCell>
                     <TableCell className="max-w-xs truncate">{row.address}</TableCell>
                     <TableCell>{getStatusBadge(row.status)}</TableCell>
                     <TableCell>{row.specialist}</TableCell>
