@@ -12,8 +12,7 @@ import { Label } from "@/components/ui/label";
 import AddUserModal from "@/components/AddUserModal";
 import { Users, FileText, CheckCircle, Clock, Search, Plus, Edit, Trash2 } from "lucide-react";
 import OperatorSidebar from "@/components/OperatorSidebar";
-import { organizations } from "@/lib/organizations";
-import { governanceCategories } from "@/lib/governance";
+import { organizations, getAllGovernanceCategories, getOrganizationsByGovernance } from "@/lib/organizations";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -282,21 +281,24 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto space-y-4">
-                  {Object.entries(governanceCategories).map(([category, orgs]) => (
-                    <div key={category} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-semibold text-lg">{category}</h4>
-                        <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                  {getAllGovernanceCategories().map((category) => {
+                    const orgs = getOrganizationsByGovernance(category);
+                    return (
+                      <div key={category} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-lg">{category}</h4>
+                          <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                        </div>
+                        <div className="space-y-2">
+                          {orgs.map((org, index) => (
+                            <div key={index} className="text-sm text-muted-foreground pl-4 border-l-2 border-muted py-1">
+                              {org}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        {orgs.map((org, index) => (
-                          <div key={index} className="text-sm text-muted-foreground pl-4 border-l-2 border-muted py-1">
-                            {org}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </TabsContent>
 
