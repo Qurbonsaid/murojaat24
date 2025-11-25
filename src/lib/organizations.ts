@@ -267,7 +267,7 @@ export const getOrganizationsByGovernance = (governance: string): string[] => {
 
 export const getAllGovernanceCategories = (): string[] => {
   const categories = new Set(organizationsWithGovernance.map((org) => org.governance));
-  return Array.from(categories).sort();
+  return Array.from(categories);
 };
 
 export const getGovernanceStatistics = () => {
