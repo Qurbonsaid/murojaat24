@@ -26,7 +26,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Header from "@/components/Header";
-import { governanceCategories } from "@/lib/governance";
+import { getAllGovernanceCategories, getOrganizationsByGovernance, getGovernanceStatistics } from "@/lib/organizations";
 
 const Statistics = () => {
   const [dateFrom, setDateFrom] = useState<Date>();
@@ -313,20 +313,23 @@ const Statistics = () => {
               
               <TabsContent value="details">
                 <div className="space-y-4">
-                  {Object.entries(governanceCategories).map(([category, orgs]) => (
-                    <div key={category} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold">{category}</h4>
-                        <Badge variant="secondary">{orgs.length} tashkilot</Badge>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="text-muted-foreground">Jami murojaatlar:</div>
-                        <div className="font-medium">
-                          {governanceDistribution.find(g => category.includes(g.name.split(' ')[0]))?.value || 0}
+                  {getAllGovernanceCategories().map((category) => {
+                    const orgs = getOrganizationsByGovernance(category);
+                    return (
+                      <div key={category} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold">{category}</h4>
+                          <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="text-muted-foreground">Jami murojaatlar:</div>
+                          <div className="font-medium">
+                            {governanceDistribution.find(g => category.includes(g.name.split(' ')[0]))?.value || 0}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </TabsContent>
             </Tabs>
