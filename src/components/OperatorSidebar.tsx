@@ -24,7 +24,7 @@ const OperatorSidebar = () => {
     { icon: LayoutDashboard, label: "Dashboard", path: "/operator-dashboard" },
     { icon: FilePlus, label: "Yangi murojaat", path: "/operator-dashboard#new" },
     { icon: ListChecks, label: "Murojaatlar ro'yxati", path: "/operator-dashboard#list" },
-    { icon: BarChart3, label: "Statistika", path: "/operator-dashboard#stats" },
+    { icon: BarChart3, label: "Statistika", path: "/statistika" },
   ];
 
   return (
@@ -34,11 +34,14 @@ const OperatorSidebar = () => {
           <FileText className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold">Murojaat24</span>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {operatorData.name?.split(" ").map((n: string) => n[0]).join("") || "SK"}
+              {operatorData.name
+                ?.split(" ")
+                .map((n: string) => n[0])
+                .join("") || "SK"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
@@ -57,9 +60,7 @@ const OperatorSidebar = () => {
                 <Link
                   to={item.path}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-slate-300 hover:bg-slate-700"
+                    isActive ? "bg-primary text-primary-foreground" : "text-slate-300 hover:bg-slate-700"
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
