@@ -24,7 +24,7 @@ const SpecialistMobile = () => {
   const tasks = [
     {
       requestNumber: "MUR-2024-001245",
-      type: "Elektr energiyasi",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
       address: "Yunusobod tumani, Abdulla Qodiriy ko'chasi, 12-uy",
       distance: "2.3 km narida",
       time: "30 daqiqa oldin",
@@ -36,7 +36,7 @@ const SpecialistMobile = () => {
     },
     {
       requestNumber: "MUR-2024-001246",
-      type: "Elektr energiyasi",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
       address: "Chilonzor tumani, Bunyodkor ko'chasi, 45-uy",
       distance: "4.1 km narida",
       time: "1 soat oldin",
@@ -46,7 +46,7 @@ const SpecialistMobile = () => {
     },
     {
       requestNumber: "MUR-2024-001247",
-      type: "Elektr energiyasi",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
       address: "Mirzo Ulug'bek tumani, Shifokorlar ko'chasi, 23-uy",
       distance: "5.8 km narida",
       time: "2 soat oldin",

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon, Download } from "lucide-react";
@@ -25,10 +26,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Header from "@/components/Header";
+import { governanceCategories } from "@/lib/governance";
 
 const Statistics = () => {
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
+  const isAdmin = localStorage.getItem("operator_session"); // Check if admin/hokimiyat
+
+  const governanceDistribution = [
+    { name: "Hokim", value: 45, color: "#2563eb" },
+    { name: "Moliya-iqtisodiyot", value: 32, color: "#10b981" },
+    { name: "Kapital qurilish", value: 38, color: "#f59e0b" },
+    { name: "Yoshlar siyosati", value: 52, color: "#8b5cf6" },
+    { name: "Oila va xotin-qizlar", value: 18, color: "#ec4899" },
+    { name: "Boshqa", value: 15, color: "#6b7280" },
+  ];
 
   // Mock data for charts
   const sectorData = [
@@ -262,12 +274,72 @@ const Statistics = () => {
         </Card>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      {isAdmin && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Rahbariyat bo'yicha statistika</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="chart">
+              <TabsList className="mb-4">
+                <TabsTrigger value="chart">Grafik</TabsTrigger>
+                <TabsTrigger value="details">Batafsil</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="chart">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={governanceDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {governanceDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="details">
+                <div className="space-y-4">
+                  {Object.entries(governanceCategories).map(([category, orgs]) => (
+                    <div key={category} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{category}</h4>
+                        <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="text-muted-foreground">Jami murojaatlar:</div>
+                        <div className="font-medium">
+                          {governanceDistribution.find(g => category.includes(g.name.split(' ')[0]))?.value || 0}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Pie Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Sohalar bo'yicha taqsimot</CardTitle>
-            </CardHeader>
+        <Card>
+          <CardHeader>
+            <CardTitle>Tashkilotlar bo'yicha taqsimot</CardTitle>
+          </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>

@@ -48,13 +48,13 @@ const RoleSelect = () => {
     },
     {
       id: "admin",
-      title: "Administrator",
+      title: "Hokimiyat",
       description: "Tizimni boshqarish va sozlash",
       icon: Shield,
       color: "bg-red-500",
       route: "/admin-dashboard",
       sessionKey: "operator_session",
-      userData: { name: "Admin User", role: "Administrator" }
+      userData: { name: "Admin User", role: "Hokimiyat" }
     },
   ];
 
