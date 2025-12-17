@@ -25,7 +25,7 @@ const SpecialistMobile = () => {
     {
       requestNumber: "MUR-2024-001245",
       organization: "Termiz shahar elektr ta'minoti korxonasi",
-      address: "Yunusobod tumani, Abdulla Qodiriy ko'chasi, 12-uy",
+      address: "Abdulla Qodiriy ko'chasi, 12-uy",
       distance: "2.3 km narida",
       time: "30 daqiqa oldin",
       status: "new" as const,
@@ -37,7 +37,7 @@ const SpecialistMobile = () => {
     {
       requestNumber: "MUR-2024-001246",
       organization: "Termiz shahar elektr ta'minoti korxonasi",
-      address: "Chilonzor tumani, Bunyodkor ko'chasi, 45-uy",
+      address: "Bunyodkor ko'chasi, 45-uy",
       distance: "4.1 km narida",
       time: "1 soat oldin",
       status: "in-progress" as const,
@@ -47,7 +47,7 @@ const SpecialistMobile = () => {
     {
       requestNumber: "MUR-2024-001247",
       organization: "Termiz shahar elektr ta'minoti korxonasi",
-      address: "Mirzo Ulug'bek tumani, Shifokorlar ko'chasi, 23-uy",
+      address: "Shifokorlar ko'chasi, 23-uy",
       distance: "5.8 km narida",
       time: "2 soat oldin",
       status: "new" as const,
@@ -56,7 +56,7 @@ const SpecialistMobile = () => {
     },
   ];
 
-  const handleTaskClick = (task: typeof tasks[0]) => {
+  const handleTaskClick = (task: (typeof tasks)[0]) => {
     setSelectedTask(task);
     setModalOpen(true);
   };
@@ -73,7 +73,10 @@ const SpecialistMobile = () => {
             </div>
             <Avatar className="h-14 w-14 border-2 border-primary-foreground">
               <AvatarFallback className="bg-primary-foreground text-primary text-lg">
-                {(specialistData.name || "AR").split(" ").map((n: string) => n[0]).join("")}
+                {(specialistData.name || "AR")
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -85,11 +88,7 @@ const SpecialistMobile = () => {
           <ScrollArea className="h-[calc(100vh-280px)]">
             <div className="space-y-4">
               {tasks.map((task) => (
-                <TaskCard
-                  key={task.requestNumber}
-                  {...task}
-                  onClick={() => handleTaskClick(task)}
-                />
+                <TaskCard key={task.requestNumber} {...task} onClick={() => handleTaskClick(task)} />
               ))}
             </div>
           </ScrollArea>
@@ -99,13 +98,7 @@ const SpecialistMobile = () => {
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Task Detail Modal */}
-        {selectedTask && (
-          <TaskDetailModal
-            open={modalOpen}
-            onOpenChange={setModalOpen}
-            task={selectedTask}
-          />
-        )}
+        {selectedTask && <TaskDetailModal open={modalOpen} onOpenChange={setModalOpen} task={selectedTask} />}
       </div>
     </div>
   );
