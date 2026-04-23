@@ -29,8 +29,8 @@ const Header = () => {
           </Link>
         </nav>
 
-        <Link to="/login">
-          <Button size="lg">Kirish</Button>
+        <Link to="/murojaat-yuborish">
+          <Button size="lg">Murojaat yuborish</Button>
         </Link>
       </div>
     </header>

@@ -1,0 +1,210 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Building2,
+  FileBarChart2,
+  MapPinned,
+  PhoneCall,
+  Recycle,
+  Settings2,
+  ShieldCheck,
+  TextSearch,
+} from "lucide-react";
+
+export type EcosystemModuleKind = "murojaat24" | "coming-soon";
+
+export type EcosystemMenuChild = {
+  id: string;
+  label: string;
+  path: string;
+  moduleKind: EcosystemModuleKind;
+};
+
+export type EcosystemMenuItem = {
+  id: string;
+  label: string;
+  path: string;
+  icon: LucideIcon;
+  moduleKind: EcosystemModuleKind;
+  children?: EcosystemMenuChild[];
+};
+
+export type EcosystemRouteEntry = {
+  id: string;
+  label: string;
+  path: string;
+  routePath: string;
+  moduleKind: EcosystemModuleKind;
+  parentId?: string;
+};
+
+export const ecosystemMenuItems: EcosystemMenuItem[] = [
+  {
+    id: "hudud",
+    label: "Hudud",
+    path: "/ecosystem/hudud",
+    icon: Building2,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "chiqindi-qutilari-tozalash-grafigi",
+    label: "Chiqindi qutilari tozalash - grafigi",
+    path: "/ecosystem/chiqindi-qutilari-tozalash-grafigi",
+    icon: Recycle,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "murojaat24",
+    label: "Murojaat24",
+    path: "/ecosystem/murojaat24",
+    icon: PhoneCall,
+    moduleKind: "murojaat24",
+  },
+  {
+    id: "kommunal-chaqiruvlar",
+    label: "Kommunal chaqiruvlar",
+    path: "/ecosystem/kommunal-chaqiruvlar",
+    icon: TextSearch,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "nazorat-24",
+    label: "Nazorat 24",
+    path: "/ecosystem/nazorat-24",
+    icon: ShieldCheck,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "shahar-passporti",
+    label: "Shahar Passporti",
+    path: "/ecosystem/shahar-passporti",
+    icon: MapPinned,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "hududlar-taqsimoti",
+    label: "Hududlar taqsimoti",
+    path: "/ecosystem/hududlar-taqsimoti",
+    icon: MapPinned,
+    moduleKind: "coming-soon",
+    children: [
+      {
+        id: "tumanlar-kesimida",
+        label: "Tumanlar kesimida",
+        path: "/ecosystem/hududlar-taqsimoti/tumanlar-kesimida",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "mahallalar-kesimida",
+        label: "Mahallalar kesimida",
+        path: "/ecosystem/hududlar-taqsimoti/mahallalar-kesimida",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "sektorlar-kesimida",
+        label: "Sektorlar kesimida",
+        path: "/ecosystem/hududlar-taqsimoti/sektorlar-kesimida",
+        moduleKind: "coming-soon",
+      },
+    ],
+  },
+  {
+    id: "hisobotlar",
+    label: "Hisobotlar",
+    path: "/ecosystem/hisobotlar",
+    icon: FileBarChart2,
+    moduleKind: "coming-soon",
+    children: [
+      {
+        id: "kunlik-hisobot",
+        label: "Kunlik hisobot",
+        path: "/ecosystem/hisobotlar/kunlik-hisobot",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "oylik-hisobot",
+        label: "Oylik hisobot",
+        path: "/ecosystem/hisobotlar/oylik-hisobot",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "yillik-hisobot",
+        label: "Yillik hisobot",
+        path: "/ecosystem/hisobotlar/yillik-hisobot",
+        moduleKind: "coming-soon",
+      },
+    ],
+  },
+  {
+    id: "sozlamalar",
+    label: "Sozlamalar",
+    path: "/ecosystem/sozlamalar",
+    icon: Settings2,
+    moduleKind: "coming-soon",
+    children: [
+      {
+        id: "tashkilotlar",
+        label: "Tashkilotlar",
+        path: "/ecosystem/sozlamalar/tashkilotlar",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "obyekt-turi",
+        label: "Obyekt turi",
+        path: "/ecosystem/sozlamalar/obyekt-turi",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "chaqiruv-turi",
+        label: "Chaqiruv turi",
+        path: "/ecosystem/sozlamalar/chaqiruv-turi",
+        moduleKind: "coming-soon",
+      },
+      {
+        id: "ish-vaqtlari",
+        label: "Ish vaqtlari",
+        path: "/ecosystem/sozlamalar/ish-vaqtlari",
+        moduleKind: "coming-soon",
+      },
+    ],
+  },
+];
+
+const toRoutePath = (path: string) => path.replace(/^\/ecosystem\/?/, "");
+
+export const ecosystemRouteEntries: EcosystemRouteEntry[] =
+  ecosystemMenuItems.flatMap((item) => {
+    const current: EcosystemRouteEntry = {
+      id: item.id,
+      label: item.label,
+      path: item.path,
+      routePath: toRoutePath(item.path),
+      moduleKind: item.moduleKind,
+    };
+
+    const childEntries: EcosystemRouteEntry[] =
+      item.children?.map((child) => ({
+        id: `${item.id}-${child.id}`,
+        label: child.label,
+        path: child.path,
+        routePath: toRoutePath(child.path),
+        moduleKind: child.moduleKind,
+        parentId: item.id,
+      })) ?? [];
+
+    return [current, ...childEntries];
+  });
+
+const normalizePath = (path: string) => {
+  if (path.length > 1 && path.endsWith("/")) {
+    return path.slice(0, -1);
+  }
+
+  return path;
+};
+
+export const getEcosystemEntryByPath = (pathname: string) => {
+  const normalizedPath = normalizePath(pathname);
+  return ecosystemRouteEntries.find(
+    (entry) => normalizePath(entry.path) === normalizedPath,
+  );
+};
