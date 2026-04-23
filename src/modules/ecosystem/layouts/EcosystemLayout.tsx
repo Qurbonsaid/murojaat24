@@ -13,12 +13,16 @@ type EcosystemSidebarNavigationProps = {
   onNavigate?: () => void;
 };
 
-const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationProps) => {
+const EcosystemSidebarNavigation = ({
+  onNavigate,
+}: EcosystemSidebarNavigationProps) => {
   const location = useLocation();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const isActivePath = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+    return (
+      location.pathname === path || location.pathname.startsWith(`${path}/`)
+    );
   };
 
   const toggleSection = (sectionId: string) => {
@@ -47,7 +51,7 @@ const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationPr
   }, [location.pathname]);
 
   return (
-    <nav className="p-4">
+    <nav className="p-3">
       <ul className="space-y-1.5">
         {ecosystemMenuItems.map((item) => {
           const Icon = item.icon;
@@ -59,17 +63,19 @@ const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationPr
               <div
                 className={cn(
                   "flex items-center rounded-lg border border-transparent transition-colors",
-                  isParentActive ? "border-sky-400/40 bg-sky-500/20" : "hover:bg-[#172a58]",
+                  isParentActive
+                    ? "border-sky-400/40 bg-sky-500/20"
+                    : "hover:bg-[#172a58]",
                 )}
               >
                 <NavLink
                   to={item.path}
-                  className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-sm font-medium text-slate-100"
+                  className="flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-100"
                   onClick={onNavigate}
                 >
                   <span
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white",
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-white",
                       isParentActive ? "bg-sky-500" : "bg-[#2663b6]",
                     )}
                   >
@@ -85,13 +91,17 @@ const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationPr
                     className="mr-2 rounded-md p-1 text-slate-300 transition-colors hover:bg-[#2a457f] hover:text-white"
                     aria-label={`${item.label} menyusini ochish`}
                   >
-                    {openSections[item.id] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    {openSections[item.id] ? (
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    )}
                   </button>
                 )}
               </div>
 
               {hasChildren && openSections[item.id] && (
-                <ul className="ml-5 space-y-1 border-l border-[#385897] pl-4">
+                <ul className="ml-4 space-y-1 border-l border-[#385897] pl-3">
                   {item.children?.map((child) => {
                     const isChildActive = isActivePath(child.path);
 
@@ -101,7 +111,7 @@ const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationPr
                           to={child.path}
                           onClick={onNavigate}
                           className={cn(
-                            "block rounded-md px-3 py-2 text-sm transition-colors",
+                            "block rounded-md px-3 py-1.5 text-sm transition-colors",
                             isChildActive
                               ? "bg-sky-500/90 font-medium text-white"
                               : "text-slate-300 hover:bg-[#172a58] hover:text-white",
@@ -125,9 +135,11 @@ const EcosystemSidebarNavigation = ({ onNavigate }: EcosystemSidebarNavigationPr
 const SidebarPanel = ({ onNavigate }: EcosystemSidebarNavigationProps) => {
   return (
     <div className="flex h-full flex-col bg-[#0d1a3f] text-slate-100">
-      <div className="border-b border-[#233d76] px-4 py-4">
+      <div className="border-b border-[#233d76] px-4 py-3">
         <p className="text-base font-semibold">Modullar menyusi</p>
-        <p className="text-xs text-slate-400">Har bir modul alohida sahifada yuritiladi</p>
+        <p className="text-xs text-slate-400">
+          Har bir modul alohida sahifada yuritiladi
+        </p>
       </div>
       <ScrollArea className="flex-1">
         <EcosystemSidebarNavigation onNavigate={onNavigate} />
@@ -193,11 +205,17 @@ const EcosystemLayout = () => {
           </Sheet>
 
           <Link to="/ecosystem/hudud" className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">T</span>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
+              T
+            </span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold sm:text-base">Termiz aqlli shahar</span>
+              <span className="text-sm font-semibold sm:text-base">
+                Termiz aqlli shahar
+              </span>
               <span className="hidden text-white/70 sm:inline">|</span>
-              <span className="hidden text-sm text-sky-100 sm:inline">Modullar</span>
+              <span className="hidden text-sm text-sky-100 sm:inline">
+                Modullar
+              </span>
             </div>
           </Link>
 
@@ -210,7 +228,9 @@ const EcosystemLayout = () => {
               <UserCircle2 className="h-4 w-4" />
               <div>
                 <p className="leading-tight">A1Tech</p>
-                <p className="text-[11px] leading-tight text-sky-100">Super Admin</p>
+                <p className="text-[11px] leading-tight text-sky-100">
+                  Super Admin
+                </p>
               </div>
             </div>
           </div>
@@ -218,11 +238,11 @@ const EcosystemLayout = () => {
       </header>
 
       <div className="flex min-h-[calc(100vh-56px)]">
-        <aside className="hidden w-[320px] border-r border-[#233d76] lg:block">
+        <aside className="hidden w-[285px] border-r border-[#233d76] lg:block">
           <SidebarPanel />
         </aside>
 
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-3 lg:p-4">
           <Outlet />
         </main>
       </div>

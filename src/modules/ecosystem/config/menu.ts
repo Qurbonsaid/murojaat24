@@ -46,9 +46,9 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     moduleKind: "coming-soon",
   },
   {
-    id: "chiqindi-qutilari-tozalash-grafigi",
-    label: "Chiqindi qutilari tozalash - grafigi",
-    path: "/ecosystem/chiqindi-qutilari-tozalash-grafigi",
+    id: "toza-hudud",
+    label: "Toza hudud",
+    path: "/ecosystem/toza-hudud",
     icon: Recycle,
     moduleKind: "coming-soon",
   },

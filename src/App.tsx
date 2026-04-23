@@ -3,11 +3,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { ecosystemRouteEntries } from "@/modules/ecosystem/config/menu";
-import EcosystemLayout from "@/modules/ecosystem/layouts/EcosystemLayout";
-import ComingSoonPage from "@/modules/ecosystem/pages/ComingSoonPage";
-import Murojaat24ModulePage from "@/modules/ecosystem/pages/Murojaat24ModulePage";
-import { murojaat24Routes } from "@/modules/murojaat24/config/routes";
+import { ecosystemRouteEntries } from "./modules/ecosystem/config/menu";
+import EcosystemLayout from "./modules/ecosystem/layouts/EcosystemLayout";
+import ComingSoonPage from "./modules/ecosystem/pages/ComingSoonPage";
+import Murojaat24ModulePage from "./modules/ecosystem/pages/Murojaat24ModulePage";
+import { murojaat24Routes } from "./modules/murojaat24/config/routes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

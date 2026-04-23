@@ -18,9 +18,12 @@ const ComingSoonPage = () => {
               <Clock3 className="h-5 w-5" />
             </span>
             <div>
-              <CardTitle className="text-3xl font-bold text-slate-900">Tez kunda...</CardTitle>
+              <CardTitle className="text-3xl font-bold text-slate-900">
+                Tez kunda...
+              </CardTitle>
               <p className="mt-2 text-sm text-slate-500">
-                {activeEntry?.label ?? "Ushbu bo'lim"} moduli uchun kontent tayyorlanmoqda.
+                {activeEntry?.label ?? "Ushbu bo'lim"} moduli uchun kontent
+                tayyorlanmoqda.
               </p>
             </div>
           </div>
@@ -28,11 +31,12 @@ const ComingSoonPage = () => {
 
         <CardContent className="space-y-3 text-sm text-slate-600">
           <p>
-            Bu bo'lim ekotizim menyusiga qo'shildi. Sahifa tuzilmasi va funksionali navbatma-navbat ishga tushiriladi.
+            Bu bo'lim ekotizim menyusiga qo'shildi. Sahifa tuzilmasi va
+            funksionali navbatma-navbat ishga tushiriladi.
           </p>
           <p>
-            Hozircha ushbu modul uchun "Tez kunda..." holati ishlamoqda va keyingi bosqichda haqiqiy biznes komponentlar
-            bilan to'ldiriladi.
+            Hozircha ushbu modul uchun "Tez kunda..." holati ishlamoqda va
+            keyingi bosqichda haqiqiy biznes komponentlar bilan to'ldiriladi.
           </p>
         </CardContent>
       </Card>
