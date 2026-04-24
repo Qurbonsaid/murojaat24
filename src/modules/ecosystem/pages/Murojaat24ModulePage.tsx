@@ -1,296 +1,325 @@
 import { useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import {
-  BarChart3,
   CheckCircle,
   Clock,
+  Edit,
   FileText,
-  Inbox,
-  LogOut,
-  MapPin,
-  Monitor,
-  UserCircle2,
+  Plus,
+  Search,
+  Trash2,
+  Users,
 } from "lucide-react";
 
-import AssignModal from "@/components/AssignModal";
-import MapView from "@/components/MapView";
-import NewRequestCard from "@/components/NewRequestCard";
-import SpecialistCard from "@/components/SpecialistCard";
-import StatsCard from "@/components/StatsCard";
+import AddUserModal from "@/components/AddUserModal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const menuItems = [
-  { id: "monitoring", icon: Monitor, label: "Monitoring" },
-  { id: "new", icon: Inbox, label: "Yangi murojaatlar" },
-  { id: "map", icon: MapPin, label: "Xarita" },
-  { id: "stats", icon: BarChart3, label: "Statistika" },
-] as const;
+type Murojaat24Section = "dashboard" | "foydalanuvchilar";
 
-const newRequests = [
+const users = [
   {
-    requestNumber: "MUR-2024-001240",
-    type: "Elektr",
-    address: "Yunusobod tumani, Abdulla Qodiriy ko'chasi, 12-uy",
-    time: "5 daqiqa oldin",
+    id: 1,
+    name: "Sardor Karimov",
+    email: "sardor@murojaat24.uz",
+    role: "Operator",
+    status: "active",
+    lastActive: "5 daqiqa oldin",
   },
   {
-    requestNumber: "MUR-2024-001241",
-    type: "Suv",
-    address: "Chilonzor tumani, Bunyodkor ko'chasi, 45-uy",
-    time: "8 daqiqa oldin",
+    id: 2,
+    name: "Dilshod Mirzayev",
+    email: "dilshod@murojaat24.uz",
+    role: "Dispatcher",
+    status: "active",
+    lastActive: "10 daqiqa oldin",
   },
   {
-    requestNumber: "MUR-2024-001242",
-    type: "Kanalizatsiya",
-    address: "Mirzo Ulug'bek tumani, Shifokorlar ko'chasi, 23-uy",
-    time: "12 daqiqa oldin",
-  },
-  {
-    requestNumber: "MUR-2024-001243",
-    type: "Elektr",
-    address: "Olmazor tumani, Mustaqillik ko'chasi, 78-uy",
-    time: "15 daqiqa oldin",
-  },
-  {
-    requestNumber: "MUR-2024-001244",
-    type: "Yo'l",
-    address: "Sergeli tumani, Yangi hayot ko'chasi, 34-uy",
-    time: "20 daqiqa oldin",
-  },
-];
-
-const specialists = [
-  {
+    id: 3,
     name: "Akmal Rahimov",
-    position: "Elektr mutaxassisi",
-    status: "available" as const,
-    currentTasks: "2/8",
-    location: "Yunusobod tumani",
+    email: "akmal@murojaat24.uz",
+    role: "Mutaxassis",
+    status: "active",
+    lastActive: "2 soat oldin",
   },
   {
+    id: 4,
+    name: "Gulnora Saidova",
+    email: "gulnora@murojaat24.uz",
+    role: "Menjer",
+    status: "active",
+    lastActive: "1 soat oldin",
+  },
+  {
+    id: 5,
     name: "Bobur Toshmatov",
-    position: "Suv ta'minoti mutaxassisi",
-    status: "busy" as const,
-    currentTasks: "6/8",
-    location: "Chilonzor tumani",
+    email: "bobur@murojaat24.uz",
+    role: "Mutaxassis",
+    status: "inactive",
+    lastActive: "2 kun oldin",
   },
   {
+    id: 6,
     name: "Davron Yusupov",
-    position: "Kanalizatsiya mutaxassisi",
-    status: "available" as const,
-    currentTasks: "1/8",
-    location: "Mirzo Ulug'bek tumani",
+    email: "davron@murojaat24.uz",
+    role: "Mutaxassis",
+    status: "active",
+    lastActive: "30 daqiqa oldin",
   },
   {
+    id: 7,
+    name: "Malika Ergasheva",
+    email: "malika@murojaat24.uz",
+    role: "Operator",
+    status: "active",
+    lastActive: "15 daqiqa oldin",
+  },
+  {
+    id: 8,
     name: "Eldor Karimov",
-    position: "Yo'l ta'miri mutaxassisi",
-    status: "available" as const,
-    currentTasks: "3/8",
-    location: "Olmazor tumani",
+    email: "eldor@murojaat24.uz",
+    role: "Mutaxassis",
+    status: "active",
+    lastActive: "1 soat oldin",
   },
 ];
+
+const resolveSection = (pathname: string): Murojaat24Section => {
+  if (pathname.endsWith("/foydalanuvchilar")) {
+    return "foydalanuvchilar";
+  }
+
+  return "dashboard";
+};
 
 const Murojaat24ModulePage = () => {
-  const [activeMenu, setActiveMenu] =
-    useState<(typeof menuItems)[number]["id"]>("monitoring");
-  const [assignModalOpen, setAssignModalOpen] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState("");
+  const location = useLocation();
+  const section = resolveSection(location.pathname);
 
-  const selectedMenuLabel = useMemo(
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [userFilter, setUserFilter] = useState("all");
+
+  const filteredUsers = useMemo(
     () =>
-      menuItems.find((item) => item.id === activeMenu)?.label ?? "Monitoring",
-    [activeMenu],
+      userFilter === "all"
+        ? users
+        : users.filter((user) => user.role.toLowerCase() === userFilter),
+    [userFilter],
   );
 
-  const handleAssignRequest = (requestNumber: string) => {
-    setSelectedRequest(requestNumber);
-    setAssignModalOpen(true);
-  };
+  const sectionTitle = section === "foydalanuvchilar"
+    ? "Foydalanuvchilarni boshqarish"
+    : "Hokimiyat Dashboard";
+  const sectionSubtitle = section === "foydalanuvchilar"
+    ? "Tizim foydalanuvchilari va ularning rollari"
+    : "Tizimni boshqarish va sozlash";
 
   return (
-    <>
-      <div className="overflow-hidden rounded-xl border border-[#c9d8f0] bg-white shadow-sm">
-        <div className="grid min-h-[calc(100vh-124px)] lg:grid-cols-[215px_1fr]">
-          <aside className="flex flex-col border-r border-[#d2def3] bg-[#1f2d47] text-white">
-            <div className="border-b border-white/10 p-4">
-              <div className="flex items-center gap-2 text-xl font-semibold">
-                <FileText className="h-5 w-5 text-[#4a93ff]" />
-                <span className="text-2xl leading-none">Murojaat24</span>
-              </div>
-
-              <div className="mt-4 flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-[#3b82f6] text-white">
-                    DM
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-semibold leading-tight">
-                    Dilshod Mirzayev
-                  </p>
-                  <p className="text-xs text-white/70">Dispatcher</p>
-                </div>
-              </div>
-            </div>
-
-            <nav className="flex-1 space-y-2 p-3">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeMenu === item.id;
-
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setActiveMenu(item.id)}
-                    className={cn(
-                      "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors",
-                      isActive
-                        ? "bg-[#3b82f6] text-white shadow-[0_10px_20px_rgba(59,130,246,0.35)]"
-                        : "text-white/80 hover:bg-white/10 hover:text-white",
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </nav>
-
-            <div className="border-t border-white/10 p-3">
-              <button
-                type="button"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Chiqish</span>
-              </button>
-            </div>
-          </aside>
-
-          <main className="bg-[#f8fbff] p-4">
-            <div className="mb-4">
-              <h1 className="text-3xl font-bold text-slate-900">
-                {selectedMenuLabel}
-              </h1>
-              <p className="text-lg text-slate-500">
-                Dispatcher paneli - Real vaqt kuzatuvi
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader className="pb-2 pt-4">
-                    <CardTitle className="text-base">
-                      Yangi murojaatlar
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Tayinlanishi kerak:{" "}
-                      <span className="font-semibold text-foreground">
-                        {newRequests.length}
-                      </span>
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[calc(100vh-280px)] pr-3">
-                      <div className="space-y-3">
-                        {newRequests.map((request) => (
-                          <NewRequestCard
-                            key={request.requestNumber}
-                            {...request}
-                            onAssign={() =>
-                              handleAssignRequest(request.requestNumber)
-                            }
-                          />
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader className="pb-2 pt-4">
-                    <CardTitle className="text-base">
-                      Real vaqt xaritasi
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <MapView compact />
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4 lg:col-span-1">
-                <Card>
-                  <CardHeader className="pb-2 pt-4">
-                    <CardTitle className="text-base">
-                      Bugungi statistika
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <StatsCard
-                      icon={Inbox}
-                      label="Qabul qilindi"
-                      value={145}
-                      iconColor="bg-blue-100 text-blue-600"
-                    />
-                    <StatsCard
-                      icon={Clock}
-                      label="Jarayonda"
-                      value={32}
-                      iconColor="bg-yellow-100 text-yellow-600"
-                    />
-                    <StatsCard
-                      icon={CheckCircle}
-                      label="Bajarilgan"
-                      value={98}
-                      iconColor="bg-green-100 text-green-600"
-                    />
-                    <StatsCard
-                      icon={UserCircle2}
-                      label="Kutayotgan"
-                      value={15}
-                      iconColor="bg-red-100 text-red-600"
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2 pt-4">
-                    <CardTitle className="text-base">
-                      Faol mutaxassislar
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[calc(100vh-520px)] pr-3">
-                      <div className="space-y-3">
-                        {specialists.map((specialist) => (
-                          <SpecialistCard
-                            key={specialist.name}
-                            {...specialist}
-                          />
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </main>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900">{sectionTitle}</h1>
+        <p className="text-muted-foreground">{sectionSubtitle}</p>
       </div>
 
-      <AssignModal
-        open={assignModalOpen}
-        onOpenChange={setAssignModalOpen}
-        requestNumber={selectedRequest}
+      {section === "dashboard" && (
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                      Faol foydalanuvchilar
+                    </p>
+                    <p className="text-3xl font-bold text-foreground">45</p>
+                  </div>
+                  <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
+                    <Users className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                      Bugungi murojaatlar
+                    </p>
+                    <p className="text-3xl font-bold text-foreground">145</p>
+                  </div>
+                  <div className="rounded-lg bg-green-100 p-3 text-green-600">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                      Tizim holati
+                    </p>
+                    <Badge className="mt-2 bg-green-500 hover:bg-green-600">
+                      Yaxshi
+                    </Badge>
+                  </div>
+                  <div className="rounded-lg bg-green-100 p-3 text-green-600">
+                    <CheckCircle className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                      Oxirgi yangilanish
+                    </p>
+                    <p className="mt-1 text-lg font-semibold text-foreground">
+                      2 soat oldin
+                    </p>
+                  </div>
+                  <div className="rounded-lg bg-gray-100 p-3 text-gray-600">
+                    <Clock className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tizim haqida qisqacha</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              <p>
+                Murojaat24 moduli Termiz aqlli shahar ekotizimida fuqarolardan
+                kelib tushgan murojaatlarni qabul qilish, taqsimlash va nazorat
+                qilish uchun ishlatiladi. Sozlamalar ekotizimning yagona
+                "Sozlamalar" bo'limida birlashtirilgan.
+              </p>
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {section === "foydalanuvchilar" && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Foydalanuvchilar ro'yxati</CardTitle>
+              <Button onClick={() => setAddUserModalOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Yangi foydalanuvchi
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Qidirish..." className="pl-10" />
+              </div>
+            </div>
+
+            <Tabs
+              value={userFilter}
+              onValueChange={setUserFilter}
+              className="mb-6"
+            >
+              <TabsList>
+                <TabsTrigger value="all">Hammasi</TabsTrigger>
+                <TabsTrigger value="operator">Operatorlar</TabsTrigger>
+                <TabsTrigger value="dispatcher">Dispetcherlar</TabsTrigger>
+                <TabsTrigger value="mutaxassis">Mutaxassislar</TabsTrigger>
+                <TabsTrigger value="menjer">Menejerlar</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Foydalanuvchi</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Rol</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Oxirgi faoliyat</TableHead>
+                  <TableHead className="text-right">Amallar</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{user.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={
+                          user.status === "active"
+                            ? "bg-green-500"
+                            : "bg-gray-500"
+                        }
+                      >
+                        {user.status === "active" ? "Faol" : "Faol emas"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.lastActive}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="ghost" size="icon">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      <AddUserModal
+        open={addUserModalOpen}
+        onOpenChange={setAddUserModalOpen}
       />
-    </>
+    </div>
   );
 };
 

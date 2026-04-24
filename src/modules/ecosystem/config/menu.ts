@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  Building2,
   FileBarChart2,
+  LayoutGrid,
   MapPinned,
   PhoneCall,
   Recycle,
@@ -10,7 +10,11 @@ import {
   TextSearch,
 } from "lucide-react";
 
-export type EcosystemModuleKind = "murojaat24" | "coming-soon";
+export type EcosystemModuleKind =
+  | "modullar"
+  | "murojaat24"
+  | "sozlamalar"
+  | "coming-soon";
 
 export type EcosystemMenuChild = {
   id: string;
@@ -39,11 +43,11 @@ export type EcosystemRouteEntry = {
 
 export const ecosystemMenuItems: EcosystemMenuItem[] = [
   {
-    id: "hudud",
-    label: "Hudud",
-    path: "/ecosystem/hudud",
-    icon: Building2,
-    moduleKind: "coming-soon",
+    id: "modullar",
+    label: "Modullar",
+    path: "/ecosystem/modullar",
+    icon: LayoutGrid,
+    moduleKind: "modullar",
   },
   {
     id: "toza-hudud",
@@ -58,6 +62,14 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     path: "/ecosystem/murojaat24",
     icon: PhoneCall,
     moduleKind: "murojaat24",
+    children: [
+      {
+        id: "foydalanuvchilar",
+        label: "Foydalanuvchilar",
+        path: "/ecosystem/murojaat24/foydalanuvchilar",
+        moduleKind: "murojaat24",
+      },
+    ],
   },
   {
     id: "kommunal-chaqiruvlar",
@@ -139,13 +151,19 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     label: "Sozlamalar",
     path: "/ecosystem/sozlamalar",
     icon: Settings2,
-    moduleKind: "coming-soon",
+    moduleKind: "sozlamalar",
     children: [
+      {
+        id: "rahbariyat",
+        label: "Rahbariyat",
+        path: "/ecosystem/sozlamalar/rahbariyat",
+        moduleKind: "sozlamalar",
+      },
       {
         id: "tashkilotlar",
         label: "Tashkilotlar",
         path: "/ecosystem/sozlamalar/tashkilotlar",
-        moduleKind: "coming-soon",
+        moduleKind: "sozlamalar",
       },
       {
         id: "obyekt-turi",
@@ -164,6 +182,18 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
         label: "Ish vaqtlari",
         path: "/ecosystem/sozlamalar/ish-vaqtlari",
         moduleKind: "coming-soon",
+      },
+      {
+        id: "shablonlar",
+        label: "Bildirishnoma shablonlari",
+        path: "/ecosystem/sozlamalar/shablonlar",
+        moduleKind: "sozlamalar",
+      },
+      {
+        id: "umumiy",
+        label: "Umumiy sozlamalar",
+        path: "/ecosystem/sozlamalar/umumiy",
+        moduleKind: "sozlamalar",
       },
     ],
   },

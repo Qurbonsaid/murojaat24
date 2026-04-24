@@ -204,7 +204,7 @@ const EcosystemLayout = () => {
             </SheetContent>
           </Sheet>
 
-          <Link to="/ecosystem/hudud" className="flex items-center gap-3">
+          <Link to="/ecosystem/modullar" className="flex items-center gap-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-bold">
               T
             </span>
