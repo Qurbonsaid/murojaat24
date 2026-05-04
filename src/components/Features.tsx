@@ -34,7 +34,7 @@ const services = [
     icon: ShieldCheck,
     title: "Nazorat 24",
     description:
-      "Shahar xavfsizligi va jamoat tartibini 24/7 rejimida nazorat qilish tizimi.",
+      "Shahar xavfsizligi va jamoat tartibini nazorat qilish tizimi.",
     accent: "bg-indigo-700",
   },
   {

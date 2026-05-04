@@ -71,7 +71,7 @@ const modules: ModuleEntry[] = [
   {
     id: "nazorat-24",
     label: "Nazorat 24",
-    description: "Shahar xavfsizligi va jamoat tartibi 24/7 nazorati.",
+    description: "Shahar xavfsizligi va jamoat tartibi nazorati.",
     path: "/ecosystem/nazorat-24",
     icon: ShieldCheck,
     accent: "bg-indigo-700",
@@ -100,7 +100,8 @@ const modules: ModuleEntry[] = [
   {
     id: "hisobotlar",
     label: "Hisobotlar",
-    description: "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
+    description:
+      "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
     path: "/ecosystem/hisobotlar",
     icon: FileBarChart2,
     accent: "bg-teal-600",

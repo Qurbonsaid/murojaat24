@@ -22,11 +22,11 @@ const Header = () => {
             Termiz shahar hokimligi rasmiy raqamli platformasi
           </span>
           <a
-            href="tel:1055"
+            href="tel:1089"
             className="inline-flex items-center gap-1.5 text-sky-100 transition-colors hover:text-white"
           >
             <Phone className="h-3.5 w-3.5" />
-            Ishonch telefoni: 1055
+            Ishonch telefoni: 1089
           </a>
         </div>
       </div>

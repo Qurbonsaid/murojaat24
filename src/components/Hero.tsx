@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2, PhoneCall, ShieldCheck } from "lucide-react";
 
 const bullets = [
-  "Murojaatlarni 24/7 qabul qilish",
+  "Murojaatlarni qabul qilish",
   "Ishonchli va shaffof ko'rib chiqish",
   "Har bir bosqich real vaqtda kuzatiladi",
 ];
@@ -46,7 +46,10 @@ const Hero = () => {
 
             <ul className="space-y-2.5">
               {bullets.map((bullet) => (
-                <li key={bullet} className="flex items-center gap-3 text-sm text-sky-50">
+                <li
+                  key={bullet}
+                  className="flex items-center gap-3 text-sm text-sky-50"
+                >
                   <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-sky-300" />
                   {bullet}
                 </li>
@@ -89,9 +92,10 @@ const Hero = () => {
                     <p className="text-sm font-semibold text-slate-900">
                       Ishonch telefoni
                     </p>
-                    <p className="text-xs text-slate-500">24/7 qabul qilinadi</p>
                   </div>
-                  <p className="ml-auto text-2xl font-bold text-[#0d4c8b]">1055</p>
+                  <p className="ml-auto text-2xl font-bold text-[#0d4c8b]">
+                    1089
+                  </p>
                 </div>
 
                 <div className="mt-5 space-y-4">
@@ -99,13 +103,17 @@ const Hero = () => {
                     <span className="text-sm font-medium text-slate-700">
                       Bugun qabul qilingan
                     </span>
-                    <span className="text-lg font-bold text-[#0d4c8b]">145</span>
+                    <span className="text-lg font-bold text-[#0d4c8b]">
+                      145
+                    </span>
                   </div>
                   <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3">
                     <span className="text-sm font-medium text-slate-700">
                       Bajarilgan murojaatlar
                     </span>
-                    <span className="text-lg font-bold text-emerald-700">98</span>
+                    <span className="text-lg font-bold text-emerald-700">
+                      98
+                    </span>
                   </div>
                   <div className="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-3">
                     <span className="text-sm font-medium text-slate-700">
