@@ -133,115 +133,141 @@ export const organizationsWithGovernance: OrganizationWithGovernance[] = [
     name: '"BIO TEXNO EKO" MChJ Termiz shahar filiali',
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar madaniyat bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: 'Termiz shahridagi "Inson" ijtimoiy xizmatlari markazi',
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Yoshlar ishlari agentligi Termiz shahar bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "O'zbekiston Mahallalar uyushmasi Termiz shahar bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz oqshomi gazetasi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar Davlat veterinariya va chorvachilikni rivojlantirish bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar xalq ta'limi bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar tibbiyot birlashmasi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar Sanitariya-epidemiologik osoyishtalik bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Ma'naviyat va ma'rifat markazi Termiz shahar bo'limi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Ta'lim va fan xodimlari kasaba uyushmasi Termiz shahar bo'linmasi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: 'O\'zbekiston "Adolat" SDP Termiz shahar kengashi',
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "O'zLiDeP Termiz shahar kengashi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "O'zbekiston XDP Termiz shahar kengashi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "O'zbekiston Ekologik partiyasi Termiz shahar tashkiloti",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar nogironlar jamiyati",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "O'zbekiston ko'zi ojizlar jamiyati",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz shahar bolalar va o'smirlar sport maktabi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz kasb-hunar maktabi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz muhandislik-texnologiya instituti akademik litseyi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz davlat universiteti akademik litseyi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Surxondaryo viloyati yuridik texnikumi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Abu Ali ibn Sino nomidagi jamoa salomatligi tibbiyot texnikumi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz ixtisoslashgan san'at maktabi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Termiz olimpiya va paralimpiya sport turlariga tayyorlash markazi",
   },
   {
-    governance: "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
+    governance:
+      "Yoshlar siyosati, ijtimoiy rivojlantirish va ma'naviy-ma'rifiy ishlar bo'yicha",
     name: "Surxondaryo arxitektura va qurilish",
   },
   {
-    governance: "Oil ava xotin-qizlar masalalari bo’yicha",
+    governance: "Oil ava xotin-qizlar masalalari bo'yicha",
     name: "\"Nuroniy\" jamg'armasi Termiz shahar bo'limi",
   },
   {
-    governance: "Oil ava xotin-qizlar masalalari bo’yicha",
+    governance: "Oil ava xotin-qizlar masalalari bo'yicha",
     name: "O'zbekiston Qizil Yarim Oy jamiyati Termiz shahar tashkiloti",
   },
   {
@@ -256,17 +282,25 @@ export const organizationsWithGovernance: OrganizationWithGovernance[] = [
 
 export const organizations = organizationsWithGovernance.map((org) => org.name);
 
-export const getGovernanceForOrganization = (organizationName: string): string => {
-  const org = organizationsWithGovernance.find((o) => o.name === organizationName);
+export const getGovernanceForOrganization = (
+  organizationName: string,
+): string => {
+  const org = organizationsWithGovernance.find(
+    (o) => o.name === organizationName,
+  );
   return org?.governance || "Boshqa";
 };
 
 export const getOrganizationsByGovernance = (governance: string): string[] => {
-  return organizationsWithGovernance.filter((org) => org.governance === governance).map((org) => org.name);
+  return organizationsWithGovernance
+    .filter((org) => org.governance === governance)
+    .map((org) => org.name);
 };
 
 export const getAllGovernanceCategories = (): string[] => {
-  const categories = new Set(organizationsWithGovernance.map((org) => org.governance));
+  const categories = new Set(
+    organizationsWithGovernance.map((org) => org.governance),
+  );
   return Array.from(categories);
 };
 

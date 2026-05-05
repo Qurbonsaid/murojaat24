@@ -68,7 +68,7 @@ const Header = () => {
             variant="outline"
             className="hidden border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
           >
-            <Link to="/ecosystem">
+            <Link to="/login">
               <LogIn className="mr-2 h-4 w-4" />
               Tizimga kirish
             </Link>
@@ -78,7 +78,13 @@ const Header = () => {
             asChild
             className="hidden bg-[#0d4c8b] text-white hover:bg-[#0a3d70] sm:inline-flex"
           >
-            <a href="#xizmatlar">Murojaat qoldirish</a>
+            <a
+              href="https://murojaat.aqllishahar-termizsh.uz"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Murojaat qoldirish
+            </a>
           </Button>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -104,7 +110,12 @@ const Header = () => {
                   asChild
                   className="mt-4 bg-[#0d4c8b] text-white hover:bg-[#0a3d70]"
                 >
-                  <a href="#xizmatlar" onClick={() => setMobileOpen(false)}>
+                  <a
+                    href="https://murojaat.aqllishahar-termizsh.uz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileOpen(false)}
+                  >
                     Murojaat qoldirish
                   </a>
                 </Button>
@@ -113,7 +124,7 @@ const Header = () => {
                   variant="outline"
                   className="border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5"
                 >
-                  <Link to="/ecosystem" onClick={() => setMobileOpen(false)}>
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
                     <LogIn className="mr-2 h-4 w-4" />
                     Tizimga kirish
                   </Link>

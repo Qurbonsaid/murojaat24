@@ -23,6 +23,11 @@ npm run build
 npm run preview
 ```
 
+## Environment
+
+- `VITE_API_URL` - backend API base URL (default: `http://localhost:5000`).
+	Define this in `.env.development` for local work and in Vercel env vars for production.
+
 ## Stack
 
 - Vite

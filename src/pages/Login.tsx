@@ -3,43 +3,83 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import {
+  getRoleRedirectPath,
+  saveLegacySession,
+  useLogin,
+} from "@/lib/api/auth";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const loginMutation = useLogin();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const normalizePhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+    const normalized = digits.startsWith("998") ? digits.slice(3) : digits;
+    return normalized ? `+998${normalized}` : "";
+  };
+
+  const formatPhoneInput = (value: string) => {
+    let digits = value.replace(/\D/g, "");
+    if (digits.startsWith("998")) {
+      digits = digits.slice(3);
+    }
+    if (digits.length > 9) {
+      digits = digits.slice(0, 9);
+    }
+
+    if (!digits) return "";
+    const parts = [
+      digits.slice(0, 2),
+      digits.slice(2, 5),
+      digits.slice(5, 7),
+      digits.slice(7, 9),
+    ].filter(Boolean);
+    return `+998 ${parts.join(" ")}`.trim();
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    // Mock authentication
-    setTimeout(() => {
-      if (email === "operator@murojaat24.uz" && password === "demo123") {
-        localStorage.setItem("operator_session", JSON.stringify({
-          name: "Sardor Karimov",
-          role: "Operator",
-          email: email
-        }));
-        toast({
-          title: "Muvaffaqiyatli kirish",
-          description: "Xush kelibsiz, Sardor Karimov",
-        });
-        navigate("/operator-dashboard");
-      } else {
-        toast({
-          title: "Xatolik",
-          description: "Email yoki parol noto'g'ri",
-          variant: "destructive",
-        });
-      }
-      setIsLoading(false);
-    }, 800);
+    try {
+      const normalizedPhone = normalizePhone(phone);
+      const user = await loginMutation.mutateAsync({
+        phone: normalizedPhone,
+        password,
+      });
+
+      saveLegacySession(user);
+
+      toast({
+        title: "Muvaffaqiyatli kirish",
+        description: "Tizimga muvaffaqiyatli kirdingiz",
+      });
+
+      navigate(getRoleRedirectPath(user.role));
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Telefon raqam yoki parol noto'g'ri";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -52,7 +92,9 @@ const Login = () => {
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-1">Murojaat24</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-1">
+              Murojaat24
+            </h1>
             <CardTitle className="text-xl">Tizimga kirish</CardTitle>
             <CardDescription>Call Center Operator</CardDescription>
           </div>
@@ -60,13 +102,13 @@ const Login = () => {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email manzil</Label>
+              <Label htmlFor="phone">Telefon raqam</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="operator@murojaat24.uz"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="phone"
+                type="tel"
+                placeholder="+998 90 123 45 67"
+                value={phone}
+                onChange={(e) => setPhone(formatPhoneInput(e.target.value))}
                 required
               />
             </div>
@@ -81,14 +123,18 @@ const Login = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Kuting..." : "Kirish"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loginMutation.isPending}
+            >
+              {loginMutation.isPending ? "Kuting..." : "Kirish"}
             </Button>
           </form>
           <div className="mt-6 p-3 bg-muted rounded-lg text-sm text-muted-foreground text-center">
             <p className="font-medium mb-1">Demo ma'lumotlar:</p>
-            <p>Email: operator@murojaat24.uz</p>
-            <p>Parol: demo123</p>
+            <p>Telefon: +998 90 123 45 70</p>
+            <p>Parol: murojaat24</p>
           </div>
         </CardContent>
       </Card>

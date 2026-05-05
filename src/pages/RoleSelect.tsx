@@ -1,9 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { FileText, UserCircle, MapPin, BarChart2, Shield } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import {
+  getRoleRedirectPath,
+  saveLegacySession,
+  useLogin,
+} from "@/lib/api/auth";
 
 const RoleSelect = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const loginMutation = useLogin();
 
   const roles = [
     {
@@ -13,8 +22,8 @@ const RoleSelect = () => {
       icon: UserCircle,
       color: "bg-blue-500",
       route: "/operator-dashboard",
-      sessionKey: "operator_session",
-      userData: { name: "Sardor Karimov", role: "Operator" }
+      phone: "+998901234570",
+      password: "murojaat24",
     },
     {
       id: "dispatcher",
@@ -23,8 +32,8 @@ const RoleSelect = () => {
       icon: MapPin,
       color: "bg-purple-500",
       route: "/dispatcher-dashboard",
-      sessionKey: "dispatcher_session",
-      userData: { name: "Dilshod Mirzayev", role: "Dispatcher" }
+      phone: "+998901234569",
+      password: "murojaat24",
     },
     {
       id: "specialist",
@@ -33,8 +42,8 @@ const RoleSelect = () => {
       icon: UserCircle,
       color: "bg-green-500",
       route: "/specialist-mobile",
-      sessionKey: "specialist_session",
-      userData: { name: "Akmal Rahimov", role: "Mutaxassis" }
+      phone: "+998901234572",
+      password: "murojaat24",
     },
     {
       id: "manager",
@@ -43,8 +52,8 @@ const RoleSelect = () => {
       icon: BarChart2,
       color: "bg-orange-500",
       route: "/manager-dashboard",
-      sessionKey: "manager_session",
-      userData: { name: "Gulnora Saidova", role: "Menjer" }
+      phone: "+998901234568",
+      password: "murojaat24",
     },
     {
       id: "admin",
@@ -53,14 +62,31 @@ const RoleSelect = () => {
       icon: Shield,
       color: "bg-red-500",
       route: "/admin-dashboard",
-      sessionKey: "operator_session",
-      userData: { name: "Admin User", role: "Hokimiyat" }
+      phone: "+998901234567",
+      password: "murojaat24",
     },
   ];
 
-  const handleRoleSelect = (role: typeof roles[0]) => {
-    localStorage.setItem(role.sessionKey, JSON.stringify(role.userData));
-    navigate(role.route);
+  const handleRoleSelect = async (role: (typeof roles)[0]) => {
+    try {
+      const user = await loginMutation.mutateAsync({
+        phone: role.phone,
+        password: role.password,
+      });
+
+      saveLegacySession(user);
+      navigate(getRoleRedirectPath(user.role));
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Kirishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -71,7 +97,9 @@ const RoleSelect = () => {
             <FileText className="h-12 w-12 text-primary" />
             <h1 className="text-4xl font-bold text-foreground">Murojaat24</h1>
           </div>
-          <p className="text-xl text-muted-foreground">Tizimga kirish uchun rolingizni tanlang</p>
+          <p className="text-xl text-muted-foreground">
+            Tizimga kirish uchun rolingizni tanlang
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
