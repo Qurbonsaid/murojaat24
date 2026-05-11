@@ -1,24 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import ManagerSidebar from "@/components/ManagerSidebar";
 import StatsCard from "@/components/StatsCard";
+import UserProfileMenu from "@/components/UserProfileMenu";
 import ReviewModal from "@/components/ReviewModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock, Timer, Star, Eye } from "lucide-react";
 
 const ManagerDashboard = () => {
-  const navigate = useNavigate();
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
-
-  useEffect(() => {
-    const session = localStorage.getItem("manager_session");
-    if (!session) {
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const reviewRequests = [
     {
@@ -28,7 +27,8 @@ const ManagerDashboard = () => {
       completedTime: "12:45",
       beforeImage: "/placeholder.svg",
       afterImage: "/placeholder.svg",
-      report: "Elektr hisoblagichni almashtirildi. Barcha rozetkalar tekshirildi va ishlayapti. Fuqaro natijadan mamnun.",
+      report:
+        "Elektr hisoblagichni almashtirildi. Barcha rozetkalar tekshirildi va ishlayapti. Fuqaro natijadan mamnun.",
       assignedTime: "09:30",
       startedTime: "10:15",
     },
@@ -50,7 +50,8 @@ const ManagerDashboard = () => {
       completedTime: "16:10",
       beforeImage: "/placeholder.svg",
       afterImage: "/placeholder.svg",
-      report: "Kanalizatsiya tizimi tozalandi. Test qilingan va hech qanday muammo yo'q.",
+      report:
+        "Kanalizatsiya tizimi tozalandi. Test qilingan va hech qanday muammo yo'q.",
       assignedTime: "13:00",
       startedTime: "14:30",
     },
@@ -78,7 +79,7 @@ const ManagerDashboard = () => {
     },
   ];
 
-  const handleReview = (request: typeof reviewRequests[0]) => {
+  const handleReview = (request: (typeof reviewRequests)[0]) => {
     setSelectedRequest(request);
     setReviewModalOpen(true);
   };
@@ -86,11 +87,18 @@ const ManagerDashboard = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <ManagerSidebar />
-      
+
       <main className="flex-1 ml-64 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Menjer Dashboard</h1>
-          <p className="text-muted-foreground">Bajarilgan ishlarni nazorat qilish</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Menjer Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Bajarilgan ishlarni nazorat qilish
+            </p>
+          </div>
+          <UserProfileMenu />
         </div>
 
         {/* KPI Cards */}
@@ -140,13 +148,17 @@ const ManagerDashboard = () => {
               <TableBody>
                 {reviewRequests.map((request) => (
                   <TableRow key={request.requestNumber}>
-                    <TableCell className="font-medium">{request.requestNumber}</TableCell>
+                    <TableCell className="font-medium">
+                      {request.requestNumber}
+                    </TableCell>
                     <TableCell>{request.specialist}</TableCell>
-                    <TableCell className="max-w-xs truncate">{request.address}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {request.address}
+                    </TableCell>
                     <TableCell>{request.completedTime}</TableCell>
                     <TableCell className="text-right">
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleReview(request)}
                       >

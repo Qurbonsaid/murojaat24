@@ -1,0 +1,506 @@
+import { useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon, Download } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+import {
+  getAllGovernanceCategories,
+  getOrganizationsByGovernance,
+} from "@/lib/organizations";
+import { useCurrentUser } from "@/lib/api/auth";
+
+const StatistikaSection = () => {
+  const [dateFrom, setDateFrom] = useState<Date>();
+  const [dateTo, setDateTo] = useState<Date>();
+  const currentUserQuery = useCurrentUser();
+  const isAdmin = currentUserQuery.data?.role === "admin";
+
+  const governanceDistribution = [
+    { name: "Hokim", value: 45, color: "#2563eb" },
+    { name: "Moliya-iqtisodiyot", value: 32, color: "#10b981" },
+    { name: "Kapital qurilish", value: 38, color: "#f59e0b" },
+    { name: "Yoshlar siyosati", value: 52, color: "#8b5cf6" },
+    { name: "Oila va xotin-qizlar", value: 18, color: "#ec4899" },
+    { name: "Boshqa", value: 15, color: "#6b7280" },
+  ];
+
+  const organizationData = [
+    {
+      name: "Termiz shahar elektr ta'minoti korxonasi",
+      value: 45,
+      color: "#3b82f6",
+    },
+    {
+      name: "Termiz shahar suv ta'minoti bo'limi",
+      value: 38,
+      color: "#10b981",
+    },
+    {
+      name: "Termiz shahar Obodonlashtirish boshqarmasi",
+      value: 32,
+      color: "#f59e0b",
+    },
+    {
+      name: "Termiz shahar tibbiyot birlashmasi",
+      value: 28,
+      color: "#8b5cf6",
+    },
+    { name: "Boshqa", value: 25, color: "#6b7280" },
+  ];
+
+  const dailyData = [
+    { date: "13.11", received: 18, completed: 15 },
+    { date: "14.11", received: 22, completed: 19 },
+    { date: "15.11", received: 25, completed: 20 },
+    { date: "16.11", received: 28, completed: 24 },
+    { date: "17.11", received: 30, completed: 27 },
+    { date: "18.11", received: 35, completed: 30 },
+    { date: "19.11", received: 38, completed: 33 },
+  ];
+
+  const statusData = [
+    { name: "Yangi", count: 45, color: "#ef4444" },
+    { name: "Jarayonda", count: 32, color: "#f59e0b" },
+    { name: "Bajarilgan", count: 128, color: "#10b981" },
+  ];
+
+  const detailedData = [
+    {
+      date: "19.11.2024",
+      number: "MUR-2024-001234",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
+      address: "Termiz shahar, A.Qodiriy ko'chasi, 12",
+      status: "completed",
+      specialist: "Akmal Rahimov",
+      duration: "2.5 soat",
+    },
+    {
+      date: "19.11.2024",
+      number: "MUR-2024-001235",
+      organization: "Termiz shahar suv ta'minoti bo'limi",
+      address: "Termiz shahar, Bunyodkor ko'chasi, 45",
+      status: "in-progress",
+      specialist: "Bobur Toshmatov",
+      duration: "1.2 soat",
+    },
+    {
+      date: "19.11.2024",
+      number: "MUR-2024-001236",
+      organization: '"BIO TEXNO EKO" MChJ Termiz shahar filiali',
+      address: "Termiz shahar, Shifokorlar ko'chasi, 23",
+      status: "completed",
+      specialist: "Davron Yusupov",
+      duration: "3.0 soat",
+    },
+    {
+      date: "19.11.2024",
+      number: "MUR-2024-001237",
+      organization: "Termiz shahar Obodonlashtirish boshqarmasi",
+      address: "Termiz shahar, Mustaqillik ko'chasi, 78",
+      status: "completed",
+      specialist: "Eldor Karimov",
+      duration: "4.5 soat",
+    },
+    {
+      date: "19.11.2024",
+      number: "MUR-2024-001238",
+      organization: '"Janubgazta\'minot" UK "Termizshahargaz" filiali',
+      address: "Termiz shahar, Yangi hayot ko'chasi, 34",
+      status: "new",
+      specialist: "-",
+      duration: "-",
+    },
+    {
+      date: "18.11.2024",
+      number: "MUR-2024-001239",
+      organization: "Termiz shahar elektr ta'minoti korxonasi",
+      address: "Termiz shahar, Amir Temur ko'chasi, 56",
+      status: "completed",
+      specialist: "Akmal Rahimov",
+      duration: "1.8 soat",
+    },
+    {
+      date: "18.11.2024",
+      number: "MUR-2024-001240",
+      organization: "Termiz shahar energiya sotish bo'limi",
+      address: "Termiz shahar, Qatortol ko'chasi, 89",
+      status: "completed",
+      specialist: "Eldor Karimov",
+      duration: "2.3 soat",
+    },
+    {
+      date: "18.11.2024",
+      number: "MUR-2024-001241",
+      organization: "Termiz shahar suv ta'minoti bo'limi",
+      address: "Termiz shahar, Universitet ko'chasi, 12",
+      status: "in-progress",
+      specialist: "Bobur Toshmatov",
+      duration: "0.5 soat",
+    },
+  ];
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">Bajarilgan</Badge>
+        );
+      case "in-progress":
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">Jarayonda</Badge>
+        );
+      case "new":
+        return <Badge className="bg-red-500 hover:bg-red-600">Yangi</Badge>;
+      default:
+        return <Badge>Noma'lum</Badge>;
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Vaqt oralig'i (dan)</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dateFrom && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateFrom
+                      ? format(dateFrom, "dd.MM.yyyy")
+                      : "Sanani tanlang"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Vaqt oralig'i (gacha)
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dateTo && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateTo ? format(dateTo, "dd.MM.yyyy") : "Sanani tanlang"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Soha</label>
+              <Select defaultValue="all">
+                <SelectTrigger>
+                  <SelectValue placeholder="Tanlang" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Barcha sohalar</SelectItem>
+                  <SelectItem value="elektr">Elektr energiyasi</SelectItem>
+                  <SelectItem value="suv">Suv ta'minoti</SelectItem>
+                  <SelectItem value="gaz">Gaz ta'minoti</SelectItem>
+                  <SelectItem value="yoritish">Ko'cha yoritish</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="invisible text-sm font-medium">Action</label>
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Download className="mr-2 h-4 w-4" />
+                Excel ga yuklash
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Rahbariyat bo'yicha statistika</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="chart">
+              <TabsList className="mb-4">
+                <TabsTrigger value="chart">Grafik</TabsTrigger>
+                <TabsTrigger value="details">Batafsil</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="chart">
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={governanceDistribution}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {governanceDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="details">
+                <div className="space-y-4">
+                  {getAllGovernanceCategories().map((category) => {
+                    const orgs = getOrganizationsByGovernance(category);
+                    return (
+                      <div key={category} className="rounded-lg border p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                          <h4 className="font-semibold">{category}</h4>
+                          <Badge variant="secondary">
+                            {orgs.length} tashkilot
+                          </Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="text-muted-foreground">
+                            Jami murojaatlar:
+                          </div>
+                          <div className="font-medium">
+                            {governanceDistribution.find((g) =>
+                              category.includes(g.name.split(" ")[0]),
+                            )?.value || 0}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Tashkilotlar bo'yicha taqsimot</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={organizationData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {organizationData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Kunlik dinamika (oxirgi 7 kun)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="received"
+                  stroke="#3b82f6"
+                  name="Qabul qilindi"
+                  strokeWidth={2}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="completed"
+                  stroke="#10b981"
+                  name="Bajarilgan"
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Status bo'yicha</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={statusData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Batafsil jadval</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Sana</TableHead>
+                <TableHead>Raqam</TableHead>
+                <TableHead>Tashkilot</TableHead>
+                <TableHead>Manzil</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Mutaxassis</TableHead>
+                <TableHead>Bajarilish vaqti</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {detailedData.map((row) => (
+                <TableRow key={row.number}>
+                  <TableCell>{row.date}</TableCell>
+                  <TableCell className="font-medium">{row.number}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {row.organization}
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {row.address}
+                  </TableCell>
+                  <TableCell>{getStatusBadge(row.status)}</TableCell>
+                  <TableCell>{row.specialist}</TableCell>
+                  <TableCell>{row.duration}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className="mt-6 flex items-center justify-center gap-2">
+            <Button variant="outline" size="sm">
+              1
+            </Button>
+            <Button variant="outline" size="sm">
+              2
+            </Button>
+            <Button variant="outline" size="sm">
+              3
+            </Button>
+            <Button variant="outline" size="sm">
+              4
+            </Button>
+            <Button variant="outline" size="sm">
+              5
+            </Button>
+            <span className="text-muted-foreground">...</span>
+            <Button variant="outline" size="sm">
+              15
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default StatistikaSection;

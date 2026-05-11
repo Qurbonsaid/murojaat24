@@ -1,30 +1,41 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import AddUserModal from "@/components/AddUserModal";
-import { Users, FileText, CheckCircle, Clock, Search, Plus, Edit, Trash2 } from "lucide-react";
+import {
+  Users,
+  FileText,
+  CheckCircle,
+  Clock,
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import OperatorSidebar from "@/components/OperatorSidebar";
-import { organizations, getAllGovernanceCategories, getOrganizationsByGovernance } from "@/lib/organizations";
+import {
+  organizations,
+  getAllGovernanceCategories,
+  getOrganizationsByGovernance,
+} from "@/lib/organizations";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [userFilter, setUserFilter] = useState("all");
-
-  useEffect(() => {
-    const session = localStorage.getItem("operator_session");
-    if (!session) {
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const users = [
     {
@@ -94,28 +105,43 @@ const AdminDashboard = () => {
   ];
 
   const [searchOrg, setSearchOrg] = useState("");
-  
-  const filteredOrganizations = organizations.filter(org => 
-    org.toLowerCase().includes(searchOrg.toLowerCase())
+
+  const filteredOrganizations = organizations.filter((org) =>
+    org.toLowerCase().includes(searchOrg.toLowerCase()),
   );
 
   const smsTemplates = [
-    { id: 1, name: "Qabul qilindi", content: "Hurmatli {name}, murojaatingiz qabul qilindi. Raqam: {number}" },
-    { id: 2, name: "Tayinlandi", content: "Murojaatingiz {specialist}ga tayinlandi. Tel: {phone}" },
-    { id: 3, name: "Bajarildi", content: "Murojaatingiz bajarildi. Fikr-mulohazalaringizni bildiring." },
+    {
+      id: 1,
+      name: "Qabul qilindi",
+      content: "Hurmatli {name}, murojaatingiz qabul qilindi. Raqam: {number}",
+    },
+    {
+      id: 2,
+      name: "Tayinlandi",
+      content: "Murojaatingiz {specialist}ga tayinlandi. Tel: {phone}",
+    },
+    {
+      id: 3,
+      name: "Bajarildi",
+      content: "Murojaatingiz bajarildi. Fikr-mulohazalaringizni bildiring.",
+    },
   ];
 
-  const filteredUsers = userFilter === "all" 
-    ? users 
-    : users.filter(user => user.role.toLowerCase() === userFilter);
+  const filteredUsers =
+    userFilter === "all"
+      ? users
+      : users.filter((user) => user.role.toLowerCase() === userFilter);
 
   return (
     <div className="flex min-h-screen bg-background">
       <OperatorSidebar />
-      
+
       <main className="flex-1 ml-64 p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Hokimiyat Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Hokimiyat Dashboard
+          </h1>
           <p className="text-muted-foreground">Tizimni boshqarish va sozlash</p>
         </div>
 
@@ -125,7 +151,9 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Faol foydalanuvchilar</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Faol foydalanuvchilar
+                  </p>
                   <p className="text-3xl font-bold text-foreground">45</p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-100 text-blue-600">
@@ -139,7 +167,9 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Bugungi murojaatlar</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Bugungi murojaatlar
+                  </p>
                   <p className="text-3xl font-bold text-foreground">145</p>
                 </div>
                 <div className="p-3 rounded-lg bg-green-100 text-green-600">
@@ -153,8 +183,12 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Tizim holati</p>
-                  <Badge className="bg-green-500 hover:bg-green-600 mt-2">Yaxshi</Badge>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Tizim holati
+                  </p>
+                  <Badge className="bg-green-500 hover:bg-green-600 mt-2">
+                    Yaxshi
+                  </Badge>
                 </div>
                 <div className="p-3 rounded-lg bg-green-100 text-green-600">
                   <CheckCircle className="h-6 w-6" />
@@ -167,8 +201,12 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Oxirgi yangilanish</p>
-                  <p className="text-lg font-semibold text-foreground mt-1">2 soat oldin</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Oxirgi yangilanish
+                  </p>
+                  <p className="text-lg font-semibold text-foreground mt-1">
+                    2 soat oldin
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-gray-100 text-gray-600">
                   <Clock className="h-6 w-6" />
@@ -197,7 +235,11 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <Tabs value={userFilter} onValueChange={setUserFilter} className="mb-6">
+            <Tabs
+              value={userFilter}
+              onValueChange={setUserFilter}
+              className="mb-6"
+            >
               <TabsList>
                 <TabsTrigger value="all">Hammasi</TabsTrigger>
                 <TabsTrigger value="operator">Operatorlar</TabsTrigger>
@@ -225,7 +267,10 @@ const AdminDashboard = () => {
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
-                            {user.name.split(" ").map(n => n[0]).join("")}
+                            {user.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")}
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-medium">{user.name}</span>
@@ -234,11 +279,19 @@ const AdminDashboard = () => {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
                     <TableCell>
-                      <Badge className={user.status === "active" ? "bg-green-500" : "bg-gray-500"}>
+                      <Badge
+                        className={
+                          user.status === "active"
+                            ? "bg-green-500"
+                            : "bg-gray-500"
+                        }
+                      >
                         {user.status === "active" ? "Faol" : "Faol emas"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{user.lastActive}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.lastActive}
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="icon">
@@ -266,7 +319,9 @@ const AdminDashboard = () => {
               <TabsList className="mb-6">
                 <TabsTrigger value="governance">Rahbariyat</TabsTrigger>
                 <TabsTrigger value="types">Tashkilotlar</TabsTrigger>
-                <TabsTrigger value="templates">Bildirishnoma shablonlari</TabsTrigger>
+                <TabsTrigger value="templates">
+                  Bildirishnoma shablonlari
+                </TabsTrigger>
                 <TabsTrigger value="general">Umumiy sozlamalar</TabsTrigger>
               </TabsList>
 
@@ -274,8 +329,8 @@ const AdminDashboard = () => {
                 <div className="flex gap-4 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Rahbariyat qidirish..." 
+                    <Input
+                      placeholder="Rahbariyat qidirish..."
                       className="pl-10"
                     />
                   </div>
@@ -287,11 +342,16 @@ const AdminDashboard = () => {
                       <div key={category} className="border rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="font-semibold text-lg">{category}</h4>
-                          <Badge variant="secondary">{orgs.length} tashkilot</Badge>
+                          <Badge variant="secondary">
+                            {orgs.length} tashkilot
+                          </Badge>
                         </div>
                         <div className="space-y-2">
                           {orgs.map((org, index) => (
-                            <div key={index} className="text-sm text-muted-foreground pl-4 border-l-2 border-muted py-1">
+                            <div
+                              key={index}
+                              className="text-sm text-muted-foreground pl-4 border-l-2 border-muted py-1"
+                            >
                               {org}
                             </div>
                           ))}
@@ -306,8 +366,8 @@ const AdminDashboard = () => {
                 <div className="flex gap-4 mb-4">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Tashkilot qidirish..." 
+                    <Input
+                      placeholder="Tashkilot qidirish..."
                       className="pl-10"
                       value={searchOrg}
                       onChange={(e) => setSearchOrg(e.target.value)}
@@ -320,7 +380,10 @@ const AdminDashboard = () => {
                 </div>
                 <div className="max-h-96 overflow-y-auto space-y-2">
                   {filteredOrganizations.map((org, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                    >
                       <span className="font-medium text-sm">{org}</span>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon">
@@ -344,7 +407,9 @@ const AdminDashboard = () => {
                         <Edit className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground">{template.content}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {template.content}
+                    </p>
                   </div>
                 ))}
               </TabsContent>
@@ -354,7 +419,9 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>Email xabarnomalar</Label>
-                      <p className="text-sm text-muted-foreground">Fuqarolarga email yuborish</p>
+                      <p className="text-sm text-muted-foreground">
+                        Fuqarolarga email yuborish
+                      </p>
                     </div>
                     <Switch defaultChecked />
                   </div>
@@ -362,7 +429,9 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>SMS xabarnomalar</Label>
-                      <p className="text-sm text-muted-foreground">Fuqarolarga SMS yuborish</p>
+                      <p className="text-sm text-muted-foreground">
+                        Fuqarolarga SMS yuborish
+                      </p>
                     </div>
                     <Switch defaultChecked />
                   </div>
@@ -385,7 +454,10 @@ const AdminDashboard = () => {
         </Card>
       </main>
 
-      <AddUserModal open={addUserModalOpen} onOpenChange={setAddUserModalOpen} />
+      <AddUserModal
+        open={addUserModalOpen}
+        onOpenChange={setAddUserModalOpen}
+      />
     </div>
   );
 };

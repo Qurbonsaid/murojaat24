@@ -1,30 +1,69 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FileText, Monitor, MapPin, BarChart3, LogOut, Inbox } from "lucide-react";
+import {
+  FileText,
+  Monitor,
+  MapPin,
+  BarChart3,
+  LogOut,
+  Inbox,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import { useCurrentUser, useLogout } from "@/lib/api/auth";
 
 const DispatcherSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const logoutMutation = useLogout();
 
-  const dispatcherData = JSON.parse(localStorage.getItem("dispatcher_session") || "{}");
+  const currentUserQuery = useCurrentUser();
+  const user = currentUserQuery.data;
 
-  const handleLogout = () => {
-    localStorage.removeItem("dispatcher_session");
-    toast({
-      title: "Chiqildi",
-      description: "Tizimdan muvaffaqiyatli chiqdingiz",
-    });
-    navigate("/login");
+  const name =
+    [user?.profile?.firstName, user?.profile?.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim() ||
+    user?.phone ||
+    "Foydalanuvchi";
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   const menuItems = [
     { icon: Monitor, label: "Monitoring", path: "/dispatcher-dashboard" },
-    { icon: Inbox, label: "Yangi murojaatlar", path: "/dispatcher-dashboard#new" },
+    {
+      icon: Inbox,
+      label: "Yangi murojaatlar",
+      path: "/dispatcher-dashboard#new",
+    },
     { icon: MapPin, label: "Xarita", path: "/dispatcher-dashboard#map" },
-    { icon: BarChart3, label: "Statistika", path: "/dispatcher-dashboard#stats" },
+    {
+      icon: BarChart3,
+      label: "Statistika",
+      path: "/dispatcher-dashboard#stats",
+    },
   ];
 
   return (
@@ -34,15 +73,18 @@ const DispatcherSidebar = () => {
           <FileText className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold">Murojaat24</span>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarFallback className="bg-primary text-primary-foreground">
-              {dispatcherData.name?.split(" ").map((n: string) => n[0]).join("") || "DM"}
+              {name
+                ?.split(" ")
+                .map((n: string) => n[0])
+                .join("") || "DM"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{dispatcherData.name || "Dilshod Mirzayev"}</p>
+            <p className="font-medium truncate">{name}</p>
             <p className="text-sm text-slate-400 truncate">Dispatcher</p>
           </div>
         </div>
@@ -76,6 +118,7 @@ const DispatcherSidebar = () => {
           variant="ghost"
           className="w-full justify-start text-slate-300 hover:bg-slate-700 hover:text-white"
           onClick={handleLogout}
+          disabled={logoutMutation.isPending}
         >
           <LogOut className="h-5 w-5 mr-3" />
           Chiqish

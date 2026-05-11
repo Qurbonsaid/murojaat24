@@ -1,16 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import OperatorSidebar from "@/components/OperatorSidebar";
 import StatsCard from "@/components/StatsCard";
+import UserProfileMenu from "@/components/UserProfileMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
@@ -24,14 +31,28 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CheckCircle, Clock, AlertCircle, Timer, MapPin, Eye, Check, ChevronsUpDown } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Timer,
+  MapPin,
+  Eye,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { organizations } from "@/lib/organizations";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Ism familiya majburiy"),
-  phone: z.string().regex(/^\+998\s\d{2}\s\d{3}\s\d{2}\s\d{2}$/, "Telefon raqam formati noto'g'ri"),
+  phone: z
+    .string()
+    .regex(
+      /^\+998\s\d{2}\s\d{3}\s\d{2}\s\d{2}$/,
+      "Telefon raqam formati noto'g'ri",
+    ),
   requestType: z.string().min(1, "Tashkilotni tanlang"),
   description: z.string().min(10, "Kamida 10 ta belgi kiriting").max(500),
   address: z.string().min(1, "Manzil majburiy"),
@@ -41,19 +62,18 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const OperatorDashboard = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [openOrg, setOpenOrg] = useState(false);
 
-  useEffect(() => {
-    const session = localStorage.getItem("operator_session");
-    if (!session) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       phone: "+998 ",
@@ -68,11 +88,12 @@ const OperatorDashboard = () => {
       value = "998" + value.slice(3);
     }
     value = value.slice(0, 12);
-    
-    const formatted = value.length > 3 ? 
-      `+998 ${value.slice(3, 5)} ${value.slice(5, 8)} ${value.slice(8, 10)} ${value.slice(10, 12)}`.trim() : 
-      "+998 ";
-    
+
+    const formatted =
+      value.length > 3
+        ? `+998 ${value.slice(3, 5)} ${value.slice(5, 8)} ${value.slice(8, 10)} ${value.slice(10, 12)}`.trim()
+        : "+998 ";
+
     setValue("phone", formatted);
   };
 
@@ -89,23 +110,71 @@ const OperatorDashboard = () => {
   };
 
   const mockRequests = [
-    { id: "MUR-2024-001234", citizen: "Sardor Karimov", type: "Elektr energiyasi", time: "09:30", status: "completed" },
-    { id: "MUR-2024-001235", citizen: "Dilnoza Rahimova", type: "Suv ta'minoti", time: "10:15", status: "in-progress" },
-    { id: "MUR-2024-001236", citizen: "Otabek Toshmatov", type: "Yo'l ta'miri", time: "11:00", status: "in-progress" },
-    { id: "MUR-2024-001237", citizen: "Gulnora Saidova", type: "Ko'cha yoritish", time: "11:45", status: "completed" },
-    { id: "MUR-2024-001238", citizen: "Jamshid Ergashev", type: "Gaz ta'minoti", time: "12:20", status: "pending" },
-    { id: "MUR-2024-001239", citizen: "Malika Yusupova", type: "Axlat chiqarish", time: "13:05", status: "completed" },
-    { id: "MUR-2024-001240", citizen: "Aziz Nazarov", type: "Kanalizatsiya", time: "13:40", status: "in-progress" },
+    {
+      id: "MUR-2024-001234",
+      citizen: "Sardor Karimov",
+      type: "Elektr energiyasi",
+      time: "09:30",
+      status: "completed",
+    },
+    {
+      id: "MUR-2024-001235",
+      citizen: "Dilnoza Rahimova",
+      type: "Suv ta'minoti",
+      time: "10:15",
+      status: "in-progress",
+    },
+    {
+      id: "MUR-2024-001236",
+      citizen: "Otabek Toshmatov",
+      type: "Yo'l ta'miri",
+      time: "11:00",
+      status: "in-progress",
+    },
+    {
+      id: "MUR-2024-001237",
+      citizen: "Gulnora Saidova",
+      type: "Ko'cha yoritish",
+      time: "11:45",
+      status: "completed",
+    },
+    {
+      id: "MUR-2024-001238",
+      citizen: "Jamshid Ergashev",
+      type: "Gaz ta'minoti",
+      time: "12:20",
+      status: "pending",
+    },
+    {
+      id: "MUR-2024-001239",
+      citizen: "Malika Yusupova",
+      type: "Axlat chiqarish",
+      time: "13:05",
+      status: "completed",
+    },
+    {
+      id: "MUR-2024-001240",
+      citizen: "Aziz Nazarov",
+      type: "Kanalizatsiya",
+      time: "13:40",
+      status: "in-progress",
+    },
   ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500 hover:bg-green-600">Bajarilgan</Badge>;
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">Bajarilgan</Badge>
+        );
       case "in-progress":
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Jarayonda</Badge>;
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">Jarayonda</Badge>
+        );
       case "pending":
-        return <Badge className="bg-red-500 hover:bg-red-600">Kutilmoqda</Badge>;
+        return (
+          <Badge className="bg-red-500 hover:bg-red-600">Kutilmoqda</Badge>
+        );
       default:
         return <Badge>Noma'lum</Badge>;
     }
@@ -114,11 +183,18 @@ const OperatorDashboard = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <OperatorSidebar />
-      
+
       <main className="flex-1 ml-64 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Operator paneli - bugungi statistika</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Operator paneli - bugungi statistika
+            </p>
+          </div>
+          <UserProfileMenu />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -163,7 +239,9 @@ const OperatorDashboard = () => {
                     {...register("fullName")}
                   />
                   {errors.fullName && (
-                    <p className="text-sm text-destructive">{errors.fullName.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.fullName.message}
+                    </p>
                   )}
                 </div>
 
@@ -176,7 +254,9 @@ const OperatorDashboard = () => {
                     placeholder="+998 90 123 45 67"
                   />
                   {errors.phone && (
-                    <p className="text-sm text-destructive">{errors.phone.message}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.phone.message}
+                    </p>
                   )}
                 </div>
               </div>
@@ -190,11 +270,13 @@ const OperatorDashboard = () => {
                       role="combobox"
                       className={cn(
                         "w-full justify-between font-normal",
-                        !watch("requestType") && "text-muted-foreground"
+                        !watch("requestType") && "text-muted-foreground",
                       )}
                     >
                       {watch("requestType")
-                        ? organizations.find((org) => org === watch("requestType"))
+                        ? organizations.find(
+                            (org) => org === watch("requestType"),
+                          )
                         : "Tashkilotni tanlang"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -216,7 +298,9 @@ const OperatorDashboard = () => {
                             <Check
                               className={cn(
                                 "mr-2 h-4 w-4",
-                                org === watch("requestType") ? "opacity-100" : "opacity-0"
+                                org === watch("requestType")
+                                  ? "opacity-100"
+                                  : "opacity-0",
                               )}
                             />
                             {org}
@@ -227,7 +311,9 @@ const OperatorDashboard = () => {
                   </PopoverContent>
                 </Popover>
                 {errors.requestType && (
-                  <p className="text-sm text-destructive">{errors.requestType.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.requestType.message}
+                  </p>
                 )}
               </div>
 
@@ -240,7 +326,9 @@ const OperatorDashboard = () => {
                   {...register("description")}
                 />
                 {errors.description && (
-                  <p className="text-sm text-destructive">{errors.description.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.description.message}
+                  </p>
                 )}
               </div>
 
@@ -258,12 +346,16 @@ const OperatorDashboard = () => {
                   </Button>
                 </div>
                 {errors.address && (
-                  <p className="text-sm text-destructive">{errors.address.message}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.address.message}
+                  </p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="additionalInfo">Qo'shimcha ma'lumot (ixtiyoriy)</Label>
+                <Label htmlFor="additionalInfo">
+                  Qo'shimcha ma'lumot (ixtiyoriy)
+                </Label>
                 <Textarea
                   id="additionalInfo"
                   rows={3}
@@ -273,7 +365,11 @@ const OperatorDashboard = () => {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={() => reset({ phone: "+998 " })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => reset({ phone: "+998 " })}
+                >
                   Bekor qilish
                 </Button>
                 <Button type="submit" disabled={isLoading}>

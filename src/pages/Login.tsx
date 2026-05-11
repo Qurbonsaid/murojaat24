@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,11 +13,7 @@ import {
 import { FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
-import {
-  getRoleRedirectPath,
-  saveLegacySession,
-  useLogin,
-} from "@/lib/api/auth";
+import { getRoleRedirectPath, useCurrentUser, useLogin } from "@/lib/api/auth";
 
 const Login = () => {
   const [phone, setPhone] = useState("");
@@ -25,6 +21,15 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const loginMutation = useLogin();
+  const currentUserQuery = useCurrentUser();
+
+  useEffect(() => {
+    if (currentUserQuery.data) {
+      navigate(getRoleRedirectPath(currentUserQuery.data.role), {
+        replace: true,
+      });
+    }
+  }, [currentUserQuery.data, navigate]);
 
   const normalizePhone = (value: string) => {
     const digits = value.replace(/\D/g, "");
@@ -61,8 +66,6 @@ const Login = () => {
         password,
       });
 
-      saveLegacySession(user);
-
       toast({
         title: "Muvaffaqiyatli kirish",
         description: "Tizimga muvaffaqiyatli kirdingiz",
@@ -96,7 +99,7 @@ const Login = () => {
               Murojaat24
             </h1>
             <CardTitle className="text-xl">Tizimga kirish</CardTitle>
-            <CardDescription>Call Center Operator</CardDescription>
+            <CardDescription>Xodimlar uchun kirish</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -132,9 +135,15 @@ const Login = () => {
             </Button>
           </form>
           <div className="mt-6 p-3 bg-muted rounded-lg text-sm text-muted-foreground text-center">
-            <p className="font-medium mb-1">Demo ma'lumotlar:</p>
-            <p>Telefon: +998 90 123 45 70</p>
-            <p>Parol: murojaat24</p>
+            <p className="font-medium mb-1">Demo hisoblar:</p>
+            <div className="space-y-0.5">
+              <p>Operator: +998 90 123 45 70</p>
+              <p>Dispatcher: +998 90 123 45 69</p>
+              <p>Mutaxassis: +998 90 123 45 72</p>
+              <p>Menjer: +998 90 123 45 68</p>
+              <p>Hokimiyat: +998 90 123 45 67</p>
+            </div>
+            <p className="mt-2">Parol: murojaat24</p>
           </div>
         </CardContent>
       </Card>

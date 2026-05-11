@@ -64,6 +64,18 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     moduleKind: "murojaat24",
     children: [
       {
+        id: "murojaatlar",
+        label: "Murojaatlar",
+        path: "/ecosystem/murojaat24/murojaatlar",
+        moduleKind: "murojaat24",
+      },
+      {
+        id: "statistika",
+        label: "Statistika",
+        path: "/ecosystem/murojaat24/statistika",
+        moduleKind: "murojaat24",
+      },
+      {
         id: "foydalanuvchilar",
         label: "Foydalanuvchilar",
         path: "/ecosystem/murojaat24/foydalanuvchilar",

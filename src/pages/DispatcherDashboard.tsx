@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import DispatcherSidebar from "@/components/DispatcherSidebar";
 import StatsCard from "@/components/StatsCard";
+import UserProfileMenu from "@/components/UserProfileMenu";
 import NewRequestCard from "@/components/NewRequestCard";
 import SpecialistCard from "@/components/SpecialistCard";
 import MapView from "@/components/MapView";
@@ -11,16 +11,8 @@ import { CheckCircle, Clock, AlertCircle, Inbox } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const DispatcherDashboard = () => {
-  const navigate = useNavigate();
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<string>("");
-
-  useEffect(() => {
-    const session = localStorage.getItem("dispatcher_session");
-    if (!session) {
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const newRequests = [
     {
@@ -94,11 +86,18 @@ const DispatcherDashboard = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <DispatcherSidebar />
-      
+
       <main className="flex-1 ml-64 p-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Monitoring</h1>
-          <p className="text-muted-foreground">Dispatcher paneli - Real vaqt kuzatuvi</p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Monitoring
+            </h1>
+            <p className="text-muted-foreground">
+              Dispatcher paneli - Real vaqt kuzatuvi
+            </p>
+          </div>
+          <UserProfileMenu />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -108,7 +107,10 @@ const DispatcherDashboard = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Yangi murojaatlar</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Tayinlanishi kerak: <span className="font-semibold text-foreground">{newRequests.length}</span>
+                  Tayinlanishi kerak:{" "}
+                  <span className="font-semibold text-foreground">
+                    {newRequests.length}
+                  </span>
                 </p>
               </CardHeader>
               <CardContent>
@@ -118,7 +120,9 @@ const DispatcherDashboard = () => {
                       <NewRequestCard
                         key={request.requestNumber}
                         {...request}
-                        onAssign={() => handleAssignRequest(request.requestNumber)}
+                        onAssign={() =>
+                          handleAssignRequest(request.requestNumber)
+                        }
                       />
                     ))}
                   </div>

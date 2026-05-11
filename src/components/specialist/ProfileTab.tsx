@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,21 +19,55 @@ import {
 } from "lucide-react";
 import PersonalInfoModal from "./PersonalInfoModal";
 import ChangePasswordModal from "./ChangePasswordModal";
+import { ApiError } from "@/lib/api/client";
+import { useCurrentUser, useLogout } from "@/lib/api/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const ProfileTab = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const logoutMutation = useLogout();
   const [notifications, setNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
-  const specialistData = JSON.parse(localStorage.getItem("specialist_session") || "{}");
-  const name = specialistData.name || "Akmal Rahimov";
+  const currentUserQuery = useCurrentUser();
+  const user = currentUserQuery.data;
 
-  const handleLogout = () => {
-    localStorage.removeItem("specialist_session");
-    navigate("/login");
+  const firstName = user?.profile?.firstName?.trim();
+  const lastName = user?.profile?.lastName?.trim();
+  const name =
+    [firstName, lastName].filter(Boolean).join(" ") ||
+    user?.phone ||
+    "Mutaxassis";
+  const initials =
+    [firstName, lastName]
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "SP";
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   const menuItems = [
@@ -96,11 +130,15 @@ const ProfileTab = () => {
       {/* Profile Header */}
       <div className="flex flex-col items-center mb-6">
         <Avatar className="h-20 w-20 mb-3">
+          <AvatarImage
+            src={
+              user.profile?.avatar ||
+              "https://gravatar.com/avatar/00000000000000000000000000000000?s=800&d=mp&r=x"
+            }
+            alt={name}
+          />
           <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-            {name
-              .split(" ")
-              .map((n: string) => n[0])
-              .join("")}
+            {initials}
           </AvatarFallback>
         </Avatar>
         <h2 className="text-xl font-bold text-foreground">{name}</h2>
@@ -146,9 +184,13 @@ const ProfileTab = () => {
                     <Icon className="h-5 w-5 text-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {item.label}
+                    </p>
                     {item.type === "link" && item.subtitle && (
-                      <p className="text-xs text-muted-foreground">{item.subtitle}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {item.subtitle}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -177,8 +219,14 @@ const ProfileTab = () => {
       </ScrollArea>
 
       {/* Modals */}
-      <PersonalInfoModal open={personalInfoOpen} onOpenChange={setPersonalInfoOpen} />
-      <ChangePasswordModal open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
+      <PersonalInfoModal
+        open={personalInfoOpen}
+        onOpenChange={setPersonalInfoOpen}
+      />
+      <ChangePasswordModal
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+      />
     </div>
   );
 };

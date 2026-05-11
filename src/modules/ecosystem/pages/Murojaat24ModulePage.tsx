@@ -27,7 +27,14 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type Murojaat24Section = "dashboard" | "foydalanuvchilar";
+import MurojaatlarSection from "./murojaat24/MurojaatlarSection";
+import StatistikaSection from "./murojaat24/StatistikaSection";
+
+type Murojaat24Section =
+  | "dashboard"
+  | "murojaatlar"
+  | "statistika"
+  | "foydalanuvchilar";
 
 const users = [
   {
@@ -97,7 +104,20 @@ const users = [
 ];
 
 const resolveSection = (pathname: string): Murojaat24Section => {
-  if (pathname.endsWith("/foydalanuvchilar")) {
+  const normalizedPath =
+    pathname.length > 1 && pathname.endsWith("/")
+      ? pathname.slice(0, -1)
+      : pathname;
+
+  if (normalizedPath.endsWith("/murojaatlar")) {
+    return "murojaatlar";
+  }
+
+  if (normalizedPath.endsWith("/statistika")) {
+    return "statistika";
+  }
+
+  if (normalizedPath.endsWith("/foydalanuvchilar")) {
     return "foydalanuvchilar";
   }
 
@@ -119,12 +139,30 @@ const Murojaat24ModulePage = () => {
     [userFilter],
   );
 
-  const sectionTitle = section === "foydalanuvchilar"
-    ? "Foydalanuvchilarni boshqarish"
-    : "Hokimiyat Dashboard";
-  const sectionSubtitle = section === "foydalanuvchilar"
-    ? "Tizim foydalanuvchilari va ularning rollari"
-    : "Tizimni boshqarish va sozlash";
+  const { sectionTitle, sectionSubtitle } = useMemo(() => {
+    switch (section) {
+      case "murojaatlar":
+        return {
+          sectionTitle: "Murojaatlar",
+          sectionSubtitle: "Barcha murojaatlar ro'yxati",
+        };
+      case "statistika":
+        return {
+          sectionTitle: "Statistika",
+          sectionSubtitle: "Murojaatlar statistikasi va tahlili",
+        };
+      case "foydalanuvchilar":
+        return {
+          sectionTitle: "Foydalanuvchilarni boshqarish",
+          sectionSubtitle: "Tizim foydalanuvchilari va ularning rollari",
+        };
+      default:
+        return {
+          sectionTitle: "Hokimiyat Dashboard",
+          sectionSubtitle: "Tizimni boshqarish va sozlash",
+        };
+    }
+  }, [section]);
 
   return (
     <div className="space-y-6">
@@ -314,6 +352,10 @@ const Murojaat24ModulePage = () => {
           </CardContent>
         </Card>
       )}
+
+      {section === "murojaatlar" && <MurojaatlarSection />}
+
+      {section === "statistika" && <StatistikaSection />}
 
       <AddUserModal
         open={addUserModalOpen}

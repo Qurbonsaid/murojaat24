@@ -1,12 +1,29 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar as CalendarIcon, Download } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -26,12 +43,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import Header from "@/components/Header";
-import { getAllGovernanceCategories, getOrganizationsByGovernance, getGovernanceStatistics } from "@/lib/organizations";
+import {
+  getAllGovernanceCategories,
+  getOrganizationsByGovernance,
+  getGovernanceStatistics,
+} from "@/lib/organizations";
+import { useCurrentUser } from "@/lib/api/auth";
 
 const Statistics = () => {
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
-  const isAdmin = localStorage.getItem("operator_session"); // Check if admin/hokimiyat
+  const currentUserQuery = useCurrentUser();
+  const isAdmin = currentUserQuery.data?.role === "admin";
 
   const governanceDistribution = [
     { name: "Hokim", value: 45, color: "#2563eb" },
@@ -44,9 +67,21 @@ const Statistics = () => {
 
   // Top organizations by task count
   const organizationData = [
-    { name: "Termiz shahar elektr ta'minoti korxonasi", value: 45, color: "#3b82f6" },
-    { name: "Termiz shahar suv ta'minoti bo'limi", value: 38, color: "#10b981" },
-    { name: "Termiz shahar Obodonlashtirish boshqarmasi", value: 32, color: "#f59e0b" },
+    {
+      name: "Termiz shahar elektr ta'minoti korxonasi",
+      value: 45,
+      color: "#3b82f6",
+    },
+    {
+      name: "Termiz shahar suv ta'minoti bo'limi",
+      value: 38,
+      color: "#10b981",
+    },
+    {
+      name: "Termiz shahar Obodonlashtirish boshqarmasi",
+      value: 32,
+      color: "#f59e0b",
+    },
     { name: "Termiz shahar tibbiyot birlashmasi", value: 28, color: "#8b5cf6" },
     { name: "Boshqa", value: 25, color: "#6b7280" },
   ];
@@ -66,7 +101,6 @@ const Statistics = () => {
     { name: "Jarayonda", count: 32, color: "#f59e0b" },
     { name: "Bajarilgan", count: 128, color: "#10b981" },
   ];
-
 
   const detailedData = [
     {
@@ -146,9 +180,13 @@ const Statistics = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500 hover:bg-green-600">Bajarilgan</Badge>;
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">Bajarilgan</Badge>
+        );
       case "in-progress":
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Jarayonda</Badge>;
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">Jarayonda</Badge>
+        );
       case "new":
         return <Badge className="bg-red-500 hover:bg-red-600">Yangi</Badge>;
       default:
@@ -159,11 +197,15 @@ const Statistics = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Statistika</h1>
-          <p className="text-muted-foreground">Murojaatlar statistikasi va tahlili</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Statistika
+          </h1>
+          <p className="text-muted-foreground">
+            Murojaatlar statistikasi va tahlili
+          </p>
         </div>
 
         {/* Filters */}
@@ -171,18 +213,22 @@ const Statistics = () => {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Vaqt oralig'i (dan)</label>
+                <label className="text-sm font-medium">
+                  Vaqt oralig'i (dan)
+                </label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !dateFrom && "text-muted-foreground"
+                        !dateFrom && "text-muted-foreground",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateFrom ? format(dateFrom, "dd.MM.yyyy") : "Sanani tanlang"}
+                      {dateFrom
+                        ? format(dateFrom, "dd.MM.yyyy")
+                        : "Sanani tanlang"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -198,14 +244,16 @@ const Statistics = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Vaqt oralig'i (gacha)</label>
+                <label className="text-sm font-medium">
+                  Vaqt oralig'i (gacha)
+                </label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
-                        !dateTo && "text-muted-foreground"
+                        !dateTo && "text-muted-foreground",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -240,7 +288,6 @@ const Statistics = () => {
                 </Select>
               </div>
 
-
               <div className="space-y-2">
                 <label className="text-sm font-medium invisible">Action</label>
                 <Button className="w-full bg-green-600 hover:bg-green-700">
@@ -253,75 +300,83 @@ const Statistics = () => {
         </Card>
 
         {/* Charts Grid */}
-      {isAdmin && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Rahbariyat bo'yicha statistika</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="chart">
-              <TabsList className="mb-4">
-                <TabsTrigger value="chart">Grafik</TabsTrigger>
-                <TabsTrigger value="details">Batafsil</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="chart">
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={governanceDistribution}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {governanceDistribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="details">
-                <div className="space-y-4">
-                  {getAllGovernanceCategories().map((category) => {
-                    const orgs = getOrganizationsByGovernance(category);
-                    return (
-                      <div key={category} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold">{category}</h4>
-                          <Badge variant="secondary">{orgs.length} tashkilot</Badge>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div className="text-muted-foreground">Jami murojaatlar:</div>
-                          <div className="font-medium">
-                            {governanceDistribution.find(g => category.includes(g.name.split(' ')[0]))?.value || 0}
+        {isAdmin && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Rahbariyat bo'yicha statistika</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="chart">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="chart">Grafik</TabsTrigger>
+                  <TabsTrigger value="details">Batafsil</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="chart">
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={governanceDistribution}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name}: ${(percent * 100).toFixed(0)}%`
+                          }
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {governanceDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="details">
+                  <div className="space-y-4">
+                    {getAllGovernanceCategories().map((category) => {
+                      const orgs = getOrganizationsByGovernance(category);
+                      return (
+                        <div key={category} className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold">{category}</h4>
+                            <Badge variant="secondary">
+                              {orgs.length} tashkilot
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div className="text-muted-foreground">
+                              Jami murojaatlar:
+                            </div>
+                            <div className="font-medium">
+                              {governanceDistribution.find((g) =>
+                                category.includes(g.name.split(" ")[0]),
+                              )?.value || 0}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-      )}
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tashkilotlar bo'yicha taqsimot</CardTitle>
-          </CardHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle>Tashkilotlar bo'yicha taqsimot</CardTitle>
+            </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -330,7 +385,9 @@ const Statistics = () => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                    label={({ name, percent }) =>
+                      `${(percent * 100).toFixed(0)}%`
+                    }
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
@@ -359,8 +416,20 @@ const Statistics = () => {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="received" stroke="#3b82f6" name="Qabul qilindi" strokeWidth={2} />
-                  <Line type="monotone" dataKey="completed" stroke="#10b981" name="Bajarilgan" strokeWidth={2} />
+                  <Line
+                    type="monotone"
+                    dataKey="received"
+                    stroke="#3b82f6"
+                    name="Qabul qilindi"
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="completed"
+                    stroke="#10b981"
+                    name="Bajarilgan"
+                    strokeWidth={2}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -387,7 +456,6 @@ const Statistics = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
         </div>
 
         {/* Detailed Table */}
@@ -413,8 +481,12 @@ const Statistics = () => {
                   <TableRow key={row.number}>
                     <TableCell>{row.date}</TableCell>
                     <TableCell className="font-medium">{row.number}</TableCell>
-                    <TableCell className="max-w-xs truncate">{row.organization}</TableCell>
-                    <TableCell className="max-w-xs truncate">{row.address}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {row.organization}
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {row.address}
+                    </TableCell>
                     <TableCell>{getStatusBadge(row.status)}</TableCell>
                     <TableCell>{row.specialist}</TableCell>
                     <TableCell>{row.duration}</TableCell>
@@ -423,13 +495,25 @@ const Statistics = () => {
               </TableBody>
             </Table>
             <div className="flex items-center justify-center gap-2 mt-6">
-              <Button variant="outline" size="sm">1</Button>
-              <Button variant="outline" size="sm">2</Button>
-              <Button variant="outline" size="sm">3</Button>
-              <Button variant="outline" size="sm">4</Button>
-              <Button variant="outline" size="sm">5</Button>
+              <Button variant="outline" size="sm">
+                1
+              </Button>
+              <Button variant="outline" size="sm">
+                2
+              </Button>
+              <Button variant="outline" size="sm">
+                3
+              </Button>
+              <Button variant="outline" size="sm">
+                4
+              </Button>
+              <Button variant="outline" size="sm">
+                5
+              </Button>
               <span className="text-muted-foreground">...</span>
-              <Button variant="outline" size="sm">15</Button>
+              <Button variant="outline" size="sm">
+                15
+              </Button>
             </div>
           </CardContent>
         </Card>

@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { ecosystemRouteEntries } from "./modules/ecosystem/config/menu";
 import EcosystemLayout from "./modules/ecosystem/layouts/EcosystemLayout";
 import ComingSoonPage from "./modules/ecosystem/pages/ComingSoonPage";
@@ -23,7 +24,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/ecosystem" element={<EcosystemLayout />}>
+          <Route
+            path="/ecosystem"
+            element={
+              <ProtectedRoute requiredRoles={["admin"]}>
+                <EcosystemLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Navigate to="modullar" replace />} />
             {ecosystemRouteEntries.map((routeEntry) => {
               const element =
@@ -46,9 +54,19 @@ const App = () => (
               );
             })}
           </Route>
-          {murojaat24Routes.map((route) => (
-            <Route key={route.path} path={route.path} element={route.element} />
-          ))}
+          {murojaat24Routes.map((route) => {
+            const element = route.public ? (
+              route.element
+            ) : (
+              <ProtectedRoute requiredRoles={route.requiredRoles}>
+                {route.element}
+              </ProtectedRoute>
+            );
+
+            return (
+              <Route key={route.path} path={route.path} element={element} />
+            );
+          })}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,13 +1,32 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight, Menu, UserCircle2 } from "lucide-react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { ChevronDown, ChevronRight, LogOut, Menu } from "lucide-react";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import { useCurrentUser, useLogout } from "@/lib/api/auth";
 import { cn } from "@/lib/utils";
 
 import { ecosystemMenuItems } from "../config/menu";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 type EcosystemSidebarNavigationProps = {
   onNavigate?: () => void;
@@ -152,6 +171,10 @@ const EcosystemLayout = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const currentUserQuery = useCurrentUser();
+  const logoutMutation = useLogout();
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -184,6 +207,66 @@ const EcosystemLayout = () => {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
+
+  const displayName = useMemo(() => {
+    const user = currentUserQuery.data;
+    if (!user) return "";
+
+    const name = [user.profile?.firstName, user.profile?.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
+    return name || user.phone;
+  }, [currentUserQuery.data]);
+
+  const roleLabel = useMemo(() => {
+    const role = currentUserQuery.data?.role;
+    if (!role) return "";
+
+    const roleLabels: Record<string, string> = {
+      admin: "Hokimiyat",
+      operator: "Operator",
+      dispatcher: "Dispatcher",
+      specialist: "Mutaxassis",
+      manager: "Menjer",
+    };
+
+    return roleLabels[role] || role;
+  }, [currentUserQuery.data?.role]);
+
+  const initials = useMemo(() => {
+    if (!displayName) return "U";
+    const letters = displayName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((chunk) => chunk[0]?.toUpperCase())
+      .join("");
+
+    return letters || "U";
+  }, [displayName]);
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Siz tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#edf3fb]">
@@ -224,15 +307,46 @@ const EcosystemLayout = () => {
               <p className="font-semibold">{formattedDate}</p>
               <p className="text-sky-100">{formattedTime}</p>
             </div>
-            <div className="hidden items-center gap-2 rounded-md bg-[#0a4679]/80 px-3 py-1.5 sm:flex">
-              <UserCircle2 className="h-4 w-4" />
-              <div>
-                <p className="leading-tight">A1Tech</p>
-                <p className="text-[11px] leading-tight text-sky-100">
-                  Super Admin
-                </p>
-              </div>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="hidden items-center gap-2 rounded-md bg-[#0a4679]/80 px-3 py-1.5 sm:flex"
+                  disabled={logoutMutation.isPending}
+                >
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage
+                      src={currentUserQuery.data?.profile?.avatar || undefined}
+                      alt={displayName}
+                    />
+                    <AvatarFallback className="bg-white/20 text-xs text-white">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="leading-tight">
+                      {displayName || "Foydalanuvchi"}
+                    </p>
+                    <p className="text-[11px] leading-tight text-sky-100">
+                      {roleLabel || ""}
+                    </p>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Profil</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleLogout();
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Chiqish
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>

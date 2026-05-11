@@ -1,8 +1,20 @@
 import { Button } from "@/components/ui/button";
-import { LogIn, Menu, Phone } from "lucide-react";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogIn, LogOut, Menu, Phone } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import { useCurrentUser, useLogout } from "@/lib/api/auth";
 
 const navLinks = [
   { label: "Bosh sahifa", href: "#hero" },
@@ -13,6 +25,40 @@ const navLinks = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const currentUserQuery = useCurrentUser();
+  const logoutMutation = useLogout();
+
+  const user = currentUserQuery.data;
+  const displayName = user
+    ? [user.profile?.firstName, user.profile?.lastName]
+        .filter(Boolean)
+        .join(" ")
+        .trim() || user.phone
+    : "";
+
+  const handleLogout = async () => {
+    setMobileOpen(false);
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-sky-900/10 bg-white/90 backdrop-blur">
@@ -63,16 +109,53 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button
-            asChild
-            variant="outline"
-            className="hidden border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
-          >
-            <Link to="/login">
-              <LogIn className="mr-2 h-4 w-4" />
-              Tizimga kirish
-            </Link>
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="hidden items-center gap-2 border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
+                  disabled={logoutMutation.isPending}
+                >
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage
+                      src={
+                        user.profile?.avatar ||
+                        "https://gravatar.com/avatar/00000000000000000000000000000000?s=800&d=mp&r=x"
+                      }
+                      alt={displayName}
+                    />
+                  </Avatar>
+                  <span className="max-w-[160px] truncate">{displayName}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Profil</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleLogout();
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Chiqish
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              asChild
+              variant="outline"
+              className="hidden border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
+            >
+              <Link to="/login">
+                <LogIn className="mr-2 h-4 w-4" />
+                Tizimga kirish
+              </Link>
+            </Button>
+          )}
 
           <Button
             asChild
@@ -120,14 +203,26 @@ const Header = () => {
                   </a>
                 </Button>
                 <Button
-                  asChild
-                  variant="outline"
-                  className="border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5"
+                  asChild={!user}
+                  variant={user ? "destructive" : "outline"}
+                  className={
+                    user
+                      ? "mt-2"
+                      : "border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5"
+                  }
+                  onClick={user ? handleLogout : undefined}
                 >
-                  <Link to="/login" onClick={() => setMobileOpen(false)}>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Tizimga kirish
-                  </Link>
+                  {user ? (
+                    <span className="inline-flex items-center justify-center">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Chiqish
+                    </span>
+                  ) : (
+                    <Link to="/login" onClick={() => setMobileOpen(false)}>
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Tizimga kirish
+                    </Link>
+                  )}
                 </Button>
               </div>
             </SheetContent>
