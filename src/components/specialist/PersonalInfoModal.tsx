@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
+import { useCurrentUser } from "@/lib/api/auth";
 
 interface PersonalInfoModalProps {
   open: boolean;
@@ -13,8 +19,21 @@ interface PersonalInfoModalProps {
 
 const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const specialistData = JSON.parse(localStorage.getItem("specialist_session") || "{}");
-  const name = specialistData.name || "Akmal Rahimov";
+  const currentUserQuery = useCurrentUser();
+  const user = currentUserQuery.data;
+
+  const firstName = user?.profile?.firstName?.trim();
+  const lastName = user?.profile?.lastName?.trim();
+  const name =
+    [firstName, lastName].filter(Boolean).join(" ") ||
+    user?.phone ||
+    "Mutaxassis";
+  const initials =
+    [firstName, lastName]
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase() || "SP";
 
   const [formData, setFormData] = useState({
     firstName: "Akmal",
@@ -26,6 +45,17 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
     region: "Termiz shahri",
     startDate: "01.06.2022",
   });
+
+  useEffect(() => {
+    if (!user || isEditing) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      firstName: user.profile?.firstName || prev.firstName,
+      lastName: user.profile?.lastName || prev.lastName,
+      phone: user.phone || prev.phone,
+    }));
+  }, [user, isEditing]);
 
   const handleSave = () => {
     setIsEditing(false);
@@ -45,10 +75,7 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
             <div className="relative">
               <Avatar className="h-20 w-20">
                 <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-                  {name
-                    .split(" ")
-                    .map((n: string) => n[0])
-                    .join("")}
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               {isEditing && (
@@ -71,16 +98,22 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
                 <Label className="text-xs text-muted-foreground">Ism</Label>
                 <Input
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                   disabled={!isEditing}
                   className="mt-1"
                 />
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Familiya</Label>
+                <Label className="text-xs text-muted-foreground">
+                  Familiya
+                </Label>
                 <Input
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                   disabled={!isEditing}
                   className="mt-1"
                 />
@@ -91,7 +124,9 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
               <Label className="text-xs text-muted-foreground">Telefon</Label>
               <Input
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
                 disabled={!isEditing}
                 className="mt-1"
               />
@@ -101,17 +136,23 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
               <Label className="text-xs text-muted-foreground">Email</Label>
               <Input
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 disabled={!isEditing}
                 className="mt-1"
               />
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Tug'ilgan sana</Label>
+              <Label className="text-xs text-muted-foreground">
+                Tug'ilgan sana
+              </Label>
               <Input
                 value={formData.birthDate}
-                onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, birthDate: e.target.value })
+                }
                 disabled={!isEditing}
                 className="mt-1"
               />
@@ -136,7 +177,9 @@ const PersonalInfoModal = ({ open, onOpenChange }: PersonalInfoModalProps) => {
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Ish boshlagan sana</Label>
+              <Label className="text-xs text-muted-foreground">
+                Ish boshlagan sana
+              </Label>
               <Input
                 value={formData.startDate}
                 disabled

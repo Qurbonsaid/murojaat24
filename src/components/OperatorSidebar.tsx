@@ -7,7 +7,7 @@ import {
   BarChart3,
   LogOut,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
@@ -83,6 +83,9 @@ const OperatorSidebar = () => {
 
         <div className="flex items-center gap-3">
           <Avatar>
+            {user?.profile?.avatar ? (
+              <AvatarImage src={user.profile.avatar} alt={name} />
+            ) : null}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {name
                 ?.split(" ")

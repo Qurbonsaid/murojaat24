@@ -130,13 +130,9 @@ const ProfileTab = () => {
       {/* Profile Header */}
       <div className="flex flex-col items-center mb-6">
         <Avatar className="h-20 w-20 mb-3">
-          <AvatarImage
-            src={
-              user.profile?.avatar ||
-              "https://gravatar.com/avatar/00000000000000000000000000000000?s=800&d=mp&r=x"
-            }
-            alt={name}
-          />
+          {user.profile?.avatar ? (
+            <AvatarImage src={user.profile.avatar} alt={name} />
+          ) : null}
           <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
             {initials}
           </AvatarFallback>

@@ -1,13 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import UserProfileMenu from "@/components/UserProfileMenu";
 import { LogIn, LogOut, Menu, Phone } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -31,12 +23,6 @@ const Header = () => {
   const logoutMutation = useLogout();
 
   const user = currentUserQuery.data;
-  const displayName = user
-    ? [user.profile?.firstName, user.profile?.lastName]
-        .filter(Boolean)
-        .join(" ")
-        .trim() || user.phone
-    : "";
 
   const handleLogout = async () => {
     setMobileOpen(false);
@@ -110,40 +96,10 @@ const Header = () => {
 
         <div className="flex items-center gap-2">
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="hidden items-center gap-2 border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
-                  disabled={logoutMutation.isPending}
-                >
-                  <Avatar className="h-7 w-7">
-                    <AvatarImage
-                      src={
-                        user.profile?.avatar ||
-                        "https://gravatar.com/avatar/00000000000000000000000000000000?s=800&d=mp&r=x"
-                      }
-                      alt={displayName}
-                    />
-                  </Avatar>
-                  <span className="max-w-[160px] truncate">{displayName}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Profil</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onSelect={(event) => {
-                    event.preventDefault();
-                    handleLogout();
-                  }}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Chiqish
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <UserProfileMenu
+              className="hidden items-center gap-2 border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
+              variant="outline"
+            />
           ) : (
             <Button
               asChild

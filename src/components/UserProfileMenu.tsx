@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { LogOut } from "lucide-react";
 
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +20,23 @@ import { cn } from "@/lib/utils";
 
 type UserProfileMenuProps = {
   className?: string;
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  showRoleInTrigger?: boolean;
+  nameClassName?: string;
+  subLabelClassName?: string;
+  avatarFallbackClassName?: string;
 };
 
-const UserProfileMenu = ({ className }: UserProfileMenuProps) => {
+const UserProfileMenu = ({
+  className,
+  variant = "outline",
+  size,
+  showRoleInTrigger = false,
+  nameClassName,
+  subLabelClassName,
+  avatarFallbackClassName,
+}: UserProfileMenuProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const currentUserQuery = useCurrentUser();
@@ -83,20 +97,51 @@ const UserProfileMenu = ({ className }: UserProfileMenuProps) => {
       <DropdownMenuTrigger asChild>
         <Button
           type="button"
-          variant="outline"
+          variant={variant}
+          size={size}
           className={cn("flex items-center gap-2", className)}
           disabled={logoutMutation.isPending}
         >
           <Avatar className="h-7 w-7">
             <AvatarImage
               src={
-                user.profile?.avatar ||
-                "https://gravatar.com/avatar/00000000000000000000000000000000?s=800&d=mp&r=x"
+                user.profile?.avatar?.trim() ||
+                "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&sz=128"
               }
               alt={displayName}
             />
           </Avatar>
-          <span className="max-w-[220px] truncate">{displayName}</span>
+          {showRoleInTrigger ? (
+            <div className="min-w-0 text-left">
+              <p
+                className={cn(
+                  "max-w-[220px] truncate text-sm leading-tight",
+                  nameClassName,
+                )}
+              >
+                {displayName}
+              </p>
+              {roleLabel ? (
+                <p
+                  className={cn(
+                    "max-w-[220px] truncate text-xs leading-tight text-muted-foreground",
+                    subLabelClassName,
+                  )}
+                >
+                  {roleLabel}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <span
+              className={cn(
+                "max-w-[160px] truncate sm:max-w-[220px]",
+                nameClassName,
+              )}
+            >
+              {displayName}
+            </span>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
