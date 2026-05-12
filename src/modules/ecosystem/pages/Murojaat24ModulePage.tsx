@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 
 import AddUserModal from "@/components/AddUserModal";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import EditUserModal from "@/components/EditUserModal";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,11 +27,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToastAction } from "@/components/ui/toast";
 
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
 import type { UserRole } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/api/auth";
+import type { StaffUser } from "@/lib/api/users";
 import { useDeleteUser, useUsers } from "@/lib/api/users";
 
 import MurojaatlarSection from "./murojaat24/MurojaatlarSection";
@@ -102,10 +105,12 @@ const Murojaat24ModulePage = () => {
   const location = useLocation();
   const section = resolveSection(location.pathname);
 
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const currentUserQuery = useCurrentUser();
 
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [editUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<StaffUser | null>(null);
   const [userFilter, setUserFilter] = useState<UserRole | "all">("all");
   const [searchValue, setSearchValue] = useState("");
   const deferredSearch = useDeferredValue(searchValue.trim());
@@ -286,7 +291,7 @@ const Murojaat24ModulePage = () => {
                   <TableHead>Telefon</TableHead>
                   <TableHead>Rol</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Oxirgi faoliyat</TableHead>
+                  <TableHead>Tashkilot</TableHead>
                   <TableHead className="text-right">Amallar</TableHead>
                 </TableRow>
               </TableHeader>
@@ -334,6 +339,12 @@ const Murojaat24ModulePage = () => {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
+                              {user.profile?.avatar && (
+                                <AvatarImage
+                                  src={user.profile.avatar}
+                                  alt={fullName}
+                                />
+                              )}
                               <AvatarFallback>
                                 {getInitials(
                                   user.profile?.firstName,
@@ -361,16 +372,21 @@ const Murojaat24ModulePage = () => {
                                 : "Faol emas"}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {formatRelativeUz(user.lastLogin)}
+                        <TableCell className="text-muted-foregroun">
+                          {user.organization
+                            ? user.organization["name"]
+                            : "Tanlanmagan"}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Button
                               variant="ghost"
                               size="icon"
-                              disabled
-                              title="Tahrirlash hozircha mavjud emas"
+                              title="Tahrirlash"
+                              onClick={() => {
+                                setSelectedUser(user);
+                                setEditUserModalOpen(true);
+                              }}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -386,29 +402,42 @@ const Murojaat24ModulePage = () => {
                               onClick={async () => {
                                 if (isSelf) return;
 
-                                const confirmed = window.confirm(
-                                  "Foydalanuvchini o'chirmoqchimisiz?",
-                                );
-                                if (!confirmed) return;
+                                let confirmToastId = "";
+                                confirmToastId = toast({
+                                  title: "Tasdiqlash",
+                                  description: `${fullName} foydalanuvchisini o'chirmoqchimisiz?`,
+                                  action: (
+                                    <ToastAction
+                                      altText="O'chirish"
+                                      onClick={async () => {
+                                        dismiss(confirmToastId);
 
-                                try {
-                                  await deleteUser.mutateAsync(user._id);
-                                  toast({
-                                    title: "O'chirildi",
-                                    description:
-                                      "Foydalanuvchi muvaffaqiyatli o'chirildi",
-                                  });
-                                } catch (error) {
-                                  const message =
-                                    error instanceof ApiError
-                                      ? error.message
-                                      : "O'chirishda xatolik";
-                                  toast({
-                                    title: "Xatolik",
-                                    description: message,
-                                    variant: "destructive",
-                                  });
-                                }
+                                        try {
+                                          await deleteUser.mutateAsync(
+                                            user._id,
+                                          );
+                                          toast({
+                                            title: "O'chirildi",
+                                            description:
+                                              "Foydalanuvchi muvaffaqiyatli o'chirildi",
+                                          });
+                                        } catch (error) {
+                                          const message =
+                                            error instanceof ApiError
+                                              ? error.message
+                                              : "O'chirishda xatolik";
+                                          toast({
+                                            title: "Xatolik",
+                                            description: message,
+                                            variant: "destructive",
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      O'chirish
+                                    </ToastAction>
+                                  ),
+                                }).id;
                               }}
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
@@ -432,6 +461,15 @@ const Murojaat24ModulePage = () => {
       <AddUserModal
         open={addUserModalOpen}
         onOpenChange={setAddUserModalOpen}
+      />
+
+      <EditUserModal
+        open={editUserModalOpen}
+        onOpenChange={(open) => {
+          setEditUserModalOpen(open);
+          if (!open) setSelectedUser(null);
+        }}
+        user={selectedUser}
       />
     </div>
   );

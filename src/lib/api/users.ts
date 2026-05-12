@@ -6,6 +6,15 @@ import { apiRequest } from "./client";
 
 export type WorkStatus = "active" | "inactive" | "busy";
 
+export type OrganizationRef =
+  | {
+      _id: string;
+      name: string;
+      governance?: string;
+    }
+  | string
+  | null;
+
 export type StaffUser = {
   _id: string;
   phone: string;
@@ -15,7 +24,7 @@ export type StaffUser = {
     lastName?: string;
     avatar?: string | null;
   };
-  organization?: unknown;
+  organization?: OrganizationRef;
   quarter?: string | null;
   sector?: string | null;
   status?: WorkStatus;
@@ -173,6 +182,27 @@ export const useDeleteUser = () => {
       const response = await apiRequest<null>(`/api/users/${id}`, {
         method: "DELETE",
       });
+
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+};
+
+export const useResetUserPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { id: string; newPassword: string }) => {
+      const response = await apiRequest<null>(
+        `/api/users/${payload.id}/reset-password`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ newPassword: payload.newPassword }),
+        },
+      );
 
       return response.data;
     },

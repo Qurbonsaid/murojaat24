@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 
 import { ApiError } from "@/lib/api/client";
 import { useCreateUser } from "@/lib/api/users";
+import { useOrganizations } from "@/lib/api/organizations";
 
 const formSchema = z
   .object({
@@ -41,6 +42,9 @@ const formSchema = z
     role: z.enum(["operator", "dispatcher", "specialist", "manager"], {
       required_error: "Rolni tanlang",
     }),
+    organization: z.string().optional(),
+    quarter: z.string().optional(),
+    sector: z.string().optional(),
     password: z
       .string()
       .min(6, "Parol kamida 6 ta belgidan iborat bo'lishi kerak"),
@@ -61,6 +65,7 @@ interface AddUserModalProps {
 const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
   const { toast } = useToast();
   const createUser = useCreateUser();
+  const organizationsQuery = useOrganizations();
   const {
     register,
     handleSubmit,
@@ -72,10 +77,14 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       phone: "+998 ",
+      organization: "none",
+      quarter: "",
+      sector: "",
     },
   });
 
   const phoneValue = watch("phone");
+  const organizationValue = watch("organization");
 
   const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
@@ -104,13 +113,18 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
         firstName,
         lastName,
         role: data.role,
+        ...(data.organization && data.organization !== "none"
+          ? { organization: data.organization }
+          : {}),
+        ...(data.quarter?.trim() ? { quarter: data.quarter.trim() } : {}),
+        ...(data.sector?.trim() ? { sector: data.sector.trim() } : {}),
       });
 
       toast({
         title: "Foydalanuvchi qo'shildi",
         description: `${data.name} muvaffaqiyatli qo'shildi`,
       });
-      reset({ phone: "+998 " });
+      reset({ phone: "+998 ", organization: "none", quarter: "", sector: "" });
       onOpenChange(false);
     } catch (error) {
       const message =
@@ -127,12 +141,16 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-xl overflow-y-scroll max-h-full">
         <DialogHeader>
           <DialogTitle>Yangi foydalanuvchi qo'shish</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+          autoComplete="off"
+        >
           <div className="space-y-2">
             <Label htmlFor="name">Ism-familiya *</Label>
             <Input
@@ -183,6 +201,46 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="organization">Tashkilotni tanlang</Label>
+            <Select
+              value={organizationValue || "none"}
+              onValueChange={(value) =>
+                setValue("organization", value, { shouldValidate: true })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Tashkilotni tanlang... (ixtiyoriy)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Tanlanmagan</SelectItem>
+                {(organizationsQuery.data || []).map((org) => (
+                  <SelectItem key={org._id} value={org._id}>
+                    {org.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="quarter">Mahalla</Label>
+            <Input
+              id="quarter"
+              placeholder="Masalan: Nurafshon (ixtiyoriy)"
+              {...register("quarter")}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="sector">Sektor</Label>
+            <Input
+              id="sector"
+              placeholder="Masalan: 3-sektor (ixtiyoriy)"
+              {...register("sector")}
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="password">Parol *</Label>
             <Input
               id="password"
@@ -217,7 +275,12 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
               type="button"
               variant="outline"
               onClick={() => {
-                reset({ phone: "+998 " });
+                reset({
+                  phone: "+998 ",
+                  organization: "none",
+                  quarter: "",
+                  sector: "",
+                });
                 onOpenChange(false);
               }}
               className="flex-1"
