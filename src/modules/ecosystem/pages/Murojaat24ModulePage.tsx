@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   CheckCircle,
@@ -27,6 +27,12 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+import { useToast } from "@/hooks/use-toast";
+import { ApiError } from "@/lib/api/client";
+import type { UserRole } from "@/lib/api/auth";
+import { useCurrentUser } from "@/lib/api/auth";
+import { useDeleteUser, useUsers } from "@/lib/api/users";
+
 import MurojaatlarSection from "./murojaat24/MurojaatlarSection";
 import StatistikaSection from "./murojaat24/StatistikaSection";
 
@@ -36,72 +42,40 @@ type Murojaat24Section =
   | "statistika"
   | "foydalanuvchilar";
 
-const users = [
-  {
-    id: 1,
-    name: "Sardor Karimov",
-    email: "sardor@murojaat24.uz",
-    role: "Operator",
-    status: "active",
-    lastActive: "5 daqiqa oldin",
-  },
-  {
-    id: 2,
-    name: "Dilshod Mirzayev",
-    email: "dilshod@murojaat24.uz",
-    role: "Dispatcher",
-    status: "active",
-    lastActive: "10 daqiqa oldin",
-  },
-  {
-    id: 3,
-    name: "Akmal Rahimov",
-    email: "akmal@murojaat24.uz",
-    role: "Mutaxassis",
-    status: "active",
-    lastActive: "2 soat oldin",
-  },
-  {
-    id: 4,
-    name: "Gulnora Saidova",
-    email: "gulnora@murojaat24.uz",
-    role: "Menjer",
-    status: "active",
-    lastActive: "1 soat oldin",
-  },
-  {
-    id: 5,
-    name: "Bobur Toshmatov",
-    email: "bobur@murojaat24.uz",
-    role: "Mutaxassis",
-    status: "inactive",
-    lastActive: "2 kun oldin",
-  },
-  {
-    id: 6,
-    name: "Davron Yusupov",
-    email: "davron@murojaat24.uz",
-    role: "Mutaxassis",
-    status: "active",
-    lastActive: "30 daqiqa oldin",
-  },
-  {
-    id: 7,
-    name: "Malika Ergasheva",
-    email: "malika@murojaat24.uz",
-    role: "Operator",
-    status: "active",
-    lastActive: "15 daqiqa oldin",
-  },
-  {
-    id: 8,
-    name: "Eldor Karimov",
-    email: "eldor@murojaat24.uz",
-    role: "Mutaxassis",
-    status: "active",
-    lastActive: "1 soat oldin",
-  },
-];
+const roleLabels: Record<UserRole, string> = {
+  admin: "Administrator",
+  operator: "Operator",
+  dispatcher: "Dispetcher",
+  specialist: "Mutaxassis",
+  manager: "Menejer",
+};
+
+const getInitials = (firstName?: string, lastName?: string) => {
+  const letters = [firstName?.trim()?.[0], lastName?.trim()?.[0]]
+    .filter(Boolean)
+    .join("");
+
+  return letters || "??";
+};
+
+const formatRelativeUz = (value?: string | null) => {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  const diffMs = Date.now() - date.getTime();
+  if (diffMs < 60_000) return "Hozirgina";
+
+  const diffMinutes = Math.floor(diffMs / 60_000);
+  if (diffMinutes < 60) return `${diffMinutes} daqiqa oldin`;
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} soat oldin`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} kun oldin`;
+};
 
 const resolveSection = (pathname: string): Murojaat24Section => {
   const normalizedPath =
@@ -128,16 +102,22 @@ const Murojaat24ModulePage = () => {
   const location = useLocation();
   const section = resolveSection(location.pathname);
 
-  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
-  const [userFilter, setUserFilter] = useState("all");
+  const { toast } = useToast();
+  const currentUserQuery = useCurrentUser();
 
-  const filteredUsers = useMemo(
-    () =>
-      userFilter === "all"
-        ? users
-        : users.filter((user) => user.role.toLowerCase() === userFilter),
-    [userFilter],
-  );
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [userFilter, setUserFilter] = useState<UserRole | "all">("all");
+  const [searchValue, setSearchValue] = useState("");
+  const deferredSearch = useDeferredValue(searchValue.trim());
+
+  const usersQuery = useUsers({
+    limit: 100,
+    role: userFilter === "all" ? undefined : userFilter,
+    search: deferredSearch.length ? deferredSearch : undefined,
+  });
+  const deleteUser = useDeleteUser();
+
+  const users = usersQuery.data?.data ?? [];
 
   const { sectionTitle, sectionSubtitle } = useMemo(() => {
     switch (section) {
@@ -274,21 +254,28 @@ const Murojaat24ModulePage = () => {
             <div className="mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Qidirish..." className="pl-10" />
+                <Input
+                  placeholder="Qidirish..."
+                  className="pl-10"
+                  value={searchValue}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                />
               </div>
             </div>
 
             <Tabs
               value={userFilter}
-              onValueChange={setUserFilter}
+              onValueChange={(value) =>
+                setUserFilter(value as UserRole | "all")
+              }
               className="mb-6"
             >
               <TabsList>
                 <TabsTrigger value="all">Hammasi</TabsTrigger>
                 <TabsTrigger value="operator">Operatorlar</TabsTrigger>
                 <TabsTrigger value="dispatcher">Dispetcherlar</TabsTrigger>
-                <TabsTrigger value="mutaxassis">Mutaxassislar</TabsTrigger>
-                <TabsTrigger value="menjer">Menejerlar</TabsTrigger>
+                <TabsTrigger value="specialist">Mutaxassislar</TabsTrigger>
+                <TabsTrigger value="manager">Menejerlar</TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -296,7 +283,7 @@ const Murojaat24ModulePage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Foydalanuvchi</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Telefon</TableHead>
                   <TableHead>Rol</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Oxirgi faoliyat</TableHead>
@@ -304,49 +291,134 @@ const Murojaat24ModulePage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback>
-                            {user.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">{user.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          user.status === "active"
-                            ? "bg-green-500"
-                            : "bg-gray-500"
-                        }
-                      >
-                        {user.status === "active" ? "Faol" : "Faol emas"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {user.lastActive}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                {usersQuery.isLoading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-10 text-center text-muted-foreground"
+                    >
+                      Yuklanmoqda...
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : usersQuery.isError ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-10 text-center text-destructive"
+                    >
+                      {(usersQuery.error as Error).message}
+                    </TableCell>
+                  </TableRow>
+                ) : users.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="py-10 text-center text-muted-foreground"
+                    >
+                      Foydalanuvchilar topilmadi
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map((user) => {
+                    const fullName =
+                      [user.profile?.firstName, user.profile?.lastName]
+                        .filter(Boolean)
+                        .join(" ") || user.phone;
+                    const isSelf =
+                      currentUserQuery.data?._id &&
+                      currentUserQuery.data._id === user._id;
+                    const status = user.status || "active";
+
+                    return (
+                      <TableRow key={user._id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback>
+                                {getInitials(
+                                  user.profile?.firstName,
+                                  user.profile?.lastName,
+                                )}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">{fullName}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{user.phone}</TableCell>
+                        <TableCell>{roleLabels[user.role]}</TableCell>
+                        <TableCell>
+                          <Badge
+                            className={
+                              status === "active"
+                                ? "bg-green-500"
+                                : "bg-gray-500"
+                            }
+                          >
+                            {status === "active"
+                              ? "Faol"
+                              : status === "busy"
+                                ? "Band"
+                                : "Faol emas"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatRelativeUz(user.lastLogin)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled
+                              title="Tahrirlash hozircha mavjud emas"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={deleteUser.isPending || isSelf}
+                              title={
+                                isSelf
+                                  ? "O'zingizni o'chira olmaysiz"
+                                  : "O'chirish"
+                              }
+                              onClick={async () => {
+                                if (isSelf) return;
+
+                                const confirmed = window.confirm(
+                                  "Foydalanuvchini o'chirmoqchimisiz?",
+                                );
+                                if (!confirmed) return;
+
+                                try {
+                                  await deleteUser.mutateAsync(user._id);
+                                  toast({
+                                    title: "O'chirildi",
+                                    description:
+                                      "Foydalanuvchi muvaffaqiyatli o'chirildi",
+                                  });
+                                } catch (error) {
+                                  const message =
+                                    error instanceof ApiError
+                                      ? error.message
+                                      : "O'chirishda xatolik";
+                                  toast({
+                                    title: "Xatolik",
+                                    description: message,
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </CardContent>

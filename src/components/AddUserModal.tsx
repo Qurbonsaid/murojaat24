@@ -1,24 +1,55 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { ChangeEvent } from "react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 
-const formSchema = z.object({
-  name: z.string().min(1, "Ism majburiy"),
-  email: z.string().email("Noto'g'ri email format"),
-  phone: z.string().regex(/^\+998\s\d{2}\s\d{3}\s\d{2}\s\d{2}$/, "Telefon raqam formati noto'g'ri"),
-  role: z.string().min(1, "Rolni tanlang"),
-  password: z.string().min(6, "Parol kamida 6 ta belgidan iborat bo'lishi kerak"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Parollar mos kelmayapti",
-  path: ["confirmPassword"],
-});
+import { ApiError } from "@/lib/api/client";
+import { useCreateUser } from "@/lib/api/users";
+
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Ism majburiy")
+      .refine((value) => value.trim().split(/\s+/).length >= 2, {
+        message: "Ism va familiyani kiriting",
+      }),
+    phone: z
+      .string()
+      .regex(
+        /^\+998\s\d{2}\s\d{3}\s\d{2}\s\d{2}$/,
+        "Telefon raqam formati noto'g'ri",
+      ),
+    role: z.enum(["operator", "dispatcher", "specialist", "manager"], {
+      required_error: "Rolni tanlang",
+    }),
+    password: z
+      .string()
+      .min(6, "Parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Parollar mos kelmayapti",
+    path: ["confirmPassword"],
+  });
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -29,7 +60,15 @@ interface AddUserModalProps {
 
 const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
   const { toast } = useToast();
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormData>({
+  const createUser = useCreateUser();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       phone: "+998 ",
@@ -38,27 +77,52 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
 
   const phoneValue = watch("phone");
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
     if (!value.startsWith("998")) {
       value = "998" + value.slice(3);
     }
     value = value.slice(0, 12);
-    
-    const formatted = value.length > 3 ? 
-      `+998 ${value.slice(3, 5)} ${value.slice(5, 8)} ${value.slice(8, 10)} ${value.slice(10, 12)}`.trim() : 
-      "+998 ";
-    
-    setValue("phone", formatted);
+
+    const formatted =
+      value.length > 3
+        ? `+998 ${value.slice(3, 5)} ${value.slice(5, 8)} ${value.slice(8, 10)} ${value.slice(10, 12)}`.trim()
+        : "+998 ";
+
+    setValue("phone", formatted, { shouldValidate: true });
   };
 
-  const onSubmit = (data: FormData) => {
-    toast({
-      title: "Foydalanuvchi qo'shildi",
-      description: `${data.name} muvaffaqiyatli qo'shildi`,
-    });
-    reset({ phone: "+998 " });
-    onOpenChange(false);
+  const onSubmit = async (data: FormData) => {
+    const [firstName, ...lastNameParts] = data.name.trim().split(/\s+/);
+    const lastName = lastNameParts.join(" ");
+    const normalizedPhone = data.phone.replace(/\s+/g, "");
+
+    try {
+      await createUser.mutateAsync({
+        phone: normalizedPhone,
+        password: data.password,
+        firstName,
+        lastName,
+        role: data.role,
+      });
+
+      toast({
+        title: "Foydalanuvchi qo'shildi",
+        description: `${data.name} muvaffaqiyatli qo'shildi`,
+      });
+      reset({ phone: "+998 " });
+      onOpenChange(false);
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Foydalanuvchini qo'shishda xatolik";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -82,19 +146,6 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="example@murojaat24.uz"
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-sm text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="phone">Telefon raqami *</Label>
             <Input
               id="phone"
@@ -109,7 +160,13 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="role">Rol *</Label>
-            <Select onValueChange={(value) => setValue("role", value)}>
+            <Select
+              onValueChange={(value) =>
+                setValue("role", value as FormData["role"], {
+                  shouldValidate: true,
+                })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Rolni tanlang" />
               </SelectTrigger>
@@ -134,7 +191,9 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-sm text-destructive">{errors.password.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
@@ -147,7 +206,9 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
               {...register("confirmPassword")}
             />
             {errors.confirmPassword && (
-              <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+              <p className="text-sm text-destructive">
+                {errors.confirmPassword.message}
+              </p>
             )}
           </div>
 
@@ -160,11 +221,16 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
                 onOpenChange(false);
               }}
               className="flex-1"
+              disabled={createUser.isPending}
             >
               Bekor qilish
             </Button>
-            <Button type="submit" className="flex-1">
-              Saqlash
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={createUser.isPending}
+            >
+              {createUser.isPending ? "Saqlanmoqda..." : "Saqlash"}
             </Button>
           </div>
         </form>
