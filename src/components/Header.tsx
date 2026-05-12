@@ -95,7 +95,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-2">
-          {user ? (
+          {user && location.pathname !== "/" ? (
             <UserProfileMenu
               className="hidden items-center gap-2 border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
               variant="outline"

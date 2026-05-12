@@ -62,7 +62,11 @@ const Hero = () => {
                 size="lg"
                 className="h-12 bg-white px-7 text-base font-semibold text-[#0d4c8b] shadow-lg hover:bg-sky-50"
               >
-                <a href="#xizmatlar">
+                <a
+                  href="https://murojaat.aqllishahar-termizsh.uz"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Murojaat qoldirish
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
