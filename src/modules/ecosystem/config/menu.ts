@@ -112,12 +112,6 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     moduleKind: "coming-soon",
     children: [
       {
-        id: "tumanlar-kesimida",
-        label: "Tumanlar kesimida",
-        path: "/ecosystem/hududlar-taqsimoti/tumanlar-kesimida",
-        moduleKind: "coming-soon",
-      },
-      {
         id: "mahallalar-kesimida",
         label: "Mahallalar kesimida",
         path: "/ecosystem/hududlar-taqsimoti/mahallalar-kesimida",
