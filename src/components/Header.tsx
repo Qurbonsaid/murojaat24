@@ -1,12 +1,8 @@
 import { Button } from "@/components/ui/button";
-import UserProfileMenu from "@/components/UserProfileMenu";
-import { LogIn, LogOut, Menu, Phone } from "lucide-react";
+import { LogIn, Menu, Phone } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useToast } from "@/hooks/use-toast";
-import { ApiError } from "@/lib/api/client";
-import { useCurrentUser, useLogout } from "@/lib/api/auth";
 
 const navLinks = [
   { label: "Bosh sahifa", href: "#hero" },
@@ -17,34 +13,6 @@ const navLinks = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const currentUserQuery = useCurrentUser();
-  const logoutMutation = useLogout();
-
-  const user = currentUserQuery.data;
-
-  const handleLogout = async () => {
-    setMobileOpen(false);
-    try {
-      await logoutMutation.mutateAsync();
-      toast({
-        title: "Chiqildi",
-        description: "Tizimdan muvaffaqiyatli chiqdingiz",
-      });
-      navigate("/login");
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "Chiqishda xatolik yuz berdi";
-      toast({
-        title: "Xatolik",
-        description: message,
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-sky-900/10 bg-white/90 backdrop-blur">
@@ -95,23 +63,16 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-2">
-          {user && location.pathname !== "/" ? (
-            <UserProfileMenu
-              className="hidden items-center gap-2 border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
-              variant="outline"
-            />
-          ) : (
-            <Button
-              asChild
-              variant="outline"
-              className="hidden border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
-            >
-              <Link to="/login">
-                <LogIn className="mr-2 h-4 w-4" />
-                Tizimga kirish
-              </Link>
-            </Button>
-          )}
+          <Button
+            asChild
+            variant="outline"
+            className="hidden border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5 sm:inline-flex"
+          >
+            <Link to="/login">
+              <LogIn className="mr-2 h-4 w-4" />
+              Tizimga kirish
+            </Link>
+          </Button>
 
           <Button
             asChild
@@ -159,26 +120,14 @@ const Header = () => {
                   </a>
                 </Button>
                 <Button
-                  asChild={!user}
-                  variant={user ? "destructive" : "outline"}
-                  className={
-                    user
-                      ? "mt-2"
-                      : "border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5"
-                  }
-                  onClick={user ? handleLogout : undefined}
+                  asChild
+                  variant="outline"
+                  className="border-[#0d4c8b]/30 text-[#0d4c8b] hover:bg-[#0d4c8b]/5"
                 >
-                  {user ? (
-                    <span className="inline-flex items-center justify-center">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Chiqish
-                    </span>
-                  ) : (
-                    <Link to="/login" onClick={() => setMobileOpen(false)}>
-                      <LogIn className="mr-2 h-4 w-4" />
-                      Tizimga kirish
-                    </Link>
-                  )}
+                  <Link to="/login" onClick={() => setMobileOpen(false)}>
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Tizimga kirish
+                  </Link>
                 </Button>
               </div>
             </SheetContent>

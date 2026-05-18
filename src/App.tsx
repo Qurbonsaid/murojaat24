@@ -6,13 +6,14 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ecosystemRouteEntries } from "./modules/ecosystem/config/menu";
 import EcosystemLayout from "./modules/ecosystem/layouts/EcosystemLayout";
-import ComingSoonPage from "./modules/ecosystem/pages/ComingSoonPage";
-import ModullarPage from "./modules/ecosystem/pages/ModullarPage";
-import Murojaat24ModulePage from "./modules/ecosystem/pages/Murojaat24ModulePage";
-import SozlamalarPage from "./modules/ecosystem/pages/SozlamalarPage";
+import ComingSoonPage from "./modules/ecosystem/pages/coming-soon/ComingSoonPage";
+import ModullarPage from "./modules/ecosystem/pages/modullar/ModullarPage";
+import Murojaat24ModulePage from "./modules/ecosystem/pages/murojaat24/Murojaat24ModulePage";
+import SozlamalarPage from "./modules/ecosystem/pages/sozlamalar/SozlamalarPage";
 import { murojaat24Routes } from "./modules/murojaat24/config/routes";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import Index from "./pages/landing/Index";
+import NotFound from "./pages/errors/NotFound";
+import Profile from "./pages/profile/Profile";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
             }
           >
             <Route index element={<Navigate to="modullar" replace />} />
+            <Route path="profile" element={<Profile embedded />} />
             {ecosystemRouteEntries.map((routeEntry) => {
               const element =
                 routeEntry.moduleKind === "modullar" ? (

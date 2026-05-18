@@ -36,8 +36,8 @@ import { useCurrentUser } from "@/lib/api/auth";
 import type { StaffUser } from "@/lib/api/users";
 import { useDeleteUser, useUsers } from "@/lib/api/users";
 
-import MurojaatlarSection from "./murojaat24/MurojaatlarSection";
-import StatistikaSection from "./murojaat24/StatistikaSection";
+import MurojaatlarSection from "./MurojaatlarSection";
+import StatistikaSection from "./StatistikaSection";
 
 type Murojaat24Section =
   | "dashboard"

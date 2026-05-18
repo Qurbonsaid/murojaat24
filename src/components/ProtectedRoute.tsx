@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError } from "@/lib/api/client";
 import type { UserRole } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/api/auth";
-import Forbidden from "@/pages/Forbidden";
+import Forbidden from "@/pages/errors/Forbidden";
 
 type ProtectedRouteProps = {
   children: ReactElement;

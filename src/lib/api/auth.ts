@@ -11,7 +11,7 @@ export type UserRole =
 export type UserProfile = {
   firstName?: string;
   lastName?: string;
-  avatar?: string;
+  avatar?: string | null;
 };
 
 export type CurrentUser = {
@@ -20,6 +20,12 @@ export type CurrentUser = {
   role: UserRole;
   profile?: UserProfile;
   isActive?: boolean;
+};
+
+export type UpdateProfileInput = {
+  firstName: string;
+  lastName: string;
+  avatar?: string | null;
 };
 
 const roleRedirects: Record<UserRole, string> = {
@@ -116,6 +122,40 @@ export const useLogout = () => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["auth", "me"] });
       clearLegacySessions();
+    },
+  });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateProfileInput) => {
+      const response = await apiRequest<CurrentUser>("/api/auth/profile", {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      return response.data;
+    },
+    onSuccess: async (updatedUser, variables) => {
+      queryClient.setQueryData<CurrentUser>(["auth", "me"], (currentUser) => {
+        const profile = {
+          ...currentUser?.profile,
+          ...updatedUser.profile,
+          firstName: variables.firstName,
+          lastName: variables.lastName,
+          avatar: variables.avatar ?? null,
+        };
+
+        return {
+          ...(currentUser ?? updatedUser),
+          ...updatedUser,
+          profile,
+        };
+      });
+
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 };

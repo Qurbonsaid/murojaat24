@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { getEcosystemEntryByPath } from "../config/menu";
+import { getEcosystemEntryByPath } from "../../config/menu";
 
 const ComingSoonPage = () => {
   const location = useLocation();

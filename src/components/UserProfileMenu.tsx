@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -69,6 +69,18 @@ const UserProfileMenu = ({
     return roleLabels[user.role] || user.role;
   }, [user]);
 
+  const initials = useMemo(() => {
+    if (!user) return "FP";
+
+    const letters = [user.profile?.firstName, user.profile?.lastName]
+      .map((part) => part?.trim()?.[0])
+      .filter(Boolean)
+      .join("")
+      .toUpperCase();
+
+    return letters || "FP";
+  }, [user]);
+
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
@@ -103,13 +115,17 @@ const UserProfileMenu = ({
           disabled={logoutMutation.isPending}
         >
           <Avatar className="h-7 w-7">
-            <AvatarImage
-              src={
-                user.profile?.avatar?.trim() ||
-                "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&sz=128"
-              }
-              alt={displayName}
-            />
+            {user.profile?.avatar?.trim() ? (
+              <AvatarImage src={user.profile.avatar} alt={displayName} />
+            ) : null}
+            <AvatarFallback
+              className={cn(
+                "bg-primary text-xs font-semibold text-primary-foreground",
+                avatarFallbackClassName,
+              )}
+            >
+              {initials}
+            </AvatarFallback>
           </Avatar>
           {showRoleInTrigger ? (
             <div className="min-w-0 text-left">
@@ -149,6 +165,15 @@ const UserProfileMenu = ({
           <p className="text-sm font-medium leading-none">{displayName}</p>
           <p className="text-xs text-muted-foreground">{roleLabel}</p>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={() =>
+            navigate(user.role === "admin" ? "/ecosystem/profile" : "/profile")
+          }
+        >
+          <User className="mr-2 h-4 w-4" />
+          Profil
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={(event) => {
