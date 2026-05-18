@@ -17,7 +17,6 @@ import {
   ChevronRight,
   Star,
 } from "lucide-react";
-import PersonalInfoModal from "./PersonalInfoModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { ApiError } from "@/lib/api/client";
 import { useCurrentUser, useLogout } from "@/lib/api/auth";
@@ -30,7 +29,6 @@ const ProfileTab = () => {
   const [notifications, setNotifications] = useState(true);
   const [locationSharing, setLocationSharing] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const [personalInfoOpen, setPersonalInfoOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   const currentUserQuery = useCurrentUser();
@@ -74,7 +72,7 @@ const ProfileTab = () => {
     {
       icon: User,
       label: "Shaxsiy ma'lumotlar",
-      action: () => setPersonalInfoOpen(true),
+      action: () => navigate("/profile"),
       type: "link" as const,
     },
     {
@@ -215,10 +213,6 @@ const ProfileTab = () => {
       </ScrollArea>
 
       {/* Modals */}
-      <PersonalInfoModal
-        open={personalInfoOpen}
-        onOpenChange={setPersonalInfoOpen}
-      />
       <ChangePasswordModal
         open={changePasswordOpen}
         onOpenChange={setChangePasswordOpen}

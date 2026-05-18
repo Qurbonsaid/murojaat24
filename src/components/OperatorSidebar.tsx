@@ -1,23 +1,16 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   FileText,
   LayoutDashboard,
   FilePlus,
   ListChecks,
   BarChart3,
-  LogOut,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { ApiError } from "@/lib/api/client";
-import { useCurrentUser, useLogout } from "@/lib/api/auth";
+import { useCurrentUser } from "@/lib/api/auth";
 
 const OperatorSidebar = () => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
-  const logoutMutation = useLogout();
 
   const currentUserQuery = useCurrentUser();
   const user = currentUserQuery.data;
@@ -34,29 +27,8 @@ const OperatorSidebar = () => {
     user?.role === "admin"
       ? "Hokimiyat"
       : user?.role === "operator"
-        ? "Operator"
-        : user?.role || "Operator";
-
-  const handleLogout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-      toast({
-        title: "Chiqildi",
-        description: "Tizimdan muvaffaqiyatli chiqdingiz",
-      });
-      navigate("/login");
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.message
-          : "Chiqishda xatolik yuz berdi";
-      toast({
-        title: "Xatolik",
-        description: message,
-        variant: "destructive",
-      });
-    }
-  };
+      ? "Operator"
+      : user?.role || "Operator";
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/operator-dashboard" },
@@ -122,18 +94,6 @@ const OperatorSidebar = () => {
           })}
         </ul>
       </nav>
-
-      <div className="p-4 border-t border-slate-700">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-slate-300 hover:bg-slate-700 hover:text-white"
-          onClick={handleLogout}
-          disabled={logoutMutation.isPending}
-        >
-          <LogOut className="h-5 w-5 mr-3" />
-          Chiqish
-        </Button>
-      </div>
     </aside>
   );
 };

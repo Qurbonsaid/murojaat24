@@ -1,11 +1,13 @@
 import type { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 
-import DispatcherDashboard from "@/pages/DispatcherDashboard";
-import Login from "@/pages/Login";
-import ManagerDashboard from "@/pages/ManagerDashboard";
-import OperatorDashboard from "@/pages/OperatorDashboard";
-import SpecialistMobile from "@/pages/SpecialistMobile";
+import DispatcherDashboard from "@/pages/dispatcher-dashboard/DispatcherDashboard";
+import Login from "@/pages/login/Login";
+import ManagerDashboard from "@/pages/manager-dashboard/ManagerDashboard";
+import ManagerUsersPage from "@/pages/manager-users/ManagerUsersPage";
+import OperatorDashboard from "@/pages/operator-dashboard/OperatorDashboard";
+import Profile from "@/pages/profile/Profile";
+import SpecialistMobile from "@/pages/specialist-mobile/SpecialistMobile";
 import type { UserRole } from "@/lib/api/auth";
 
 export type Murojaat24Route = {
@@ -41,6 +43,16 @@ export const murojaat24Routes: Murojaat24Route[] = [
     path: "/manager-dashboard",
     element: <ManagerDashboard />,
     requiredRoles: ["manager", "admin"],
+  },
+  {
+    path: "/manager/foydalanuvchilar",
+    element: <ManagerUsersPage />,
+    requiredRoles: ["manager", "admin"],
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+    requiredRoles: ["admin", "operator", "dispatcher", "specialist", "manager"],
   },
   {
     path: "/admin-dashboard",
