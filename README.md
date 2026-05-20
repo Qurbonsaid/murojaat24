@@ -1,6 +1,6 @@
 # Termiz aqlli shahar
 
-Public landing page for Termiz aqlli shahar, built with React, TypeScript, Vite, and Tailwind CSS.
+Public landing page for Termiz aqlli shahar, built with React, TypeScript, Vite, and Tailwind CSS
 
 ## Local development
 
@@ -26,7 +26,7 @@ npm run preview
 ## Environment
 
 - `VITE_API_URL` - backend API base URL (default: `http://localhost:5000`).
-	Define this in `.env.development` for local work and in Vercel env vars for production.
+  Define this in `.env.development` for local work and in Vercel env vars for production.
 
 ## Stack
 
