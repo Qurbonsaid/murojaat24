@@ -38,7 +38,30 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+export const API_BASE_URL =
+  import.meta.env.VITE_BASE_URL || "http://localhost:8080";
+
+export const resolveAssetUrl = (
+  path: string | null | undefined,
+): string | undefined => {
+  if (!path?.trim()) return undefined;
+
+  const trimmed = path.trim();
+  if (
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:")
+  ) {
+    return trimmed;
+  }
+
+  const filePath = trimmed.replace(/^\/+/, "");
+  if (filePath.startsWith("uploads/")) {
+    return `${API_BASE_URL}/${filePath}`;
+  }
+
+  return `${API_BASE_URL}/uploads/${filePath}`;
+};
 
 const buildUrl = (path: string) => {
   if (path.startsWith("http://") || path.startsWith("https://")) {

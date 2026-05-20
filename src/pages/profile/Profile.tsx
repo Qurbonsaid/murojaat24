@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, resolveAssetUrl } from "@/lib/api/client";
 import {
   getRoleRedirectPath,
   type CurrentUser,
@@ -29,6 +29,7 @@ import {
   useCurrentUser,
   useUpdateProfile,
 } from "@/lib/api/auth";
+import { useUploadAvatar } from "@/lib/api/uploads";
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Hokimiyat",
@@ -67,7 +68,9 @@ type ProfileProps = {
 const getProfileDefaults = (user: CurrentUser): ProfileFormData => ({
   firstName: user.profile?.firstName ?? "",
   lastName: user.profile?.lastName ?? "",
-  avatar: user.profile?.avatar?.trim() || null,
+  avatar: user.profile?.avatar?.trim()
+    ? resolveAssetUrl(user.profile.avatar.trim()) ?? null
+    : null,
 });
 
 const getInitials = (firstName?: string, lastName?: string) => {
@@ -84,6 +87,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   const { toast } = useToast();
   const currentUserQuery = useCurrentUser();
   const updateProfile = useUpdateProfile();
+  const uploadAvatar = useUploadAvatar();
   const user = currentUserQuery.data;
 
   const {
@@ -129,14 +133,15 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     }
   };
 
-  const handleAvatarSelect = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Xatolik",
-        description: "Faqat rasm fayllarini yuklash mumkin",
+        description: "Faqat JPG yoki PNG rasmlarini yuklash mumkin",
         variant: "destructive",
       });
       clearFileInput();
@@ -153,34 +158,25 @@ const Profile = ({ embedded = false }: ProfileProps) => {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (readerEvent) => {
-      const result = readerEvent.target?.result;
-      if (typeof result !== "string") {
-        toast({
-          title: "Xatolik",
-          description: "Rasmni o'qishda xatolik yuz berdi",
-          variant: "destructive",
-        });
-        clearFileInput();
-        return;
-      }
-
-      setValue("avatar", result, {
+    try {
+      const { url } = await uploadAvatar.mutateAsync(file);
+      setValue("avatar", url, {
         shouldDirty: true,
         shouldValidate: true,
       });
-      clearFileInput();
-    };
-    reader.onerror = () => {
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Rasmni yuklashda xatolik yuz berdi";
       toast({
         title: "Xatolik",
-        description: "Rasmni o'qishda xatolik yuz berdi",
+        description: message,
         variant: "destructive",
       });
+    } finally {
       clearFileInput();
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleRemoveAvatar = () => {
@@ -201,7 +197,9 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     const payload = {
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
-      avatar: data.avatar?.trim() || null,
+      avatar: data.avatar?.trim()
+        ? resolveAssetUrl(data.avatar.trim()) ?? null
+        : null,
     };
 
     try {
@@ -243,6 +241,8 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   }
 
   const isPending = updateProfile.isPending;
+  const isUploading = uploadAvatar.isPending;
+  const isAvatarBusy = isPending || isUploading;
 
   const content = (
     <div className="mx-auto max-w-6xl">
@@ -271,7 +271,12 @@ const Profile = ({ embedded = false }: ProfileProps) => {
           <CardContent className="flex flex-col items-center gap-5">
             <div className="relative">
               <Avatar className="h-28 w-28 border border-slate-200">
-                {avatar ? <AvatarImage src={avatar} alt={displayName} /> : null}
+                {avatar ? (
+                  <AvatarImage
+                    src={resolveAssetUrl(avatar)}
+                    alt={displayName}
+                  />
+                ) : null}
                 <AvatarFallback className="bg-[#0d4c8b] text-3xl font-semibold text-white">
                   {initials}
                 </AvatarFallback>
@@ -281,7 +286,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
                 size="icon"
                 className="absolute bottom-0 right-0 h-9 w-9 rounded-full"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={isPending}
+                disabled={isAvatarBusy}
               >
                 <Camera className="h-4 w-4" />
                 <span className="sr-only">Rasm tanlash</span>
@@ -297,7 +302,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png"
                 className="hidden"
                 onChange={handleAvatarSelect}
               />
@@ -307,10 +312,10 @@ const Profile = ({ embedded = false }: ProfileProps) => {
                   type="button"
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isPending}
+                  disabled={isAvatarBusy}
                 >
                   <ImageUp className="h-4 w-4" />
-                  Rasm tanlash
+                  {isUploading ? "Yuklanmoqda..." : "Rasm tanlash"}
                 </Button>
                 {avatar ? (
                   <Button
@@ -318,7 +323,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
                     variant="ghost"
                     className="text-destructive hover:text-destructive"
                     onClick={handleRemoveAvatar}
-                    disabled={isPending}
+                    disabled={isAvatarBusy}
                   >
                     <Trash2 className="h-4 w-4" />
                     Olib tashlash
@@ -385,7 +390,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
             >
               Bekor qilish
             </Button>
-            <Button type="submit" disabled={!isDirty || isPending}>
+            <Button type="submit" disabled={!isDirty || isAvatarBusy}>
               <Save className="h-4 w-4" />
               {isPending ? "Saqlanmoqda..." : "Saqlash"}
             </Button>

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
+import { resolveAssetUrl } from "@/lib/api/client";
 
 const ManagerSidebar = () => {
   const location = useLocation();
@@ -49,7 +50,10 @@ const ManagerSidebar = () => {
         <div className="flex items-center gap-3">
           <Avatar>
             {user?.profile?.avatar ? (
-              <AvatarImage src={user.profile.avatar} alt={name} />
+              <AvatarImage
+                src={resolveAssetUrl(user.profile.avatar)}
+                alt={name}
+              />
             ) : null}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {name

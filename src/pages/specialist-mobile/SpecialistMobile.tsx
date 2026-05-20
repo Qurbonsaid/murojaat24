@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveAssetUrl } from "@/lib/api/client";
 import TaskCard from "@/components/TaskCard";
 import TaskDetailModal from "@/components/TaskDetailModal";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -131,7 +132,10 @@ const SpecialistMobile = () => {
                 </div>
                 <Avatar className="h-14 w-14 border-2 border-primary-foreground">
                   {user?.profile?.avatar ? (
-                    <AvatarImage src={user.profile.avatar} alt={name} />
+                    <AvatarImage
+                      src={resolveAssetUrl(user.profile.avatar)}
+                      alt={name}
+                    />
                   ) : null}
                   <AvatarFallback className="bg-primary-foreground text-primary text-lg">
                     {initials}
