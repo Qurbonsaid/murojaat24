@@ -1,11 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import {
-  FileText,
-  LayoutDashboard,
-  FilePlus,
-  ListChecks,
-  BarChart3,
-} from "lucide-react";
+import { FileText, FilePlus, ListChecks } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
 import { resolveAssetUrl } from "@/lib/api/client";
@@ -32,18 +26,16 @@ const OperatorSidebar = () => {
       : user?.role || "Operator";
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/operator-dashboard" },
     {
       icon: FilePlus,
       label: "Yangi murojaat",
-      path: "/operator-dashboard#new",
+      path: "/operator-dashboard/new",
     },
     {
       icon: ListChecks,
       label: "Murojaatlar ro'yxati",
-      path: "/operator-dashboard#list",
+      path: "/operator-dashboard/list",
     },
-    { icon: BarChart3, label: "Statistika", path: "/statistika" },
   ];
 
   return (
@@ -79,7 +71,7 @@ const OperatorSidebar = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path.split("#")[0];
+            const isActive = location.pathname === item.path;
             return (
               <li key={item.path}>
                 <Link

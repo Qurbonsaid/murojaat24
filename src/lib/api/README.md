@@ -11,6 +11,7 @@ Staff sign in with phone + password on `/login`. Successful login redirects by r
 | Concern | Path |
 | --- | --- |
 | Hooks & roles | `auth.ts` |
+| Appeals (list + operator create) | `requests.ts` |
 | File uploads | `uploads.ts` |
 | HTTP transport | `client.ts` |
 | Login page | `src/pages/login/Login.tsx` |
@@ -47,8 +48,15 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 - Logout clears `["auth", "me"]` and legacy `localStorage` keys.
 - Forgot-password hooks exist in `auth.ts`; wiring on UI may be partial — verify `Login.tsx` before documenting new flows.
 
+## Appeals (`requests.ts`)
+
+`useRequests` → `GET /api/requests/` with optional query params: `page`, `limit`, `status`, `organization`, `priority`, `search`, `startDate`, `endDate`. React Query key `["requests", params]`. Pass `options.role` of `operator` or `admin` to strip `organization` from the query string (`omitOrganizationForRole`). Helpers `getTodayDateRange()` (`date-fns` `format`, `yyyy-MM-dd`) and `formatRequestTime()` (`parseISO` + `HH:mm`) for list display.
+
+`useCreateOperatorRequest` → `POST /api/requests/operator` (operator/admin session). On success invalidates `["requests"]`. Mapper `toOperatorCreatePayload` builds `citizenName`, `citizenPhone` (`normalizePhone`), `organization` (id), `description`, `address.full`. Used by `src/pages/operator-dashboard/` — see that folder's README.
+
 ## Related docs
 
+- Operator intake: `src/pages/operator-dashboard/README.md`
 - Profile page (avatar upload): `src/pages/profile/README.md`
 - Avatar upload: `useUploadAvatar` in `uploads.ts` → `POST /api/uploads/avatar`; profile save uses URL via `useUpdateProfile` in `auth.ts`
 - Conventions: `docs/architecture/conventions.md`

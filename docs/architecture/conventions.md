@@ -16,7 +16,7 @@ Import alias: `@/` → `src/`.
 
 ## API layer
 
-**Where:** `src/lib/api/client.ts` (transport), `auth.ts`, `users.ts`, `organizations.ts` (hooks).
+**Where:** `src/lib/api/client.ts` (transport), `auth.ts`, `users.ts`, `organizations.ts`, `requests.ts` (hooks).
 
 **Rules:**
 
@@ -28,7 +28,7 @@ Import alias: `@/` → `src/`.
 - Add new endpoints as hooks in the matching `lib/api/*.ts` file; invalidate the same query keys the list hooks use.
 - Call sites often branch on `error instanceof ApiError` and show Uzbek fallback copy.
 
-There is no shared appeals/tasks API module in this repo today.
+Appeals: `requests.ts` exposes operator create today; list/assignment hooks belong here when wired.
 
 ## Auth and authorization
 
@@ -66,8 +66,8 @@ No global Redux/Zustand store.
 **Rules:**
 
 - Define `zod` schema in the same file as the form (or colocated module).
-- Map submit payload to API input types in the handler before `mutateAsync`.
-- Phone fields often normalize to Uzbek `998…` format on operator/login screens.
+- Map submit payload to API input types in the handler or a colocated mapper (e.g. `toOperatorCreatePayload` in `requests.ts`) before `mutateAsync`.
+- Phone display vs API: use `src/lib/phone.ts` (`formatPhoneInput` for UI, `normalizePhone` for JSON).
 
 ## UI
 

@@ -5,9 +5,8 @@ Current traps and mismatches. Snapshot of behavior in the repo — not a backlog
 ## Routes and links
 
 - `src/pages/citizen/SubmitRequest.tsx`, `TrackRequest.tsx`, `Statistics.tsx` are **not** registered in the router. Citizen CTA on the landing goes to an external URL (`Header`, `Hero`), not these components.
-- `OperatorSidebar` links `/statistika` — no matching route in `App.tsx` or `murojaat24Routes`.
 - `/role-select` immediately redirects to `/login`; there is no role-picker screen.
-- Operator, dispatcher, and manager sidebars use hash links (`#new`, `#stats`, …) but dashboard pages often lack matching element `id`s.
+- Dispatcher and manager sidebars use hash links (`#new`, `#stats`, …) but dashboard pages often lack matching element `id`s.
 
 ## Environment and build
 
@@ -23,9 +22,11 @@ Current traps and mismatches. Snapshot of behavior in the repo — not a backlog
 
 ## Mock-only workflows
 
-No backend call for: operator appeal submit, dispatcher assignment, specialist task lifecycle, manager approve/reject, admin Murojaatlar/statistika tables, sozlamalar templates/general save, citizen submit/track simulations.
+No backend call for: dispatcher assignment, specialist task lifecycle, manager approve/reject, admin Murojaatlar/statistika tables, sozlamalar templates/general save, citizen submit/track simulations.
 
-Static org names for mocks: `src/lib/organizations.ts` (separate from `GET /api/organizations`).
+Operator dashboard uses `GET /api/organizations`, `POST /api/requests/operator`, and `GET /api/requests/` (list). `useRequests` omits the `organization` query param when `options.role` is `operator` or `admin`. Operator list KPI cards are still static mock values. List status badges expect API values (`new`, `assigned`, `in-progress`, etc.), not legacy mock labels like `pending`.
+
+Static org names in `src/lib/organizations.ts` remain for other mock screens (e.g. citizen submit), not the operator intake form.
 
 ## Role access
 

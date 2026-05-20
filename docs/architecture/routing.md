@@ -29,7 +29,7 @@ Declared in `src/modules/murojaat24/config/routes.tsx`, wrapped with `ProtectedR
 
 | Path | Component | Allowed roles |
 | --- | --- | --- |
-| `/operator-dashboard` | `OperatorDashboard` | `operator`, `admin` |
+| `/operator-dashboard/*` | `OperatorDashboardRoutes` → `new`, `list` | `operator`, `admin` |
 | `/dispatcher-dashboard` | `DispatcherDashboard` | `dispatcher`, `admin` |
 | `/specialist-mobile` | `SpecialistMobile` | `specialist`, `admin` |
 | `/manager-dashboard` | `ManagerDashboard` | `manager`, `admin` |
@@ -61,4 +61,4 @@ Full menu labels and IDs: `src/modules/ecosystem/config/menu.ts`.
 
 ## Unregistered pages
 
-Not in `App.tsx` or `murojaat24Routes`: `SubmitRequest`, `TrackRequest`, `Statistics`. Operator sidebar links `/statistika` — also unregistered. See `docs/architecture/gotchas.md` and `src/pages/citizen/README.md`.
+Not in `App.tsx` or `murojaat24Routes`: `SubmitRequest`, `TrackRequest`, `Statistics`. See `docs/architecture/gotchas.md` and `src/pages/citizen/README.md`.
