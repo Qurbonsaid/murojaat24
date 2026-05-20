@@ -37,7 +37,9 @@ const getStatusBadge = (status: string) => {
       );
     case "in-progress":
       return (
-        <Badge className="bg-yellow-500 hover:bg-yellow-600">Bajarilmoqda</Badge>
+        <Badge className="bg-yellow-500 hover:bg-yellow-600">
+          Bajarilmoqda
+        </Badge>
       );
     case "completed":
       return (
@@ -48,9 +50,7 @@ const getStatusBadge = (status: string) => {
         <Badge className="bg-green-600 hover:bg-green-700">Tasdiqlangan</Badge>
       );
     case "rejected":
-      return (
-        <Badge className="bg-red-500 hover:bg-red-600">Rad etilgan</Badge>
-      );
+      return <Badge className="bg-red-500 hover:bg-red-600">Rad etilgan</Badge>;
     default:
       return <Badge variant="secondary">{status || "Noma'lum"}</Badge>;
   }
@@ -65,7 +65,7 @@ const OperatorAppealsList = () => {
       startDate: today.startDate,
       endDate: today.endDate,
     },
-    { role: "operator" },
+    { role: "operator" }
   );
   const organizationsQuery = useOrganizations();
 
@@ -76,14 +76,13 @@ const OperatorAppealsList = () => {
     }
     return map;
   }, [organizationsQuery.data]);
-
   const requests = requestsQuery.data?.data ?? [];
   const errorMessage =
     requestsQuery.error instanceof ApiError
       ? requestsQuery.error.message
       : requestsQuery.error instanceof Error
-        ? requestsQuery.error.message
-        : "Murojaatlarni yuklashda xatolik";
+      ? requestsQuery.error.message
+      : "Murojaatlarni yuklashda xatolik";
 
   return (
     <>
@@ -173,7 +172,7 @@ const OperatorAppealsList = () => {
                     <TableCell>{request.citizen?.name ?? "—"}</TableCell>
                     <TableCell>
                       {request.organization
-                        ? organizationNameById.get(request.organization) ??
+                        ? organizationNameById.get(request.organization._id) ??
                           "—"
                         : "—"}
                     </TableCell>

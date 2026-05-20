@@ -1,9 +1,5 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { format, isValid, parseISO } from "date-fns";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addDays, format, isValid, parseISO, subDays } from "date-fns";
 
 import { normalizePhone } from "@/lib/phone";
 
@@ -26,7 +22,11 @@ export type AppealRequestListItem = {
   requestNumber: string;
   status: string;
   priority?: RequestPriority;
-  organization?: string;
+  organization?: {
+    _id: string;
+    name: string;
+    governance: string;
+  };
   citizen?: {
     name: string;
     phone: string;
@@ -85,8 +85,10 @@ const ROLES_WITHOUT_ORG_FILTER: UserRole[] = ["operator", "admin"];
 
 /** Local calendar date as `yyyy-MM-dd` for API `startDate` / `endDate` filters. */
 export const getTodayDateRange = (): { startDate: string; endDate: string } => {
-  const date = format(new Date(), "yyyy-MM-dd");
-  return { startDate: date, endDate: date };
+  const startDate = format(new Date(), "yyyy-MM-dd");
+  const endDate = format(addDays(new Date(), 1), "yyyy-MM-dd"); // add one day to the end date
+
+  return { startDate, endDate };
 };
 
 /** Formats an API ISO timestamp for list display (local time). */
@@ -99,7 +101,7 @@ export const formatRequestTime = (isoDate: string | undefined): string => {
 
 export const omitOrganizationForRole = (
   role: UserRole | undefined,
-  params: RequestsQueryParams,
+  params: RequestsQueryParams
 ): RequestsQueryParams => {
   if (!role || !ROLES_WITHOUT_ORG_FILTER.includes(role)) {
     return params;
@@ -115,7 +117,8 @@ export const buildRequestsQueryString = (params: RequestsQueryParams) => {
   if (params.page) searchParams.set("page", String(params.page));
   if (params.limit) searchParams.set("limit", String(params.limit));
   if (params.status) searchParams.set("status", params.status);
-  if (params.organization) searchParams.set("organization", params.organization);
+  if (params.organization)
+    searchParams.set("organization", params.organization);
   if (params.priority) searchParams.set("priority", params.priority);
   if (params.search) searchParams.set("search", params.search);
   if (params.startDate) searchParams.set("startDate", params.startDate);
@@ -127,7 +130,7 @@ export const buildRequestsQueryString = (params: RequestsQueryParams) => {
 
 export const useRequests = (
   params: RequestsQueryParams = {},
-  options: UseRequestsOptions = {},
+  options: UseRequestsOptions = {}
 ) => {
   const page = params.page ?? 1;
   const limit = params.limit ?? 20;
@@ -159,7 +162,7 @@ export const useRequests = (
           ...sanitized,
           page,
           limit,
-        })}`,
+        })}`
       );
 
       return response as RequestsListResponse;
@@ -171,7 +174,7 @@ export const useRequests = (
 };
 
 export const toOperatorCreatePayload = (
-  values: OperatorAppealFormValues,
+  values: OperatorAppealFormValues
 ): OperatorCreateRequestInput => ({
   citizenName: values.fullName.trim(),
   citizenPhone: normalizePhone(values.phone),
@@ -190,7 +193,7 @@ export const useCreateOperatorRequest = () => {
         {
           method: "POST",
           body: JSON.stringify(payload),
-        },
+        }
       );
 
       return response.data;
