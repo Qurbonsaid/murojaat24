@@ -30,7 +30,7 @@ export type UpdateProfileInput = {
 
 const roleRedirects: Record<UserRole, string> = {
   admin: "/ecosystem/modullar",
-  operator: "/operator-dashboard",
+  operator: "/operator-dashboard/new",
   dispatcher: "/dispatcher-dashboard",
   specialist: "/specialist-mobile",
   manager: "/manager-dashboard",

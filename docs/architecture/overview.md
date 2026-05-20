@@ -15,6 +15,7 @@ flowchart TD
   Ecosystem --> UsersAPI["/api/users"]
   Ecosystem --> OrgsAPI["/api/organizations"]
   Dashboards --> Mock["local mock appeal workflows"]
+  Dashboards --> RequestsAPI["POST /api/requests/operator"]
   Guard --> ProfileAPI["PUT /api/auth/profile"]
 ```
 
@@ -35,16 +36,16 @@ Vite, React 18, React Router, TanStack Query, react-hook-form + zod, Tailwind + 
 
 ## Backend boundary
 
-HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`, `organizations.ts`. Cookie session; JSON success envelope.
+HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`, `organizations.ts`, `requests.ts`. Cookie session; JSON success envelope.
 
 ## Data reality
 
 | Backed by API | Mock / local only |
 | --- | --- |
-| Auth session, profile | Operator appeal create |
-| Staff users CRUD | Dispatcher assignment |
-| Organizations CRUD | Specialist tasks & completion |
-| | Manager approve/reject |
+| Auth session, profile | Operator appeals list |
+| Operator appeal create | Dispatcher assignment |
+| Staff users CRUD | Specialist tasks & completion |
+| Organizations CRUD | Manager approve/reject |
 | | Admin appeal list & statistika charts |
 | | Settings templates & general toggles |
 | | Unmounted citizen submit/track pages |

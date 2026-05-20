@@ -35,7 +35,7 @@ Each feature folder contains the route component(s) and `README.md`.
 | `landing/` | `Index.tsx` | `/` |
 | `login/` | `Login.tsx` | `/login` |
 | `profile/` | `Profile.tsx` | `/profile`, `/ecosystem/profile` |
-| `operator-dashboard/` | `OperatorDashboard.tsx` | `/operator-dashboard` |
+| `operator-dashboard/` | `OperatorDashboardRoutes`, `OperatorNewAppeal`, `OperatorAppealsList` | `/operator-dashboard/new`, `/list` |
 | `dispatcher-dashboard/` | `DispatcherDashboard.tsx` | `/dispatcher-dashboard` |
 | `manager-dashboard/` | `ManagerDashboard.tsx` | `/manager-dashboard` |
 | `specialist-mobile/` | `SpecialistMobile.tsx` | `/specialist-mobile` |

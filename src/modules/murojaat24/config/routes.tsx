@@ -5,7 +5,7 @@ import DispatcherDashboard from "@/pages/dispatcher-dashboard/DispatcherDashboar
 import Login from "@/pages/login/Login";
 import ManagerDashboard from "@/pages/manager-dashboard/ManagerDashboard";
 import ManagerUsersPage from "@/pages/manager-users/ManagerUsersPage";
-import OperatorDashboard from "@/pages/operator-dashboard/OperatorDashboard";
+import OperatorDashboardRoutes from "@/pages/operator-dashboard/OperatorDashboardRoutes";
 import Profile from "@/pages/profile/Profile";
 import SpecialistMobile from "@/pages/specialist-mobile/SpecialistMobile";
 import type { UserRole } from "@/lib/api/auth";
@@ -25,8 +25,8 @@ export const murojaat24Routes: Murojaat24Route[] = [
     public: true,
   },
   {
-    path: "/operator-dashboard",
-    element: <OperatorDashboard />,
+    path: "/operator-dashboard/*",
+    element: <OperatorDashboardRoutes />,
     requiredRoles: ["operator", "admin"],
   },
   {

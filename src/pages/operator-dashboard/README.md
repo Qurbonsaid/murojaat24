@@ -1,44 +1,77 @@
 # Operator appeal intake
 
-Phone intake form and mock list of today’s appeals on `/operator-dashboard`. Submit does **not** call an appeals API.
+Phone intake form backed by `POST /api/requests/operator`, plus today's appeals list via `GET /api/requests/`.
 
 ## User-facing behavior
 
-Operator enters citizen details and organization, saves, sees success toast with a generated `MUR-2024-*` style number, form resets. Dashboard shows static KPIs and a mock request table below the form.
+**New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization from the API, saves, sees a success toast with the server `requestNumber`, form resets.
+
+**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`.
+
+`/operator-dashboard` redirects to `new`.
 
 ## Entry points
 
 | Route | File |
 | --- | --- |
-| `/operator-dashboard` | `src/pages/operator-dashboard/OperatorDashboard.tsx` |
+| `/operator-dashboard/*` | `OperatorDashboardRoutes.tsx` (nested router) |
+| `/operator-dashboard/new` | `OperatorNewAppeal.tsx` |
+| `/operator-dashboard/list` | `OperatorAppealsList.tsx` |
+| Layout | `OperatorLayout.tsx` |
 | Sidebar | `src/components/OperatorSidebar.tsx` |
 
-Organizations for the combobox: static list in `src/lib/organizations.ts` (not `GET /api/organizations` on this screen).
+Organizations for the combobox: `useOrganizations()` → `GET /api/organizations` (organization `_id` sent in the create payload).
 
 ## Data flow
 
 ```mermaid
-flowchart TD
-  Form["react-hook-form + zod"] --> Submit
-  Submit --> Delay["simulated delay"]
-  Delay --> Toast["success + generated id"]
-  Submit -.-> API["no appeal API"]
+sequenceDiagram
+  participant Form as OperatorNewAppeal
+  participant Orgs as useOrganizations
+  participant Hook as useCreateOperatorRequest
+  participant API as POST_operator
+
+  Form->>Orgs: GET /api/organizations
+  Form->>Form: zod validate + toOperatorCreatePayload
+  Form->>Hook: mutateAsync
+  Hook->>API: citizenName, citizenPhone, organization, description, address.full
+  API-->>Form: requestNumber
+  Form->>Form: toast + reset
 ```
 
-Auth: `useCurrentUser` for sidebar/profile menu only.
+```mermaid
+sequenceDiagram
+  participant List as OperatorAppealsList
+  participant Hook as useRequests
+  participant API as GET_requests
+
+  List->>Hook: page, limit, today dates, role operator
+  Hook->>API: GET /api/requests (no organization param)
+  API-->>List: data + pagination
+```
+
+Payload omits `images`, `priority`, address sub-fields, and coordinates. Optional **Qo'shimcha ma'lumot** is shown in the UI but not sent to the API.
+
+Phone is displayed as `+998 90 123 45 67` and normalized to `+998901234567` before POST (`src/lib/phone.ts`).
+
+Auth: `useCurrentUser` for sidebar/profile menu; create requires cookie session (`operator` or `admin`).
 
 ## Roles
 
 `operator`, `admin`.
 
+## Sidebar navigation
+
+`OperatorSidebar` links to `/operator-dashboard/new` (Yangi murojaat) and `/operator-dashboard/list` (Murojaatlar ro'yxati). Admin statistics live under `/ecosystem/murojaat24/statistika`, not in the operator shell.
+
 ## Edge cases
 
-- Phone field normalizes to Uzbek `+998 …` format.
-- Organization combobox empty state when no match.
-- Sidebar link to `/statistika` is not a registered route.
-- Hash nav links may not match page section ids.
+- Description min 20 / max 1000 characters (matches backend validation).
+- Organization combobox disabled while org list loads or on fetch error.
+- `ApiError` message shown in destructive toast on submit failure.
 
 ## Related docs
 
+- API hooks: `src/lib/api/requests.ts`, `src/lib/api/README.md`
 - Role: `docs/roles/operator.md`
 - Gotchas: `docs/architecture/gotchas.md`
