@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveAssetUrl } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -129,7 +130,10 @@ const ProfileTab = () => {
       <div className="flex flex-col items-center mb-6">
         <Avatar className="h-20 w-20 mb-3">
           {user.profile?.avatar ? (
-            <AvatarImage src={user.profile.avatar} alt={name} />
+            <AvatarImage
+              src={resolveAssetUrl(user.profile.avatar)}
+              alt={name}
+            />
           ) : null}
           <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
             {initials}

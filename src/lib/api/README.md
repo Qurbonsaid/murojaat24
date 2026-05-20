@@ -11,6 +11,7 @@ Staff sign in with phone + password on `/login`. Successful login redirects by r
 | Concern | Path |
 | --- | --- |
 | Hooks & roles | `auth.ts` |
+| File uploads | `uploads.ts` |
 | HTTP transport | `client.ts` |
 | Login page | `src/pages/login/Login.tsx` |
 | Route guard | `src/components/ProtectedRoute.tsx` |
@@ -48,5 +49,6 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 ## Related docs
 
-- Profile page: `src/pages/profile/README.md`
+- Profile page (avatar upload): `src/pages/profile/README.md`
+- Avatar upload: `useUploadAvatar` in `uploads.ts` → `POST /api/uploads/avatar`; profile save uses URL via `useUpdateProfile` in `auth.ts`
 - Conventions: `docs/architecture/conventions.md`

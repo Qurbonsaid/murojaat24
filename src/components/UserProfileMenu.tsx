@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { ApiError } from "@/lib/api/client";
+import { ApiError, resolveAssetUrl } from "@/lib/api/client";
 import { useCurrentUser, useLogout } from "@/lib/api/auth";
 import { cn } from "@/lib/utils";
 
@@ -116,7 +116,10 @@ const UserProfileMenu = ({
         >
           <Avatar className="h-7 w-7">
             {user.profile?.avatar?.trim() ? (
-              <AvatarImage src={user.profile.avatar} alt={displayName} />
+              <AvatarImage
+                src={resolveAssetUrl(user.profile.avatar)}
+                alt={displayName}
+              />
             ) : null}
             <AvatarFallback
               className={cn(

@@ -4,6 +4,7 @@ import { Edit, Plus, Search, Trash2 } from "lucide-react";
 import ManagerSidebar from "@/components/ManagerSidebar";
 import UserProfileMenu from "@/components/UserProfileMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveAssetUrl } from "@/lib/api/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -187,7 +188,7 @@ const ManagerUsersPage = () => {
                             <Avatar className="h-8 w-8">
                               {user.profile?.avatar && (
                                 <AvatarImage
-                                  src={user.profile.avatar}
+                                  src={resolveAssetUrl(user.profile.avatar)}
                                   alt={fullName}
                                 />
                               )}

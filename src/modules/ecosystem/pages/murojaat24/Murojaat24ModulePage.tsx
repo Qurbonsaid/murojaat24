@@ -14,6 +14,7 @@ import {
 import AddUserModal from "@/components/AddUserModal";
 import EditUserModal from "@/components/EditUserModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { resolveAssetUrl } from "@/lib/api/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -341,7 +342,7 @@ const Murojaat24ModulePage = () => {
                             <Avatar className="h-8 w-8">
                               {user.profile?.avatar && (
                                 <AvatarImage
-                                  src={user.profile.avatar}
+                                  src={resolveAssetUrl(user.profile.avatar)}
                                   alt={fullName}
                                 />
                               )}

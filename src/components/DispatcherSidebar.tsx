@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FileText, Monitor, MapPin, BarChart3, Inbox } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
+import { resolveAssetUrl } from "@/lib/api/client";
 
 const DispatcherSidebar = () => {
   const location = useLocation();
@@ -43,7 +44,10 @@ const DispatcherSidebar = () => {
         <div className="flex items-center gap-3">
           <Avatar>
             {user?.profile?.avatar ? (
-              <AvatarImage src={user.profile.avatar} alt={name} />
+              <AvatarImage
+                src={resolveAssetUrl(user.profile.avatar)}
+                alt={name}
+              />
             ) : null}
             <AvatarFallback className="bg-primary text-primary-foreground">
               {name
