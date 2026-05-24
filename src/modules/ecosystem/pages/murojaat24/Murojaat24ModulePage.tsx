@@ -38,7 +38,7 @@ import type { StaffUser } from "@/lib/api/users";
 import { useDeleteUser, useUsers } from "@/lib/api/users";
 
 import MurojaatlarSection from "./MurojaatlarSection";
-import StatistikaSection from "./StatistikaSection";
+import StatisticsSection from "./StatisticsSection";
 
 type Murojaat24Section =
   | "dashboard"
@@ -458,7 +458,7 @@ const Murojaat24ModulePage = () => {
 
       {section === "murojaatlar" && <MurojaatlarSection />}
 
-      {section === "statistika" && <StatistikaSection />}
+      {section === "statistika" && <StatisticsSection />}
 
       <AddUserModal
         open={addUserModalOpen}

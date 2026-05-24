@@ -8,8 +8,8 @@ Admin settings sections inside `SozlamalarPage.tsx`, routed under `/ecosystem/so
 | --- | --- |
 | `/ecosystem/sozlamalar/rahbariyat` | Governance grouping |
 | `/ecosystem/sozlamalar/tashkilotlar` | Organization CRUD |
-| `/ecosystem/sozlamalar/shablonlar` | SMS templates (local) |
-| `/ecosystem/sozlamalar/umumiy` | General toggles/inputs (local) |
+| `/ecosystem/sozlamalar/shablonlar` | SMS templates (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
+| `/ecosystem/sozlamalar/umumiy` | General toggles/inputs (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
 | `obyekt-turi`, `chaqiruv-turi`, `ish-vaqtlari` | In-page coming-soon card (menu may point to `ComingSoonPage` for some) |
 
 File: `src/modules/ecosystem/pages/sozlamalar/SozlamalarPage.tsx`.
@@ -20,7 +20,7 @@ File: `src/modules/ecosystem/pages/sozlamalar/SozlamalarPage.tsx`.
 
 Lists organizations from `useOrganizations`, groups by governance for rahbariyat view, supports search, create, edit, delete via `src/lib/api/organizations.ts`.
 
-**Edge cases:** loading/error/empty states; save disabled until name and governance filled; failures show destructive toast.
+**Edge cases:** loading/error/empty states; save disabled until name and governance filled; failures show destructive toast; delete opens `AlertDialog` confirmation before `useDeleteOrganization`; if the edited org is deleted, the edit dialog closes.
 
 ---
 

@@ -54,7 +54,7 @@ Full hook patterns: `src/lib/api/README.md`, `docs/architecture/conventions.md`.
 | `Organizations` | `src/lib/api/organizations.ts`, settings |
 | `Requests`, `Requests - Staff`, `Requests - Public` | `src/lib/api/requests.ts`, operator/citizen flows |
 | `Assignments` | Dispatcher/specialist (not wired yet) |
-| `Statistics` | Admin statistika (mostly mock today) |
+| `Statistics` | `src/lib/api/statistics.ts` — admin `StatisticsSection` |
 | `Uploads` | `src/lib/api/uploads.ts`, profile avatar |
 
 ## Agent task template

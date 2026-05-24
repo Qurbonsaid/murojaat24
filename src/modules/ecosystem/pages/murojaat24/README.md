@@ -8,7 +8,7 @@ Admin views inside the ecosystem for Murojaat24: dashboard summary, appeals list
 | --- | --- |
 | `/ecosystem/murojaat24` | Dashboard in `Murojaat24ModulePage.tsx` (this folder) |
 | `.../murojaatlar` | `MurojaatlarSection.tsx` |
-| `.../statistika` | `StatistikaSection.tsx` |
+| `.../statistika` | `StatisticsSection.tsx` |
 | `.../foydalanuvchilar` | User table + modals in `Murojaat24ModulePage.tsx` |
 
 Modals: `src/components/AddUserModal.tsx`, `EditUserModal.tsx`. API: `src/lib/api/users.ts`, `organizations.ts` (for org pickers).
@@ -19,7 +19,7 @@ Modals: `src/components/AddUserModal.tsx`, `EditUserModal.tsx`. API: `src/lib/ap
 
 Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → `GET /api/requests/` and row detail via `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id` (`src/lib/api/requests.ts`).
 
-**Filters (query params):** `search`, `status`, `organization`, `priority`, `startDate`, `endDate` (`yyyy-MM-dd`). Options from `REQUEST_STATUS_OPTIONS` and `REQUEST_PRIORITY_OPTIONS`; organizations from `useOrganizations`. Pass `options.role: "admin"` so `organization` is sent when filtered. Changing any filter resets to page 1.
+**Filters (query params):** `search`, `status`, `organization`, `priority`, `startDate`, `endDate` (`yyyy-MM-dd` from `DatePicker` in `components/ui/date-picker.tsx`). Options from `REQUEST_STATUS_OPTIONS` and `REQUEST_PRIORITY_OPTIONS`; organizations from `useOrganizations`. Pass `options.role: "admin"` so `organization` is sent when filtered. Changing any filter resets to page 1.
 
 **Table columns:** request number, citizen name, organization (via `resolveOrganizationName`), priority label, created time (`formatRequestDateTime`), `RequestStatusBadge`, Eye action.
 
@@ -31,11 +31,21 @@ Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → 
 
 ## Statistics (`statistika`)
 
-Charts, filters, governance block, and detail table from local arrays in `StatistikaSection.tsx`. Date/domain filters update UI state but do not filter underlying static data. Excel export button has no handler.
+Admin analytics in `StatisticsSection.tsx` backed by `src/lib/api/statistics.ts`:
 
-**API:** none for stats. **Roles:** admin; extra governance UI when current user role is admin.
+| UI block | Hook | Endpoint |
+| --- | --- | --- |
+| Kunlik dinamika | `useDailyStatistics(days)` | `GET /api/statistics/daily?days=` |
+| Tashkilotlar taqsimoti | `useOrganizationStatistics` | `GET /api/statistics/by-organization` |
+| Rahbariyat (admin) | Derived from organization stats | Same |
+| Mutaxassislar jadvali | `useSpecialistStatistics` | `GET /api/statistics/specialists` |
+| Excel yuklash | `useExportStatistics` | `GET /api/statistics/export` |
 
-**Edge cases:** badge variants include `new` vs operator’s `pending`; static 2024 sample metrics.
+Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export + labels only — list endpoints have no org query in spec). Loading spinner, per-query error message, empty states.
+
+**Roles:** admin ecosystem; governance tabs when `currentUser.role === "admin"`.
+
+**Edge cases:** response normalizers tolerate varying envelope shapes; export downloads blob via `Content-Disposition` filename when present.
 
 ---
 

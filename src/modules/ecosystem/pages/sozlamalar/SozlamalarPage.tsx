@@ -2,6 +2,15 @@ import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Clock3, Edit, Plus, Search, Trash2 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -256,6 +265,9 @@ const TashkilotlarSection = () => {
   >(null);
   const [formName, setFormName] = useState("");
   const [formGovernance, setFormGovernance] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [organizationToDelete, setOrganizationToDelete] =
+    useState<Organization | null>(null);
 
   const filtered = useMemo(() => {
     const items = organizationsQuery.data ?? [];
@@ -349,13 +361,31 @@ const TashkilotlarSection = () => {
     }
   };
 
-  const handleDelete = async (org: Organization) => {
+  const openDeleteDialog = (org: Organization) => {
+    setOrganizationToDelete(org);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setOrganizationToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!organizationToDelete) return;
+
     try {
-      await deleteOrganizationMutation.mutateAsync(org._id);
+      await deleteOrganizationMutation.mutateAsync(organizationToDelete._id);
       toast({
         title: "O'chirildi",
         description: "Tashkilot muvaffaqiyatli o'chirildi",
       });
+
+      if (activeOrganizationId === organizationToDelete._id) {
+        closeDialog();
+      }
+
+      closeDeleteDialog();
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -431,8 +461,9 @@ const TashkilotlarSection = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(org)}
+                    onClick={() => openDeleteDialog(org)}
                     disabled={isMutating}
+                    aria-label={`${org.name} tashkilotini o'chirish`}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -450,8 +481,52 @@ const TashkilotlarSection = () => {
           ) : null}
         </div>
 
+        <AlertDialog
+          open={deleteDialogOpen}
+          onOpenChange={(open) => {
+            setDeleteDialogOpen(open);
+            if (!open) setOrganizationToDelete(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Tashkilotni o&apos;chirish</AlertDialogTitle>
+              <AlertDialogDescription>
+                {organizationToDelete ? (
+                  <>
+                    <span className="font-medium text-foreground">
+                      {organizationToDelete.name}
+                    </span>{" "}
+                    tashkilotini o&apos;chirmoqchimisiz? Bu amalni qaytarib
+                    bo&apos;lmaydi.
+                  </>
+                ) : (
+                  "Tashkilotni o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi."
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                disabled={deleteOrganizationMutation.isPending}
+              >
+                Bekor qilish
+              </AlertDialogCancel>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={deleteOrganizationMutation.isPending}
+                onClick={() => void handleDeleteConfirm()}
+              >
+                {deleteOrganizationMutation.isPending
+                  ? "O'chirilmoqda..."
+                  : "O'chirish"}
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
-          <DialogContent>
+          <DialogContent className="overflow-visible">
             <DialogHeader>
               <DialogTitle>
                 {dialogMode === "create"

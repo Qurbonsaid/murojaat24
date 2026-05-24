@@ -22,7 +22,7 @@ Current traps and mismatches. Snapshot of behavior in the repo — not a backlog
 
 ## Mock-only workflows
 
-No backend call for: dispatcher assignment, specialist task lifecycle, manager approve/reject, admin Murojaatlar/statistika tables, sozlamalar templates/general save, citizen submit/track simulations.
+No backend call for: dispatcher assignment, specialist task lifecycle, manager approve/reject, admin ecosystem dashboard KPIs, sozlamalar templates/general save, citizen submit/track simulations. Admin appeals list and `StatisticsSection` use API (`requests.ts`, `statistics.ts`).
 
 Operator dashboard uses `GET /api/organizations`, `POST /api/requests/operator`, and `GET /api/requests/` (list). `useRequests` omits the `organization` query param when `options.role` is `operator` or `admin`. Operator list KPI cards are still static mock values. List status badges expect API values (`new`, `assigned`, `in-progress`, etc.), not legacy mock labels like `pending`.
 
