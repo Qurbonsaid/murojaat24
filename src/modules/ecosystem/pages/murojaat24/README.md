@@ -25,7 +25,7 @@ Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → 
 
 **Roles:** admin only (via ecosystem gate).
 
-**Edge cases:** loading spinner, `ApiError` message, empty “Murojaatlar topilmadi”; Eye disabled when `_id` missing; pagination Prev/Next when `pagination.pages > 1`.
+**Edge cases:** loading spinner, `ApiError` message, empty “Murojaatlar topilmadi”; Eye disabled when `_id` missing; pagination Prev/Next when `pagination.pages > 1`. Detail modal images open in `ImagePreviewDialog` on click.
 
 ---
 
@@ -35,15 +35,16 @@ Admin analytics in `StatisticsSection.tsx` backed by `src/lib/api/statistics.ts`
 
 | UI block | Hook | Endpoint |
 | --- | --- | --- |
-| Kunlik dinamika | `useDailyStatistics(days)` | `GET /api/statistics/daily?days=` |
-| Tashkilotlar taqsimoti | `useOrganizationStatistics` | `GET /api/statistics/by-organization` |
-| Rahbariyat (admin) | Derived from organization stats | Same |
-| Mutaxassislar jadvali | `useSpecialistStatistics` | `GET /api/statistics/specialists` |
-| Excel yuklash | `useExportStatistics` | `GET /api/statistics/export` |
+| Filter bar + Excel yuklash | `useExportStatistics` | `GET /api/statistics/export` |
+| Rahbariyat bo'yicha statistika (admin only) | `useOrganizationStatistics` + `groupOrganizationStatisticsByGovernance` | `GET /api/statistics/by-organization` |
+| Tashkilotlar bo'yicha taqsimot (pie) | `useOrganizationStatistics` | `GET /api/statistics/by-organization` |
+| Kunlik dinamika (line) | `useDailyStatistics(days)` | `GET /api/statistics/daily?days=` |
 
-Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export + labels only — list endpoints have no org query in spec). Loading spinner, per-query error message, empty states.
+**Not used on this page:** `GET /api/statistics/specialists` / `useSpecialistStatistics` (no Mutaxassislar table).
 
-**Roles:** admin ecosystem; governance tabs when `currentUser.role === "admin"`.
+Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export query param only). Rahbariyat card renders when `currentUser.role === "admin"` and governance data is non-empty.
+
+**Roles:** admin ecosystem (`/ecosystem/murojaat24/statistika`).
 
 **Edge cases:** response normalizers tolerate varying envelope shapes; export downloads blob via `Content-Disposition` filename when present.
 

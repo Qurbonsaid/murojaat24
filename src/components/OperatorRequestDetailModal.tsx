@@ -1,6 +1,7 @@
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Loader2, Phone } from "lucide-react";
 
+import ImagePreviewDialog from "@/components/ImagePreviewDialog";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,8 +45,16 @@ const OperatorRequestDetailModal = ({
   open,
   onOpenChange,
 }: OperatorRequestDetailModalProps) => {
+  const [previewImage, setPreviewImage] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
   const requestQuery = useRequest(open ? requestId : null);
   const organizationsQuery = useOrganizations();
+
+  useEffect(() => {
+    if (!open) setPreviewImage(null);
+  }, [open]);
 
   const organizationNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -73,7 +82,14 @@ const OperatorRequestDetailModal = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <ImagePreviewDialog
+        src={previewImage?.src ?? null}
+        alt={previewImage?.alt}
+        onClose={() => setPreviewImage(null)}
+      />
+
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3 pr-6">
@@ -149,13 +165,21 @@ const OperatorRequestDetailModal = ({
                   {request.images.map((image, index) => {
                     const src = resolveAssetUrl(image);
                     if (!src) return null;
+                    const alt = `Murojaat rasmi ${index + 1}`;
                     return (
-                      <img
+                      <button
                         key={`${image}-${index}`}
-                        src={src}
-                        alt={`Murojaat rasmi ${index + 1}`}
-                        className="h-32 w-full rounded-lg border border-border object-cover"
-                      />
+                        type="button"
+                        className="h-32 w-full overflow-hidden rounded-lg border border-border bg-muted/30 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        onClick={() => setPreviewImage({ src, alt })}
+                        aria-label={`${alt} — kattalashtirish`}
+                      >
+                        <img
+                          src={src}
+                          alt={alt}
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
                     );
                   })}
                 </div>
@@ -195,6 +219,7 @@ const OperatorRequestDetailModal = ({
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 

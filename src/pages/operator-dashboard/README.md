@@ -6,7 +6,7 @@ Phone intake form backed by `POST /api/requests/operator`, plus today's appeals 
 
 **New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization from the API, saves, sees a success toast with the server `requestNumber`, form resets.
 
-**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id`.
+**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id`; appeal photos open full-size in `ImagePreviewDialog` on click.
 
 `/operator-dashboard` redirects to `new`.
 

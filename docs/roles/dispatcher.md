@@ -1,31 +1,32 @@
 # Dispatcher
 
-**Monitoring and assignment** UI: new request cards, map markers, specialist availability, assignment modal. Assignment is local state + toast — no assignment API.
+**Appeals assignment** UI: new appeals table, specialist assignment modal, and assignments list with cancel confirmation. Backed by `requests`, `assignments`, and `users` API hooks.
 
 ## Identifier
 
 - Code value: `dispatcher` (UI may label “Dispetcher”)
-- Post-login home: `/dispatcher-dashboard`
+- Post-login home: `/dispatcher-dashboard/appeals`
 
 ## Routes
 
 | Path | Component | Gate |
 | --- | --- | --- |
-| `/dispatcher-dashboard` | `DispatcherDashboard` | `dispatcher`, `admin` |
+| `/dispatcher-dashboard/appeals` | `DispatcherNewAppeals` | `dispatcher`, `admin` |
+| `/dispatcher-dashboard/assignments` | `DispatcherAssignments` | `dispatcher`, `admin` |
 | `/profile` | `Profile` + `DispatcherSidebar` | all staff roles |
 
 ## Actions
 
 - Login, logout, update profile.
-- View mock new requests and open assignment modal.
-- Select specialist and confirm (toast only).
-- View percentage-based map markers and specialist cards.
+- List new appeals (`status=new`), filter by organization, view detail.
+- Assign specialist to appeal (`POST /api/assignments`).
+- List assignments, filter by status, cancel with confirmation (`PUT /api/assignments/:id/cancel`).
 
 ## Data read / write
 
-**Reads:** `CurrentUser`; local `newRequests`, specialists, map markers.
+**Reads:** `useCurrentUser`; `useRequests` (new appeals); `useOrganizations`; `useAssignments`; `useSpecialists`.
 
-**Writes:** auth/profile API; modal selection state local.
+**Writes:** auth/profile API; `useCreateAssignment`; `useCancelAssignment`.
 
 ## Feature docs
 

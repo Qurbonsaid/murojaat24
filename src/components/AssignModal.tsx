@@ -1,66 +1,97 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { MapPin, Star } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-
-interface Specialist {
-  id: string;
-  name: string;
-  distance: string;
-  currentLoad: string;
-  rating: number;
-  recommended?: boolean;
-}
+import { useCreateAssignment } from "@/lib/api/assignments";
+import { ApiError } from "@/lib/api/client";
+import { getStaffUserDisplayName, useSpecialists } from "@/lib/api/users";
+import { Loader2 } from "lucide-react";
 
 interface AssignModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  requestId: string;
   requestNumber: string;
+  organizationId?: string;
 }
 
-const specialists: Specialist[] = [
-  {
-    id: "1",
-    name: "Akmal Rahimov",
-    distance: "2.3 km",
-    currentLoad: "2 ta ochiq topshiriq",
-    rating: 4.8,
-    recommended: true,
-  },
-  {
-    id: "2",
-    name: "Bobur Toshmatov",
-    distance: "4.1 km",
-    currentLoad: "3 ta ochiq topshiriq",
-    rating: 4.6,
-  },
-  {
-    id: "3",
-    name: "Davron Yusupov",
-    distance: "5.8 km",
-    currentLoad: "1 ta ochiq topshiriq",
-    rating: 4.7,
-  },
-];
-
-const AssignModal = ({ open, onOpenChange, requestNumber }: AssignModalProps) => {
-  const [selectedSpecialist, setSelectedSpecialist] = useState<string>("");
+const AssignModal = ({
+  open,
+  onOpenChange,
+  requestId,
+  requestNumber,
+  organizationId,
+}: AssignModalProps) => {
+  const [selectedSpecialist, setSelectedSpecialist] = useState("");
   const { toast } = useToast();
+  const createAssignment = useCreateAssignment();
 
-  const handleAssign = () => {
-    const specialist = specialists.find(s => s.id === selectedSpecialist);
-    if (specialist) {
+  const specialistsQuery = useSpecialists(
+    {
+      limit: 100,
+      ...(organizationId ? { organizations: [organizationId] } : {}),
+    },
+    { enabled: open },
+  );
+
+  const specialists = specialistsQuery.data?.data ?? [];
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedSpecialist("");
+    }
+  }, [open]);
+
+  const specialistOptions = useMemo(
+    () =>
+      specialists.map((specialist) => ({
+        id: specialist._id,
+        name: getStaffUserDisplayName(specialist),
+        status: specialist.status,
+      })),
+    [specialists],
+  );
+
+  const handleAssign = async () => {
+    if (!requestId || !selectedSpecialist) return;
+
+    try {
+      await createAssignment.mutateAsync({
+        requestId,
+        specialistId: selectedSpecialist,
+      });
+
+      const specialist = specialistOptions.find(
+        (item) => item.id === selectedSpecialist,
+      );
+
       toast({
         title: "Tayinlandi",
-        description: `Murojaat ${specialist.name}ga tayinlandi`,
+        description: `Murojaat ${specialist?.name ?? "mutaxassis"}ga tayinlandi`,
       });
       onOpenChange(false);
       setSelectedSpecialist("");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : "Tayinlashda xatolik";
+      toast({
+        variant: "destructive",
+        title: "Xatolik",
+        description: message,
+      });
     }
   };
 
@@ -70,72 +101,90 @@ const AssignModal = ({ open, onOpenChange, requestNumber }: AssignModalProps) =>
         <DialogHeader>
           <DialogTitle>Mutaxassisni tanlang</DialogTitle>
           <DialogDescription>
-            Murojaat: <span className="font-semibold text-foreground">{requestNumber}</span>
+            Murojaat:{" "}
+            <span className="font-semibold text-foreground">{requestNumber}</span>
           </DialogDescription>
         </DialogHeader>
 
-        <RadioGroup value={selectedSpecialist} onValueChange={setSelectedSpecialist} className="space-y-3">
-          {specialists.map((specialist) => (
-            <div
-              key={specialist.id}
-              className={`flex items-start gap-3 p-4 rounded-lg border-2 transition-colors cursor-pointer ${
-                selectedSpecialist === specialist.id
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-primary/50"
-              }`}
-              onClick={() => setSelectedSpecialist(specialist.id)}
-            >
-              <RadioGroupItem value={specialist.id} id={specialist.id} className="mt-1" />
-              
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {specialist.name.split(" ").map(n => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <Label htmlFor={specialist.id} className="font-semibold cursor-pointer">
-                        {specialist.name}
-                      </Label>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs text-muted-foreground">{specialist.rating}</span>
-                      </div>
-                    </div>
-                  </div>
-                  {specialist.recommended && (
-                    <Badge className="bg-green-500 hover:bg-green-600 text-xs">
-                      Tavsiya etiladi
-                    </Badge>
-                  )}
-                </div>
+        {specialistsQuery.isLoading ? (
+          <div className="flex justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : specialistsQuery.isError ? (
+          <p className="py-4 text-center text-sm text-destructive">
+            Mutaxassislarni yuklashda xatolik
+          </p>
+        ) : specialistOptions.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            Mos mutaxassislar topilmadi
+          </p>
+        ) : (
+          <RadioGroup
+            value={selectedSpecialist}
+            onValueChange={setSelectedSpecialist}
+            className="space-y-3"
+          >
+            {specialistOptions.map((specialist) => (
+              <div
+                key={specialist.id}
+                className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-colors ${
+                  selectedSpecialist === specialist.id
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+                onClick={() => setSelectedSpecialist(specialist.id)}
+              >
+                <RadioGroupItem
+                  value={specialist.id}
+                  id={specialist.id}
+                  className="mt-1"
+                />
 
-                <div className="space-y-1 text-xs text-muted-foreground pl-[52px]">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3" />
-                    <span>{specialist.distance}</span>
-                  </div>
+                <div className="flex flex-1 items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {specialist.name
+                        .split(" ")
+                        .map((part) => part[0])
+                        .join("")
+                        .slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <span>{specialist.currentLoad}</span>
+                    <Label htmlFor={specialist.id} className="cursor-pointer font-semibold">
+                      {specialist.name}
+                    </Label>
+                    {specialist.status && (
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {specialist.status}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </RadioGroup>
+            ))}
+          </RadioGroup>
+        )}
 
-        <div className="flex gap-3 mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+        <div className="mt-4 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1"
+            disabled={createAssignment.isPending}
+          >
             Bekor qilish
           </Button>
-          <Button 
-            onClick={handleAssign} 
-            disabled={!selectedSpecialist}
+          <Button
+            onClick={handleAssign}
+            disabled={
+              !selectedSpecialist ||
+              createAssignment.isPending ||
+              specialistsQuery.isLoading
+            }
             className="flex-1"
           >
-            Tayinlash
+            {createAssignment.isPending ? "Tayinlanmoqda..." : "Tayinlash"}
           </Button>
         </div>
       </DialogContent>
