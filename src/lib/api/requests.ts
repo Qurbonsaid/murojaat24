@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addDays, format, isValid, parseISO, subDays } from "date-fns";
+import { addDays, format, isValid, parseISO } from "date-fns";
 
 import { normalizePhone } from "@/lib/phone";
 
@@ -111,7 +111,31 @@ export type OperatorAppealFormValues = {
   address: string;
 };
 
-const ROLES_WITHOUT_ORG_FILTER: UserRole[] = ["operator", "admin"];
+const ROLES_WITHOUT_ORG_FILTER: UserRole[] = ["operator"];
+
+export type RequestFilterOption<T extends string = string> = {
+  value: T;
+  label: string;
+};
+
+export const REQUEST_STATUS_OPTIONS: RequestFilterOption<RequestStatus>[] = [
+  { value: "new", label: "Yangi" },
+  { value: "assigned", label: "Tayinlangan" },
+  { value: "in-progress", label: "Bajarilmoqda" },
+  { value: "completed", label: "Yakunlangan" },
+  { value: "verified", label: "Tasdiqlangan" },
+  { value: "rejected", label: "Rad etilgan" },
+];
+
+export const REQUEST_PRIORITY_OPTIONS: RequestFilterOption<RequestPriority>[] =
+  (
+    Object.entries({
+      low: "Past",
+      medium: "O'rtacha",
+      high: "Yuqori",
+      urgent: "Shoshilinch",
+    }) as [RequestPriority, string][]
+  ).map(([value, label]) => ({ value, label }));
 
 /** Local calendar date as `yyyy-MM-dd` for API `startDate` / `endDate` filters. */
 export const getTodayDateRange = (): { startDate: string; endDate: string } => {

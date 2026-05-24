@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
-import { ecosystemMenuItems } from "../config/menu";
+import { getVisibleEcosystemMenuItems } from "../config/menu";
 
 type EcosystemSidebarNavigationProps = {
   onNavigate?: () => void;
@@ -19,6 +19,7 @@ const EcosystemSidebarNavigation = ({
 }: EcosystemSidebarNavigationProps) => {
   const location = useLocation();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const visibleMenuItems = useMemo(() => getVisibleEcosystemMenuItems(), []);
 
   const isActivePath = (path: string) => {
     return (
@@ -37,7 +38,7 @@ const EcosystemSidebarNavigation = ({
     setOpenSections((current) => {
       const next = { ...current };
 
-      ecosystemMenuItems.forEach((item) => {
+      visibleMenuItems.forEach((item) => {
         if (!item.children?.length) {
           return;
         }
@@ -49,12 +50,12 @@ const EcosystemSidebarNavigation = ({
 
       return next;
     });
-  }, [location.pathname]);
+  }, [location.pathname, visibleMenuItems]);
 
   return (
     <nav className="p-3">
       <ul className="space-y-1.5">
-        {ecosystemMenuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const Icon = item.icon;
           const hasChildren = Boolean(item.children?.length);
           const isParentActive = isActivePath(item.path);
@@ -66,7 +67,7 @@ const EcosystemSidebarNavigation = ({
                   "flex items-center rounded-lg border border-transparent transition-colors",
                   isParentActive
                     ? "border-sky-400/40 bg-sky-500/20"
-                    : "hover:bg-[#172a58]",
+                    : "hover:bg-[#172a58]"
                 )}
               >
                 <NavLink
@@ -77,7 +78,7 @@ const EcosystemSidebarNavigation = ({
                   <span
                     className={cn(
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-white",
-                      isParentActive ? "bg-sky-500" : "bg-[#2663b6]",
+                      isParentActive ? "bg-sky-500" : "bg-[#2663b6]"
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -115,7 +116,7 @@ const EcosystemSidebarNavigation = ({
                             "block rounded-md px-3 py-1.5 text-sm transition-colors",
                             isChildActive
                               ? "bg-sky-500/90 font-medium text-white"
-                              : "text-slate-300 hover:bg-[#172a58] hover:text-white",
+                              : "text-slate-300 hover:bg-[#172a58] hover:text-white"
                           )}
                         >
                           {child.label}
@@ -151,36 +152,7 @@ const SidebarPanel = ({ onNavigate }: EcosystemSidebarNavigationProps) => {
 
 const EcosystemLayout = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
   const location = useLocation();
-
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 60_000);
-
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const formattedDate = useMemo(
-    () =>
-      new Intl.DateTimeFormat("uz-UZ", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).format(currentDateTime),
-    [currentDateTime],
-  );
-
-  const formattedTime = useMemo(
-    () =>
-      new Intl.DateTimeFormat("uz-UZ", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).format(currentDateTime),
-    [currentDateTime],
-  );
 
   useEffect(() => {
     setMobileSidebarOpen(false);
@@ -221,10 +193,6 @@ const EcosystemLayout = () => {
           </Link>
 
           <div className="ml-auto flex items-center gap-2 text-right text-xs sm:gap-4 sm:text-sm">
-            <div>
-              <p className="font-semibold">{formattedDate}</p>
-              <p className="text-sky-100">{formattedTime}</p>
-            </div>
             <UserProfileMenu
               className="hidden items-center gap-2 rounded-md bg-[#0a4679]/80 px-3 py-1.5 text-white hover:bg-[#0a4679] hover:text-white sm:inline-flex"
               variant="ghost"

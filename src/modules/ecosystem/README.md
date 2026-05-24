@@ -36,7 +36,7 @@ flowchart TD
   Switch --> ComingSoon
 ```
 
-`moduleKind` values: `modullar`, `murojaat24`, `sozlamalar`, `coming-soon`.
+`moduleKind` values: `modullar`, `murojaat24`, `sozlamalar`, `coming-soon`. Sidebar uses `getVisibleEcosystemMenuItems()` to hide `coming-soon` entries; routes still exist for placeholders.
 
 ## Roles
 

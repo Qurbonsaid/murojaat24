@@ -27,6 +27,7 @@ Canonical role strings live in `src/lib/api/auth.ts` (`UserRole`). UI labels may
 - `index.html` — app entry.
 - `AGENTS.md` — this file.
 - `docs/` — stable architecture, routing, roles, conventions (not feature-deep).
+- `docs/api/openapi.json` — committed OpenAPI 3.0 contract (refresh via `docs/api/refresh-openapi.sh`).
 
 ### `src/`
 
@@ -61,19 +62,31 @@ Session is **cookie-based** from the browser’s perspective: `apiRequest` in `s
 
 Details: `src/lib/api/README.md`, `docs/architecture/conventions.md` (Auth section).
 
+## API contract
+
+- **OpenAPI:** `docs/api/openapi.json` (source: https://api-staging.aqllishahar-termizsh.uz/docs/json — refresh with `docs/api/refresh-openapi.sh`).
+- **Staging base URL:** `https://api-staging.aqllishahar-termizsh.uz`
+- **Local / deployed base URL:** `VITE_BASE_URL` in `.env` (see `src/lib/api/client.ts`; fallback `http://localhost:8080`).
+- **Auth:** httpOnly cookie `access_token`; all staff calls use `credentials: "include"`.
+- **Envelope:** `{ success, data, message?, pagination? }`; failures throw `ApiError`.
+
+When integrating a new endpoint, read the spec first (path, method, body, query, tags). Do not duplicate the spec in markdown—point to `docs/api/openapi.json`. Details: `docs/api/README.md`.
+
 ## How the API layer works
 
-All HTTP goes through `apiRequest` in `src/lib/api/client.ts`: base URL from `VITE_BASE_URL` (fallback `http://localhost:8080`), JSON `Accept`/`Content-Type`, envelope `{ success, data, message?, pagination? }`, throws `ApiError` on HTTP or `success: false`.
+All HTTP goes through `apiRequest` in `src/lib/api/client.ts`.
 
-Domain hooks live beside the client:
+Domain hooks live beside the client (see `docs/api/README.md` for tag → file mapping):
 
 - `src/lib/api/auth.ts` — session, login/logout, profile, forgot-password helpers.
 - `src/lib/api/users.ts` — staff CRUD and list filters.
 - `src/lib/api/organizations.ts` — organization CRUD.
+- `src/lib/api/requests.ts` — appeals list, detail, operator create.
+- `src/lib/api/uploads.ts` — avatar upload.
 
-There is **no** appeal/task/review API module in the frontend today. Do not assume endpoints beyond what those files call.
+Many workflow screens (dispatcher assign, specialist tasks, manager verify, admin statistics) are still mock; endpoints exist in the spec but may lack frontend hooks.
 
-Details: `docs/architecture/conventions.md` (API section).
+Details: `docs/architecture/conventions.md` (API section), `docs/architecture/implementation-gaps.md`.
 
 ## How state is organized
 
@@ -102,13 +115,15 @@ Full conventions: `docs/architecture/conventions.md`. Footguns: `docs/architectu
 2. **Role docs** (`docs/roles/*.md`): change only when role permissions, routes, or role-wide workflows change.
 3. **Architecture docs** (`docs/architecture/*.md`): change only when app structure, routing shape, or cross-cutting conventions change.
 4. **This file (`AGENTS.md`):** update when onboarding facts change (new top-level area, new role, new global pattern).
-5. No line-number citations in docs; point to file paths. No copied TypeScript types or endpoint inventories — read the source.
+5. No line-number citations in docs; point to file paths. No copied TypeScript types or hand-maintained endpoint inventories in feature/architecture docs — use `docs/api/openapi.json` for routes and schemas.
 
 ## Where to read next
 
 ### Stable docs
 
 - `docs/README.md` — index.
+- `docs/api/README.md` — OpenAPI contract, refresh, environments.
+- `docs/api/openapi.json` — API paths and schemas (agents: read this for integrations).
 - `docs/architecture/overview.md` — system shape, API vs mock split.
 - `docs/architecture/project-structure.md` — folder map.
 - `docs/architecture/routing.md` — route tables and gates.

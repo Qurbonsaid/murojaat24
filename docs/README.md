@@ -10,6 +10,16 @@ Stable docs live here; **feature behavior** lives in `README.md` files next to t
 4. Change onboarding facts → `AGENTS.md`.
 5. No line-number citations; point to file paths. Do not copy types or endpoint lists into docs.
 
+## API contract (`docs/api/`)
+
+| File | Contents |
+| --- | --- |
+| `README.md` | Base URLs, auth summary, refresh instructions |
+| `openapi.json` | Committed OpenAPI 3.0 spec (staging source) |
+| `refresh-openapi.sh` | Re-download spec from staging |
+
+Agents: use `openapi.json` for new hooks in `src/lib/api/*`; see [`AGENTS.md`](../AGENTS.md#api-contract).
+
 ## Architecture (`docs/architecture/`)
 
 | File | Contents |

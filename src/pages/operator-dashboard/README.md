@@ -63,7 +63,7 @@ sequenceDiagram
   API-->>Modal: citizen, address, timeline, images
 ```
 
-Payload omits `images`, `priority`, address sub-fields, and coordinates. Optional **Qo'shimcha ma'lumot** is shown in the UI but not sent to the API.
+Payload omits `images`, `priority`, address sub-fields, and coordinates.
 
 Phone is displayed as `+998 90 123 45 67` and normalized to `+998901234567` before POST (`src/lib/phone.ts`).
 

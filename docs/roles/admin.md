@@ -24,7 +24,7 @@ Gate: `ProtectedRoute` with `requiredRoles={["admin"]}` on `/ecosystem` in `src/
 | --- | --- | --- |
 | Session | Login, logout, update own profile | `auth` hooks |
 | Ecosystem | Navigate modules, open coming-soon placeholders | — |
-| Murojaat24 admin | View mock dashboard/appeals/statistics; manage staff users | `users` for staff; appeals/stats mock |
+| Murojaat24 admin | View dashboard/statistics (mock); appeals list via API; manage staff users | `users` for staff; `requests` for appeals list/detail; stats mock |
 | Settings | Org/governance CRUD; view local template/general UI | `organizations` for orgs; templates not persisted |
 | Role dashboards | Same local actions as operator/dispatcher/specialist/manager when visiting those routes | Mostly mock |
 
