@@ -25,14 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/lib/api/auth";
@@ -44,7 +37,6 @@ import {
   useDailyStatistics,
   useExportStatistics,
   useOrganizationStatistics,
-  useSpecialistStatistics,
 } from "@/lib/api/statistics";
 
 const ALL_ORGANIZATIONS = "all";
@@ -53,7 +45,8 @@ const StatisticsSection = () => {
   const { toast } = useToast();
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
-  const [organizationFilter, setOrganizationFilter] = useState(ALL_ORGANIZATIONS);
+  const [organizationFilter, setOrganizationFilter] =
+    useState(ALL_ORGANIZATIONS);
 
   const currentUserQuery = useCurrentUser();
   const isAdmin = currentUserQuery.data?.role === "admin";
@@ -62,7 +55,7 @@ const StatisticsSection = () => {
     if (dateFrom && dateTo) {
       return Math.min(
         365,
-        Math.max(1, differenceInCalendarDays(dateTo, dateFrom) + 1),
+        Math.max(1, differenceInCalendarDays(dateTo, dateFrom) + 1)
       );
     }
     if (dateFrom) return 30;
@@ -78,23 +71,22 @@ const StatisticsSection = () => {
           ? organizationFilter
           : undefined,
     }),
-    [dateFrom, dateTo, organizationFilter],
+    [dateFrom, dateTo, organizationFilter]
   );
 
   const dailyQuery = useDailyStatistics(statisticsDays);
   const organizationQuery = useOrganizationStatistics();
-  const specialistsQuery = useSpecialistStatistics();
   const organizationsQuery = useOrganizations();
   const exportStatistics = useExportStatistics();
 
   const organizationChartData = useMemo(
     () => mapStatisticsToChartSeries(organizationQuery.data ?? []),
-    [organizationQuery.data],
+    [organizationQuery.data]
   );
 
   const governanceChartData = useMemo(
     () => groupOrganizationStatisticsByGovernance(organizationQuery.data ?? []),
-    [organizationQuery.data],
+    [organizationQuery.data]
   );
 
   const governanceGroups = useMemo(() => {
@@ -108,7 +100,7 @@ const StatisticsSection = () => {
     }
 
     return Array.from(groups.entries()).sort(([a], [b]) =>
-      a.localeCompare(b, "uz"),
+      a.localeCompare(b, "uz")
     );
   }, [organizationChartData]);
 
@@ -116,8 +108,8 @@ const StatisticsSection = () => {
     error instanceof ApiError
       ? error.message
       : error instanceof Error
-        ? error.message
-        : fallback;
+      ? error.message
+      : fallback;
 
   const handleExport = async () => {
     try {
@@ -131,33 +123,27 @@ const StatisticsSection = () => {
         title: "Xatolik",
         description: resolveErrorMessage(
           error,
-          "Excel faylini yuklab olishda xatolik yuz berdi",
+          "Excel faylini yuklab olishda xatolik yuz berdi"
         ),
         variant: "destructive",
       });
     }
   };
 
-  const isLoading =
-    dailyQuery.isLoading ||
-    organizationQuery.isLoading ||
-    specialistsQuery.isLoading;
+  const isLoading = dailyQuery.isLoading || organizationQuery.isLoading;
 
-  const hasError =
-    dailyQuery.isError || organizationQuery.isError || specialistsQuery.isError;
+  const hasError = dailyQuery.isError || organizationQuery.isError;
 
   const errorMessage =
     (dailyQuery.error &&
-      resolveErrorMessage(dailyQuery.error, "Kunlik statistikani yuklashda xatolik")) ||
+      resolveErrorMessage(
+        dailyQuery.error,
+        "Kunlik statistikani yuklashda xatolik"
+      )) ||
     (organizationQuery.error &&
       resolveErrorMessage(
         organizationQuery.error,
-        "Tashkilotlar statistikasini yuklashda xatolik",
-      )) ||
-    (specialistsQuery.error &&
-      resolveErrorMessage(
-        specialistsQuery.error,
-        "Mutaxassislar statistikasini yuklashda xatolik",
+        "Tashkilotlar statistikasini yuklashda xatolik"
       )) ||
     "Statistikani yuklashda xatolik yuz berdi";
 
@@ -167,7 +153,9 @@ const StatisticsSection = () => {
         <CardContent className="p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Vaqt oralig&apos;i (dan)</label>
+              <label className="text-sm font-medium">
+                Vaqt oralig&apos;i (dan)
+              </label>
               <DatePicker
                 value={dateFrom}
                 onChange={setDateFrom}
@@ -347,9 +335,7 @@ const StatisticsSection = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>
-                Kunlik dinamika ({statisticsDays} kun)
-              </CardTitle>
+              <CardTitle>Kunlik dinamika ({statisticsDays} kun)</CardTitle>
             </CardHeader>
             <CardContent>
               {(dailyQuery.data ?? []).length === 0 ? (
@@ -384,45 +370,6 @@ const StatisticsSection = () => {
             </CardContent>
           </Card>
         </div>
-      ) : null}
-
-      {!isLoading && !hasError ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Mutaxassislar samaradorligi</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Mutaxassis</TableHead>
-                  <TableHead>Bajarilgan</TableHead>
-                  <TableHead>O&apos;rtacha vaqt</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(specialistsQuery.data ?? []).length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={3}
-                      className="h-24 text-center text-muted-foreground"
-                    >
-                      Ma&apos;lumot topilmadi
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  (specialistsQuery.data ?? []).map((row) => (
-                    <TableRow key={row.id ?? row.name}>
-                      <TableCell className="font-medium">{row.name}</TableCell>
-                      <TableCell>{row.completed}</TableCell>
-                      <TableCell>{row.averageDuration ?? "—"}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
       ) : null}
     </div>
   );

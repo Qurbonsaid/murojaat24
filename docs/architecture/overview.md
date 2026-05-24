@@ -47,7 +47,7 @@ HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`,
 | Staff users CRUD | Specialist tasks & completion |
 | Organizations CRUD | Manager approve/reject |
 | Admin appeals list + detail | Admin ecosystem dashboard KPIs (static) |
-| Admin statistics page (daily, org, specialists, export) | Settings templates & general toggles (routes hidden from sidebar) |
+| Admin statistics page (daily + org charts, export, Rahbariyat for admin) | Settings templates & general toggles (routes hidden from sidebar) |
 | | Unmounted citizen submit/track pages |
 
 Feature details live in colocated `src/**/README.md` files (see `AGENTS.md`).

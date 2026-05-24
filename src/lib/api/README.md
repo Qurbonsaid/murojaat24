@@ -16,6 +16,7 @@ Staff sign in with phone + password on `/login`. Successful login redirects by r
 | --- | --- |
 | Hooks & roles | `auth.ts` |
 | Appeals (list + operator create) | `requests.ts` |
+| Assignments (dispatcher) | `assignments.ts` |
 | Admin statistics | `statistics.ts` |
 | File uploads | `uploads.ts` |
 | HTTP transport | `client.ts` |
@@ -61,13 +62,28 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 `useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` (operator appeals list and admin `MurojaatlarSection`).
 
+## Assignments (`assignments.ts`)
+
+| Hook | Endpoint | Notes |
+| --- | --- | --- |
+| `useAssignments(params)` | `GET /api/assignments/` | Query: `page`, `limit`, `status`, `specialistId` |
+| `useAssignment(id)` | `GET /api/assignments/:id` | Detail when `id` set |
+| `useCreateAssignment` | `POST /api/assignments` | Body: `requestId`, `specialistId`, optional `notes`, `estimatedTime` |
+| `useCancelAssignment` | `PUT /api/assignments/:id/cancel` | Optional body `{ reason }` |
+
+Helpers: `resolveAssignmentRequestNumber`, `resolveAssignmentSpecialistName`, `canCancelAssignment`, `ASSIGNMENT_STATUS_OPTIONS`. Consumer: `src/pages/dispatcher-dashboard/`.
+
+## Specialists (`users.ts`)
+
+`useSpecialists(params)` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Used by `AssignModal` and dispatcher assignments table.
+
 ## Statistics (`statistics.ts`)
 
 | Hook | Endpoint | Notes |
 | --- | --- | --- |
 | `useDailyStatistics(days)` | `GET /api/statistics/daily` | Normalizes to `{ date, received, completed }[]` for charts |
-| `useOrganizationStatistics` | `GET /api/statistics/by-organization` | Pie chart + admin governance grouping |
-| `useSpecialistStatistics` | `GET /api/statistics/specialists` | Performance table |
+| `useOrganizationStatistics` | `GET /api/statistics/by-organization` | Organization pie + admin Rahbariyat block |
+| `useSpecialistStatistics` | `GET /api/statistics/specialists` | Available in `statistics.ts`; not used by `StatisticsSection` |
 | `useExportStatistics` | `GET /api/statistics/export` | Blob download; query `startDate`, `endDate`, `organization` |
 
 Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normalizeSpecialistStatistics`, `mapStatisticsToChartSeries`, `groupOrganizationStatisticsByGovernance`, `downloadStatisticsExport`. Consumer: `StatisticsSection.tsx` under `/ecosystem/murojaat24/statistika`.
@@ -75,6 +91,7 @@ Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normali
 ## Related docs
 
 - Operator intake: `src/pages/operator-dashboard/README.md`
+- Dispatcher appeals/assignments: `src/pages/dispatcher-dashboard/README.md`
 - Profile page (avatar upload): `src/pages/profile/README.md`
 - Avatar upload: `useUploadAvatar` in `uploads.ts` → `POST /api/uploads/avatar`; profile save uses URL via `useUpdateProfile` in `auth.ts`
 - Conventions: `docs/architecture/conventions.md`

@@ -93,7 +93,33 @@ const buildUsersQueryString = (params: UsersQueryParams) => {
   return query ? `?${query}` : "";
 };
 
-export const useUsers = (params: UsersQueryParams = {}) => {
+export const getStaffUserDisplayName = (user: StaffUser | undefined): string => {
+  if (!user) return "—";
+  const fromProfile = [user.profile?.firstName, user.profile?.lastName]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  return fromProfile || user.phone || "—";
+};
+
+export const useSpecialists = (
+  params: Omit<UsersQueryParams, "role"> = {},
+  options: { enabled?: boolean } = {},
+) => {
+  return useUsers(
+    {
+      ...params,
+      role: "specialist",
+      isActive: params.isActive ?? true,
+    },
+    options,
+  );
+};
+
+export const useUsers = (
+  params: UsersQueryParams = {},
+  options: { enabled?: boolean } = {},
+) => {
   const page = params.page ?? 1;
   const limit = params.limit ?? 100;
   const role = params.role ?? "";
@@ -133,6 +159,7 @@ export const useUsers = (params: UsersQueryParams = {}) => {
 
       return response as UsersListResponse;
     },
+    enabled: options.enabled ?? true,
     staleTime: 30_000,
     retry: false,
   });

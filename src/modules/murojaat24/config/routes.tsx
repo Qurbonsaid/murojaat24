@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
 
-import DispatcherDashboard from "@/pages/dispatcher-dashboard/DispatcherDashboard";
+import DispatcherDashboardRoutes from "@/pages/dispatcher-dashboard/DispatcherDashboardRoutes";
 import Login from "@/pages/login/Login";
 import ManagerDashboard from "@/pages/manager-dashboard/ManagerDashboard";
 import ManagerUsersPage from "@/pages/manager-users/ManagerUsersPage";
@@ -30,8 +30,8 @@ export const murojaat24Routes: Murojaat24Route[] = [
     requiredRoles: ["operator", "admin"],
   },
   {
-    path: "/dispatcher-dashboard",
-    element: <DispatcherDashboard />,
+    path: "/dispatcher-dashboard/*",
+    element: <DispatcherDashboardRoutes />,
     requiredRoles: ["dispatcher", "admin"],
   },
   {

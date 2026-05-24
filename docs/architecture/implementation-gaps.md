@@ -16,12 +16,12 @@ Snapshot of what is **wired to the backend** versus **local/mock/UI-only** in th
 | Operator: create appeal + today’s list | Partially API-backed (KPI cards still static; list detail via `GET /api/requests/:id`) |
 | Admin: appeals list + row detail | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination) |
 | Admin: dashboard KPIs | Still mock/local |
-| Admin: statistics page (`StatisticsSection`) | API-backed (daily, by-organization, specialists, export) |
-| Appeal lifecycle (assign → execute → review) | Almost entirely mock/local |
+| Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics` |
+| Appeal lifecycle (assign → execute → review) | Dispatcher assign/cancel **API-backed**; specialist execute and manager review still mock |
 | Citizen in-app flows | Built but **not routed**; production landing uses an external portal |
 | Ecosystem modules (non-Murojaat24) | Mostly **coming soon**; sidebar hides `coming-soon` menu entries |
 
-There is **no** frontend API module for dispatcher assignment, specialist tasks, manager verification, or request update/delete beyond what `requests.ts` / `statistics.ts` already expose.
+There is **no** frontend API module for specialist tasks, manager verification, or request update/delete beyond what `requests.ts` / `statistics.ts` / `assignments.ts` already expose.
 
 ---
 
@@ -35,11 +35,12 @@ Implemented in `src/lib/api/`:
 | `auth.ts` | `/api/auth/login`, `me`, `logout`, `profile`; forgot-password hooks | Login, guards, profile, modals |
 | `users.ts` | `/api/users` CRUD, reset password | Admin Murojaat24 users, manager users, modals |
 | `organizations.ts` | `/api/organizations` CRUD | Settings, operator org picker, user modals, admin appeals org filter |
-| `requests.ts` | `GET /api/requests/`, `GET /api/requests/:id`, `POST /api/requests/operator` | Operator list + new appeal; **admin `MurojaatlarSection`** (list filters, detail modal) |
-| `statistics.ts` | `GET /api/statistics/daily`, `by-organization`, `specialists`, `export` | Admin **`StatisticsSection`** |
+| `requests.ts` | `GET /api/requests/`, `GET /api/requests/:id`, `POST /api/requests/operator` | Operator list + new appeal; **admin `MurojaatlarSection`**; **dispatcher new appeals** |
+| `assignments.ts` | `GET /api/assignments/`, `GET /api/assignments/:id`, `POST /api/assignments`, `PUT .../cancel` | **Dispatcher** appeals assign + assignments list |
+| `statistics.ts` | `GET /api/statistics/daily`, `by-organization`, `specialists`, `export` | Admin **`StatisticsSection`** (daily, by-organization, export only) |
 | `uploads.ts` | `POST /api/uploads/avatar` | Profile |
 
-**Not implemented in the frontend** (no hooks/files): assignment, specialist task fetch/update, completion upload, manager approve/reject, citizen public submit/track, notifications/templates persistence, general settings persistence, real-time map, optional `GET /api/statistics/dashboard` for ecosystem KPI cards.
+**Not implemented in the frontend** (no hooks/files): specialist task fetch/update, completion upload, manager approve/reject, citizen public submit/track, notifications/templates persistence, general settings persistence, real-time map, optional `GET /api/statistics/dashboard` for ecosystem KPI cards.
 
 Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useResetPassword`) but **`Login.tsx` has no forgot-password UI**.
 
@@ -64,7 +65,7 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 | Dashboard KPI cards | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | Static numbers (e.g. 45 users, 145 appeals) |
 | Foydalanuvchilar | Same + `AddUserModal` / `EditUserModal` | **API-backed** (`useUsers`, create/update/delete) |
 | Murojaatlar | `MurojaatlarSection.tsx` | **API-backed**: `useRequests` (paginated, `search`, `status`, `organization`, `priority`, `startDate`, `endDate`); `OperatorRequestDetailModal` → `useRequest` |
-| Statistika | `StatisticsSection.tsx` | **API-backed** via `statistics.ts` (daily, by-organization, specialists, export) |
+| Statistika | `StatisticsSection.tsx` | **API-backed** via `statistics.ts` (daily, by-organization, export, admin Rahbariyat); does not call `useSpecialistStatistics` |
 
 ### Manager
 
@@ -86,16 +87,16 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 
 ## Fully mock or local-only workflows
 
-### Dispatcher (`/dispatcher-dashboard`)
+### Dispatcher (`/dispatcher-dashboard/*`)
 
-| Data / action | Source | Notes |
+| Piece | Path | Reality |
 | --- | --- | --- |
-| New request queue | Inline array in `DispatcherDashboard.tsx` | `MUR-2024-*`, Tashkent-style addresses |
-| Daily stats | `StatsCard` literals | 145 / 32 / 98 / 15 |
-| Specialist roster | Inline array | Availability badges not from API |
-| Map | `src/components/MapView.tsx` | Percentage-position **mock markers**, not a map SDK |
-| Assignment | `src/components/AssignModal.tsx` | Static specialist list; confirm → **toast**, no `POST` |
-| Sidebar anchors | `DispatcherSidebar.tsx` | `#new`, `#map`, `#stats` — dashboard has **no matching section `id`s** |
+| Yangi murojaatlar | `DispatcherNewAppeals.tsx` | **API-backed** `useRequests` (`status=new`, org filter); assign via `AssignModal` → `POST /api/assignments` |
+| Topshiriqlar | `DispatcherAssignments.tsx` | **API-backed** `useAssignments`; cancel via `AlertDialog` → `PUT /api/assignments/:id/cancel` |
+| Specialists picker | `AssignModal.tsx` | `useSpecialists` → `GET /api/users?role=specialist` |
+| Sidebar | `DispatcherSidebar.tsx` | Two routes only: appeals + assignments |
+
+**Removed from dispatcher UI:** mock map, daily stat cards, inline specialist cards (`MapView`, old `DispatcherDashboard.tsx` monitoring layout).
 
 ### Specialist mobile (`/specialist-mobile`)
 
@@ -113,7 +114,7 @@ Header uses `useCurrentUser` (API); tasks do not.
 
 ### Admin appeals analytics
 
-`StatisticsSection.tsx` loads charts and specialist rankings from `GET /api/statistics/*` (see `src/lib/api/statistics.ts`). Unmounted `src/pages/citizen/Statistics.tsx` remains a **static** duplicate — not routed.
+`StatisticsSection.tsx` loads daily and by-organization charts, export, and admin Rahbariyat grouping from `GET /api/statistics/*` (see `src/lib/api/statistics.ts`). `useSpecialistStatistics` is not used on this page. Unmounted `src/pages/citizen/Statistics.tsx` remains a **static** duplicate — not routed.
 
 **Closed gap:** `MurojaatlarSection.tsx` no longer uses a static `mockRequests` table — see partial implementations above.
 
@@ -180,7 +181,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
 | Location | Control | Effect |
 | --- | --- | --- |
-| `AssignModal` | Tayinlash | Toast |
+| `AssignModal` (dispatcher) | Tayinlash | `POST /api/assignments` |
 | `ReviewModal` | Tasdiqlash / Rad etish | Toast |
 | `citizen/Statistics` | Excel ga yuklash | None (unmounted page) |
 | `SozlamalarPage` | Shablon edit, Umumiy Saqlash | None / local state only |
@@ -225,7 +226,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
 Grouped by workflow stage — names are illustrative; align with `docs/api/openapi.json`.
 
-1. **Dispatcher:** list unassigned/new requests; list specialists with load/location; `POST` assignment; optional map coordinates on requests.
+1. **Dispatcher:** optional map/real-time coordinates; specialist load/location in assign UI (list + assign **done**).
 2. **Specialist:** list assigned tasks; accept/start; upload completion photos and report; signature payload; history and stats endpoints.
 3. **Manager:** queue of `completed` awaiting verification; approve/reject with comment; KPI aggregates.
 4. **Admin statistics:** core charts/export **done** in `StatisticsSection`; optional `GET /api/statistics/dashboard` for ecosystem KPI cards (list/detail **done** for `MurojaatlarSection`).

@@ -14,11 +14,21 @@ export type UserProfile = {
   avatar?: string | null;
 };
 
+export type CurrentUserOrganization =
+  | {
+      _id: string;
+      name: string;
+      governance?: string;
+    }
+  | string
+  | null;
+
 export type CurrentUser = {
   _id: string;
   phone: string;
   role: UserRole;
   profile?: UserProfile;
+  organization?: CurrentUserOrganization;
   isActive?: boolean;
 };
 
@@ -31,7 +41,7 @@ export type UpdateProfileInput = {
 const roleRedirects: Record<UserRole, string> = {
   admin: "/ecosystem/modullar",
   operator: "/operator-dashboard/new",
-  dispatcher: "/dispatcher-dashboard",
+  dispatcher: "/dispatcher-dashboard/appeals",
   specialist: "/specialist-mobile",
   manager: "/manager-dashboard",
 };

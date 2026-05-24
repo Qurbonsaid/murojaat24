@@ -29,7 +29,15 @@ import {
   useCurrentUser,
   useUpdateProfile,
 } from "@/lib/api/auth";
+import { resolveOrganizationName } from "@/lib/api/requests";
+import { useOrganizations } from "@/lib/api/organizations";
 import { useUploadAvatar } from "@/lib/api/uploads";
+
+const ROLES_WITH_ORGANIZATION: UserRole[] = [
+  "dispatcher",
+  "manager",
+  "specialist",
+];
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Hokimiyat",
@@ -89,6 +97,9 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
   const user = currentUserQuery.data;
+  const showOrganization =
+    user != null && ROLES_WITH_ORGANIZATION.includes(user.role);
+  const organizationsQuery = useOrganizations();
 
   const {
     register,
@@ -126,6 +137,19 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     return name || user?.phone || "Foydalanuvchi";
   }, [firstName, lastName, user?.phone]);
   const initials = getInitials(firstName, lastName);
+
+  const organizationNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const org of organizationsQuery.data ?? []) {
+      map.set(org._id, org.name);
+    }
+    return map;
+  }, [organizationsQuery.data]);
+
+  const organizationLabel = useMemo(() => {
+    if (!user?.organization) return "—";
+    return resolveOrganizationName(user.organization, organizationNameById);
+  }, [organizationNameById, user?.organization]);
 
   const clearFileInput = () => {
     if (fileInputRef.current) {
@@ -372,13 +396,25 @@ const Profile = ({ embedded = false }: ProfileProps) => {
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefon raqami</Label>
-                <Input id="phone" value={user.phone} disabled />
+                <Input id="phone" value={user.phone} disabled readOnly />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Rol</Label>
-                <Input id="role" value={roleLabel} disabled />
+                <Input id="role" value={roleLabel} disabled readOnly />
               </div>
+
+              {showOrganization ? (
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="organization">Tashkilot</Label>
+                  <Input
+                    id="organization"
+                    value={organizationLabel}
+                    disabled
+                    readOnly
+                  />
+                </div>
+              ) : null}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">

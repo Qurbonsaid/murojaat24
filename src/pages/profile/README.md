@@ -1,6 +1,6 @@
 # Profile management
 
-API-backed staff profile editor: first name, last name, avatar. Shared across roles; shell (sidebar/layout) depends on role and route.
+API-backed staff profile editor: first name, last name, avatar. Dispatcher, manager, and specialist also see a read-only **Tashkilot** field from `GET /api/auth/me` (`organization`, resolved via `useOrganizations` when the API returns an id). Shared across roles; shell (sidebar/layout) depends on role and route.
 
 ## User-facing behavior
 
@@ -36,6 +36,7 @@ All authenticated roles. Public landing `Header` does not expose profile (employ
 ## Edge cases
 
 - Avatar: JPG/PNG file picker, max 5MB; uploaded on select via `POST /api/uploads/avatar`; form and `PUT /api/auth/profile` send full URL `{VITE_BASE_URL}/uploads/{filePath}` via `resolveAssetUrl`; display uses the same helper; clear sends `null`.
+- Organization: shown read-only for `dispatcher`, `manager`, `specialist` only; not editable on this page.
 - Save disabled until dirty or while mutation pending.
 - Image type validation on client.
 

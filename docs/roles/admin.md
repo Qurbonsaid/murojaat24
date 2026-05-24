@@ -24,7 +24,7 @@ Gate: `ProtectedRoute` with `requiredRoles={["admin"]}` on `/ecosystem` in `src/
 | --- | --- | --- |
 | Session | Login, logout, update own profile | `auth` hooks |
 | Ecosystem | Navigate modules, open coming-soon placeholders | — |
-| Murojaat24 admin | View dashboard KPIs (mock); appeals list + statistics page via API; manage staff users | `users`; `requests` (appeals); `statistics` (charts, export) |
+| Murojaat24 admin | View dashboard KPIs (mock); appeals list + statistics page via API; manage staff users | `users`; `requests` (appeals); `statistics` (daily + org charts, export, Rahbariyat) |
 | Settings | Org/governance CRUD; view local template/general UI | `organizations` for orgs; templates not persisted |
 | Role dashboards | Same local actions as operator/dispatcher/specialist/manager when visiting those routes | Mostly mock |
 
@@ -46,5 +46,5 @@ Gate: `ProtectedRoute` with `requiredRoles={["admin"]}` on `/ecosystem` in `src/
 ## Permission checks
 
 - Ecosystem parent: admin-only `ProtectedRoute`.
-- Murojaat24 statistika may show extra governance blocks when `currentUser.role === "admin"`.
+- Murojaat24 statistika: Rahbariyat block shown for `admin` when governance data exists; Mutaxassislar table not on this page.
 - User delete disabled for the signed-in admin account (see user management README).

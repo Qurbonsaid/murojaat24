@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { FileText, Monitor, MapPin, BarChart3, Inbox } from "lucide-react";
+import { ClipboardList, FileText, Inbox } from "lucide-react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
 import { resolveAssetUrl } from "@/lib/api/client";
@@ -18,25 +19,26 @@ const DispatcherSidebar = () => {
     user?.phone ||
     "Foydalanuvchi";
 
+  const roleLabel =
+    user?.role === "admin" ? "Hokimiyat" : user?.role === "dispatcher" ? "Dispetcher" : "Dispetcher";
+
   const menuItems = [
-    { icon: Monitor, label: "Monitoring", path: "/dispatcher-dashboard" },
     {
       icon: Inbox,
       label: "Yangi murojaatlar",
-      path: "/dispatcher-dashboard#new",
+      path: "/dispatcher-dashboard/appeals",
     },
-    { icon: MapPin, label: "Xarita", path: "/dispatcher-dashboard#map" },
     {
-      icon: BarChart3,
-      label: "Statistika",
-      path: "/dispatcher-dashboard#stats",
+      icon: ClipboardList,
+      label: "Topshiriqlar",
+      path: "/dispatcher-dashboard/assignments",
     },
   ];
 
   return (
-    <aside className="w-64 bg-slate-800 text-white min-h-screen flex flex-col fixed left-0 top-0">
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center gap-2 mb-6">
+    <aside className="fixed left-0 top-0 flex min-h-screen w-64 flex-col bg-slate-800 text-white">
+      <div className="border-b border-slate-700 p-6">
+        <div className="mb-6 flex items-center gap-2">
           <FileText className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold">Murojaat24</span>
         </div>
@@ -52,13 +54,13 @@ const DispatcherSidebar = () => {
             <AvatarFallback className="bg-primary text-primary-foreground">
               {name
                 ?.split(" ")
-                .map((n: string) => n[0])
+                .map((part: string) => part[0])
                 .join("") || "DM"}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{name}</p>
-            <p className="text-sm text-slate-400 truncate">Dispatcher</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-medium">{name}</p>
+            <p className="truncate text-sm text-slate-400">{roleLabel}</p>
           </div>
         </div>
       </div>
@@ -66,12 +68,12 @@ const DispatcherSidebar = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
-            const isActive = location.pathname === item.path.split("#")[0];
+            const isActive = location.pathname === item.path;
             return (
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-slate-300 hover:bg-slate-700"
