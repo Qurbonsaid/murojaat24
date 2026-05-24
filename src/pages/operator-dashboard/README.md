@@ -6,7 +6,7 @@ Phone intake form backed by `POST /api/requests/operator`, plus today's appeals 
 
 **New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization from the API, saves, sees a success toast with the server `requestNumber`, form resets.
 
-**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`.
+**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id`.
 
 `/operator-dashboard` redirects to `new`.
 
@@ -48,6 +48,19 @@ sequenceDiagram
   List->>Hook: page, limit, today dates, role operator
   Hook->>API: GET /api/requests (no organization param)
   API-->>List: data + pagination
+```
+
+```mermaid
+sequenceDiagram
+  participant List as OperatorAppealsList
+  participant Modal as OperatorRequestDetailModal
+  participant Hook as useRequest
+  participant API as GET_request_by_id
+
+  List->>Modal: request _id, open
+  Modal->>Hook: enabled when open
+  Hook->>API: GET /api/requests/:id
+  API-->>Modal: citizen, address, timeline, images
 ```
 
 Payload omits `images`, `priority`, address sub-fields, and coordinates. Optional **Qo'shimcha ma'lumot** is shown in the UI but not sent to the API.

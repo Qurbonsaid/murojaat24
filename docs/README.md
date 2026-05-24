@@ -19,6 +19,7 @@ Stable docs live here; **feature behavior** lives in `README.md` files next to t
 | `routing.md` | Route tables and role gates |
 | `conventions.md` | API, auth, state, forms, UI rules |
 | `gotchas.md` | Traps and mismatches |
+| `implementation-gaps.md` | Mock vs API inventory, missing features, UI-only actions |
 
 ## Roles (`docs/roles/`)
 

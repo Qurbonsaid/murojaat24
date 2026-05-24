@@ -26,6 +26,7 @@ Public: `/`, `/login`, `/role-select`.
 - Pick organization from `GET /api/organizations` (stores organization `_id`).
 - Optional notes field in UI is not sent to the API.
 - View today's appeals list (`useRequests` with today's `startDate`/`endDate`; KPI cards still static).
+- Open appeal detail from the list (Eye) → `GET /api/requests/:id` via `useRequest`.
 
 ## Data read / write
 

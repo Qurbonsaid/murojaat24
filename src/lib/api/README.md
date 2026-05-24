@@ -54,6 +54,8 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 `useCreateOperatorRequest` → `POST /api/requests/operator` (operator/admin session). On success invalidates `["requests"]`. Mapper `toOperatorCreatePayload` builds `citizenName`, `citizenPhone` (`normalizePhone`), `organization` (id), `description`, `address.full`. Used by `src/pages/operator-dashboard/` — see that folder's README.
 
+`useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` on the operator appeals list.
+
 ## Related docs
 
 - Operator intake: `src/pages/operator-dashboard/README.md`

@@ -7,6 +7,15 @@ import type { UserRole } from "./auth";
 import type { ApiSuccess, PaginationInfo } from "./client";
 import { apiRequest } from "./client";
 
+export type OrganizationRef =
+  | {
+      _id: string;
+      name: string;
+      governance?: string;
+    }
+  | string
+  | null;
+
 export type RequestStatus =
   | "new"
   | "assigned"
@@ -22,11 +31,7 @@ export type AppealRequestListItem = {
   requestNumber: string;
   status: string;
   priority?: RequestPriority;
-  organization?: {
-    _id: string;
-    name: string;
-    governance: string;
-  };
+  organization?: OrganizationRef;
   citizen?: {
     name: string;
     phone: string;
@@ -34,6 +39,31 @@ export type AppealRequestListItem = {
   description?: string;
   createdAt?: string;
   assignment?: unknown;
+};
+
+export type AppealRequestAddress = {
+  full?: string;
+  region?: string;
+  district?: string;
+  street?: string;
+  house?: string;
+  coordinates?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+};
+
+export type AppealRequestTimelineEntry = {
+  status: string;
+  timestamp?: string;
+  comment?: string | null;
+};
+
+export type AppealRequestDetail = AppealRequestListItem & {
+  address?: AppealRequestAddress;
+  images?: string[];
+  timeline?: AppealRequestTimelineEntry[];
+  updatedAt?: string;
 };
 
 export type RequestsQueryParams = {
@@ -97,6 +127,47 @@ export const formatRequestTime = (isoDate: string | undefined): string => {
   const parsed = parseISO(isoDate);
   if (!isValid(parsed)) return "—";
   return format(parsed, "HH:mm");
+};
+
+/** Formats an API ISO timestamp for detail display (local date and time). */
+export const formatRequestDateTime = (isoDate: string | undefined): string => {
+  if (!isoDate) return "—";
+  const parsed = parseISO(isoDate);
+  if (!isValid(parsed)) return "—";
+  return format(parsed, "dd.MM.yyyy HH:mm");
+};
+
+export const resolveOrganizationId = (
+  organization: OrganizationRef | undefined
+): string | undefined => {
+  if (!organization) return undefined;
+  if (typeof organization === "string") return organization;
+  return organization._id;
+};
+
+export const resolveOrganizationName = (
+  organization: OrganizationRef | undefined,
+  organizationNameById: Map<string, string>
+): string => {
+  if (!organization) return "—";
+  if (typeof organization === "string") {
+    return organizationNameById.get(organization) ?? "—";
+  }
+  return organization.name ?? organizationNameById.get(organization._id) ?? "—";
+};
+
+const PRIORITY_LABELS: Record<RequestPriority, string> = {
+  low: "Past",
+  medium: "O'rtacha",
+  high: "Yuqori",
+  urgent: "Shoshilinch",
+};
+
+export const getRequestPriorityLabel = (
+  priority: RequestPriority | undefined
+): string => {
+  if (!priority) return "—";
+  return PRIORITY_LABELS[priority] ?? priority;
 };
 
 export const omitOrganizationForRole = (
@@ -168,6 +239,21 @@ export const useRequests = (
       return response as RequestsListResponse;
     },
     enabled: options.enabled ?? true,
+    staleTime: 30_000,
+    retry: false,
+  });
+};
+
+export const useRequest = (id: string | null | undefined) => {
+  return useQuery({
+    queryKey: ["requests", "detail", id],
+    queryFn: async () => {
+      const response = await apiRequest<AppealRequestDetail>(
+        `/api/requests/${id}`
+      );
+      return response.data;
+    },
+    enabled: Boolean(id),
     staleTime: 30_000,
     retry: false,
   });

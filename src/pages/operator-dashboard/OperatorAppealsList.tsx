@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import OperatorRequestDetailModal from "@/components/OperatorRequestDetailModal";
+import RequestStatusBadge from "@/components/RequestStatusBadge";
 import StatsCard from "@/components/StatsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle,
   Clock,
@@ -27,36 +28,11 @@ import {
   useRequests,
 } from "@/lib/api/requests";
 
-const getStatusBadge = (status: string) => {
-  switch (status) {
-    case "new":
-      return <Badge className="bg-blue-500 hover:bg-blue-600">Yangi</Badge>;
-    case "assigned":
-      return (
-        <Badge className="bg-orange-500 hover:bg-orange-600">Tayinlangan</Badge>
-      );
-    case "in-progress":
-      return (
-        <Badge className="bg-yellow-500 hover:bg-yellow-600">
-          Bajarilmoqda
-        </Badge>
-      );
-    case "completed":
-      return (
-        <Badge className="bg-green-500 hover:bg-green-600">Yakunlangan</Badge>
-      );
-    case "verified":
-      return (
-        <Badge className="bg-green-600 hover:bg-green-700">Tasdiqlangan</Badge>
-      );
-    case "rejected":
-      return <Badge className="bg-red-500 hover:bg-red-600">Rad etilgan</Badge>;
-    default:
-      return <Badge variant="secondary">{status || "Noma'lum"}</Badge>;
-  }
-};
-
 const OperatorAppealsList = () => {
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    null
+  );
+  const [detailOpen, setDetailOpen] = useState(false);
   const today = getTodayDateRange();
   const requestsQuery = useRequests(
     {
@@ -84,8 +60,23 @@ const OperatorAppealsList = () => {
       ? requestsQuery.error.message
       : "Murojaatlarni yuklashda xatolik";
 
+  const openRequestDetail = (requestId: string | undefined) => {
+    if (!requestId) return;
+    setSelectedRequestId(requestId);
+    setDetailOpen(true);
+  };
+
   return (
     <>
+      <OperatorRequestDetailModal
+        requestId={selectedRequestId}
+        open={detailOpen}
+        onOpenChange={(open) => {
+          setDetailOpen(open);
+          if (!open) setSelectedRequestId(null);
+        }}
+      />
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
           Murojaatlar ro&apos;yxati
@@ -179,9 +170,18 @@ const OperatorAppealsList = () => {
                     <TableCell>
                       {formatRequestTime(request.createdAt)}
                     </TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
+                    <TableCell>
+                      <RequestStatusBadge status={request.status} />
+                    </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" type="button">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        aria-label="Batafsil ko'rish"
+                        disabled={!request._id}
+                        onClick={() => openRequestDetail(request._id)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </TableCell>
