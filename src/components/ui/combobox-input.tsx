@@ -2,11 +2,6 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from "@/components/ui/popover";
 
 export type ComboboxInputProps = Omit<
   React.ComponentProps<typeof Input>,
@@ -23,8 +18,11 @@ export function ComboboxInput({
   suggestions,
   className,
   disabled,
+  id,
   ...props
 }: ComboboxInputProps) {
+  const listboxId = id ? `${id}-listbox` : undefined;
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const [open, setOpen] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
@@ -37,6 +35,19 @@ export function ComboboxInput({
   React.useEffect(() => {
     setSelectedIndex(0);
   }, [value]);
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (rootRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
 
   const handleSelect = (nextValue: string) => {
     onValueChange(nextValue);
@@ -86,59 +97,70 @@ export function ComboboxInput({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverAnchor asChild>
-        <Input
-          type="text"
-          value={value}
-          disabled={disabled}
-          onFocus={() => {
-            if (!disabled) setOpen(true);
-          }}
-          onBlur={() => setOpen(false)}
-          onChange={(event) => {
-            onValueChange(event.target.value);
-            if (!disabled) setOpen(true);
-          }}
-          onKeyDown={handleKeyDown}
-          className={cn(className)}
-          {...props}
-        />
-      </PopoverAnchor>
+    <div ref={rootRef} className="relative">
+      <Input
+        type="text"
+        value={value}
+        disabled={disabled}
+        role="combobox"
+        aria-expanded={open}
+        aria-controls={listboxId}
+        id={id}
+        aria-autocomplete="list"
+        onPointerDown={() => {
+          if (!disabled) setOpen(true);
+        }}
+        onFocus={() => {
+          if (!disabled) setOpen(true);
+        }}
+        onChange={(event) => {
+          onValueChange(event.target.value);
+          if (!disabled) setOpen(true);
+        }}
+        onKeyDown={handleKeyDown}
+        className={cn(className)}
+        {...props}
+      />
 
-      <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-1"
-        align="start"
-        onOpenAutoFocus={(event) => event.preventDefault()}
-        onCloseAutoFocus={(event) => event.preventDefault()}
-      >
-        <div className="max-h-56 overflow-y-auto">
-          {filteredSuggestions.length > 0 ? (
-            filteredSuggestions.map((item, index) => (
-              <button
-                key={item}
-                type="button"
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  handleSelect(item);
-                }}
-                className={cn(
-                  "w-full rounded-sm px-3 py-2 text-left text-sm",
-                  index === selectedIndex
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-muted",
-                )}
-              >
-                {item}
-              </button>
-            ))
-          ) : (
-            <div className="px-3 py-2 text-sm text-muted-foreground">
-              Natija topilmadi
-            </div>
-          )}
+      {open ? (
+        <div
+          data-combobox-content
+          className="absolute left-0 right-0 top-full z-[100] mt-1 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md"
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          <div
+            className="max-h-56 overflow-y-auto p-1"
+            role="listbox"
+            id={listboxId}
+          >
+            {filteredSuggestions.length > 0 ? (
+              filteredSuggestions.map((item, index) => (
+                <div
+                  key={item}
+                  role="option"
+                  aria-selected={index === selectedIndex}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    handleSelect(item);
+                  }}
+                  className={cn(
+                    "cursor-pointer rounded-sm px-3 py-2 text-sm",
+                    index === selectedIndex
+                      ? "bg-accent text-accent-foreground"
+                      : "hover:bg-muted",
+                  )}
+                >
+                  {item}
+                </div>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-muted-foreground">
+                Natija topilmadi
+              </div>
+            )}
+          </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      ) : null}
+    </div>
   );
 }

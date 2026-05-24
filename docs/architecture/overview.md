@@ -36,18 +36,18 @@ Vite, React 18, React Router, TanStack Query, react-hook-form + zod, Tailwind + 
 
 ## Backend boundary
 
-HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`, `organizations.ts`, `requests.ts`. Cookie session; JSON success envelope.
+HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`, `organizations.ts`, `requests.ts`, `statistics.ts`. Cookie session; JSON success envelope.
 
 ## Data reality
 
 | Backed by API | Mock / local only |
 | --- | --- |
-| Auth session, profile | Operator appeals list |
-| Operator appeal create | Dispatcher assignment |
+| Auth session, profile | Operator list KPI cards (static) |
+| Operator appeal create + today’s list | Dispatcher assignment |
 | Staff users CRUD | Specialist tasks & completion |
 | Organizations CRUD | Manager approve/reject |
-| | Admin appeal list & statistika charts |
-| | Settings templates & general toggles |
+| Admin appeals list + detail | Admin ecosystem dashboard KPIs (static) |
+| Admin statistics page (daily, org, specialists, export) | Settings templates & general toggles (routes hidden from sidebar) |
 | | Unmounted citizen submit/track pages |
 
 Feature details live in colocated `src/**/README.md` files (see `AGENTS.md`).

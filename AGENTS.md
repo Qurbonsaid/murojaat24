@@ -82,6 +82,7 @@ Domain hooks live beside the client (see `docs/api/README.md` for tag → file m
 - `src/lib/api/users.ts` — staff CRUD and list filters.
 - `src/lib/api/organizations.ts` — organization CRUD.
 - `src/lib/api/requests.ts` — appeals list, detail, operator create.
+- `src/lib/api/statistics.ts` — admin statistics (daily, by-organization, specialists, export).
 - `src/lib/api/uploads.ts` — avatar upload.
 
 Many workflow screens (dispatcher assign, specialist tasks, manager verify, admin statistics) are still mock; endpoints exist in the spec but may lack frontend hooks.

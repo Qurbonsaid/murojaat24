@@ -1,10 +1,12 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
 import { Eye, Loader2, Search } from "lucide-react";
 
 import OperatorRequestDetailModal from "@/components/OperatorRequestDetailModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -41,8 +43,8 @@ const MurojaatlarSection = () => {
   const [statusFilter, setStatusFilter] = useState(ALL_FILTER);
   const [organizationFilter, setOrganizationFilter] = useState(ALL_FILTER);
   const [priorityFilter, setPriorityFilter] = useState(ALL_FILTER);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null,
   );
@@ -71,8 +73,8 @@ const MurojaatlarSection = () => {
         : {}),
       ...(priorityFilter !== ALL_FILTER ? { priority: priorityFilter } : {}),
       ...(deferredSearch ? { search: deferredSearch } : {}),
-      ...(startDate ? { startDate } : {}),
-      ...(endDate ? { endDate } : {}),
+      ...(startDate ? { startDate: format(startDate, "yyyy-MM-dd") } : {}),
+      ...(endDate ? { endDate: format(endDate, "yyyy-MM-dd") } : {}),
     }),
     [
       page,
@@ -117,8 +119,8 @@ const MurojaatlarSection = () => {
     setStatusFilter(ALL_FILTER);
     setOrganizationFilter(ALL_FILTER);
     setPriorityFilter(ALL_FILTER);
-    setStartDate("");
-    setEndDate("");
+    setStartDate(undefined);
+    setEndDate(undefined);
     setPage(1);
   };
 
@@ -195,18 +197,16 @@ const MurojaatlarSection = () => {
                 </SelectContent>
               </Select>
 
-              <Input
-                type="date"
+              <DatePicker
                 value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-                aria-label="Boshlanish sanasi"
+                onChange={setStartDate}
+                placeholder="Boshlanish sanasi"
               />
 
-              <Input
-                type="date"
+              <DatePicker
                 value={endDate}
-                onChange={(event) => setEndDate(event.target.value)}
-                aria-label="Tugash sanasi"
+                onChange={setEndDate}
+                placeholder="Tugash sanasi"
               />
             </div>
 

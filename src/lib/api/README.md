@@ -16,6 +16,7 @@ Staff sign in with phone + password on `/login`. Successful login redirects by r
 | --- | --- |
 | Hooks & roles | `auth.ts` |
 | Appeals (list + operator create) | `requests.ts` |
+| Admin statistics | `statistics.ts` |
 | File uploads | `uploads.ts` |
 | HTTP transport | `client.ts` |
 | Login page | `src/pages/login/Login.tsx` |
@@ -59,6 +60,17 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 `useCreateOperatorRequest` → `POST /api/requests/operator` (operator/admin session). On success invalidates `["requests"]`. Mapper `toOperatorCreatePayload` builds `citizenName`, `citizenPhone` (`normalizePhone`), `organization` (id), `description`, `address.full`. Used by `src/pages/operator-dashboard/` — see that folder's README.
 
 `useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` (operator appeals list and admin `MurojaatlarSection`).
+
+## Statistics (`statistics.ts`)
+
+| Hook | Endpoint | Notes |
+| --- | --- | --- |
+| `useDailyStatistics(days)` | `GET /api/statistics/daily` | Normalizes to `{ date, received, completed }[]` for charts |
+| `useOrganizationStatistics` | `GET /api/statistics/by-organization` | Pie chart + admin governance grouping |
+| `useSpecialistStatistics` | `GET /api/statistics/specialists` | Performance table |
+| `useExportStatistics` | `GET /api/statistics/export` | Blob download; query `startDate`, `endDate`, `organization` |
+
+Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normalizeSpecialistStatistics`, `mapStatisticsToChartSeries`, `groupOrganizationStatisticsByGovernance`, `downloadStatisticsExport`. Consumer: `StatisticsSection.tsx` under `/ecosystem/murojaat24/statistika`.
 
 ## Related docs
 
