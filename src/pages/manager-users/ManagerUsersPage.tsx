@@ -258,6 +258,7 @@ const ManagerUsersPage = () => {
                                 confirmToastId = toast({
                                   title: "Tasdiqlash",
                                   description: `${fullName} foydalanuvchisini o'chirmoqchimisiz?`,
+                                  duration: Number.POSITIVE_INFINITY,
                                   action: (
                                     <ToastAction
                                       altText="O'chirish"
