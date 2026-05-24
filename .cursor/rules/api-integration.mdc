@@ -1,0 +1,20 @@
+---
+description: API integrations must follow the committed OpenAPI spec
+globs: src/lib/api/**,src/pages/**,src/modules/**
+alwaysApply: false
+---
+
+# API integration
+
+When adding or changing backend calls:
+
+1. Read `docs/api/openapi.json` for method, path, query params, request body, response shape, and enums.
+2. Implement hooks in `src/lib/api/<domain>.ts` using `apiRequest` from `src/lib/api/client.ts` (`credentials: "include"`, envelope `{ success, data }`).
+3. Match existing TanStack Query key and invalidation patterns in sibling hooks.
+4. Do not invent fields or routes not in the spec. If spec and running API disagree, follow the spec and note drift in the PR.
+5. Update `src/lib/api/README.md` and the feature colocated `README.md` in the same change.
+6. Do not copy endpoint inventories into architecture docs; point to `docs/api/openapi.json`.
+
+Refresh spec when backend changes: `./docs/api/refresh-openapi.sh`.
+
+Base URL: `import.meta.env.VITE_BASE_URL` (not the relative `servers` URL in the spec).

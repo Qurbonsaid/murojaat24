@@ -44,7 +44,6 @@ const formSchema = z.object({
     .min(20, "Kamida 20 ta belgi kiriting")
     .max(1000, "Tavsif 1000 ta belgidan oshmasligi kerak"),
   address: z.string().min(1, "Manzil majburiy"),
-  additionalInfo: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,7 +54,6 @@ const defaultFormValues: FormData = {
   organizationId: "",
   description: "",
   address: "",
-  additionalInfo: "",
 };
 
 const OperatorNewAppeal = () => {
@@ -287,18 +285,6 @@ const OperatorNewAppeal = () => {
                   {errors.address.message}
                 </p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="additionalInfo">
-                Qo&apos;shimcha ma&apos;lumot (ixtiyoriy)
-              </Label>
-              <Textarea
-                id="additionalInfo"
-                rows={3}
-                placeholder="Agar qo'shimcha tafsilotlar bo'lsa, yozing..."
-                {...register("additionalInfo")}
-              />
             </div>
 
             <div className="flex gap-3 pt-4">

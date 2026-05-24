@@ -1,4 +1,8 @@
-# Authentication (API & session)
+# API hooks (`src/lib/api`)
+
+HTTP client and TanStack Query hooks for the backend. **Contract:** `docs/api/openapi.json` (refresh: `docs/api/refresh-openapi.sh`). Base URL: `VITE_BASE_URL` in `client.ts`.
+
+## Authentication (API & session)
 
 Cookie-based employee auth: login, current user, logout, profile update, and forgot-password hooks. Route guards and login UI live outside this folder but depend on these hooks.
 
@@ -50,11 +54,11 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 ## Appeals (`requests.ts`)
 
-`useRequests` → `GET /api/requests/` with optional query params: `page`, `limit`, `status`, `organization`, `priority`, `search`, `startDate`, `endDate`. React Query key `["requests", params]`. Pass `options.role` of `operator` or `admin` to strip `organization` from the query string (`omitOrganizationForRole`). Helpers `getTodayDateRange()` (`date-fns` `format`, `yyyy-MM-dd`) and `formatRequestTime()` (`parseISO` + `HH:mm`) for list display.
+`useRequests` → `GET /api/requests/` with optional query params: `page`, `limit`, `status`, `organization`, `priority`, `search`, `startDate`, `endDate`. React Query key `["requests", params]`. Pass `options.role` of `operator` to strip `organization` from the query string (`omitOrganizationForRole`); admin passes all filters including `organization`. Filter labels: `REQUEST_STATUS_OPTIONS`, `REQUEST_PRIORITY_OPTIONS`. Helpers `getTodayDateRange()` (`date-fns` `format`, `yyyy-MM-dd`), `formatRequestTime()` (`HH:mm`), and `formatRequestDateTime()` (`dd.MM.yyyy HH:mm`) for list display.
 
 `useCreateOperatorRequest` → `POST /api/requests/operator` (operator/admin session). On success invalidates `["requests"]`. Mapper `toOperatorCreatePayload` builds `citizenName`, `citizenPhone` (`normalizePhone`), `organization` (id), `description`, `address.full`. Used by `src/pages/operator-dashboard/` — see that folder's README.
 
-`useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` on the operator appeals list.
+`useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` (operator appeals list and admin `MurojaatlarSection`).
 
 ## Related docs
 

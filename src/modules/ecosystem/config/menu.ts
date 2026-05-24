@@ -41,6 +41,26 @@ export type EcosystemRouteEntry = {
   parentId?: string;
 };
 
+export const isEcosystemMenuComingSoon = (moduleKind: EcosystemModuleKind) =>
+  moduleKind === "coming-soon";
+
+/** Sidebar entries only — excludes `coming-soon` parents and children. */
+export const getVisibleEcosystemMenuItems = (): EcosystemMenuItem[] =>
+  ecosystemMenuItems
+    .filter((item) => !isEcosystemMenuComingSoon(item.moduleKind))
+    .map((item) => {
+      if (!item.children?.length) {
+        return item;
+      }
+
+      return {
+        ...item,
+        children: item.children.filter(
+          (child) => !isEcosystemMenuComingSoon(child.moduleKind)
+        ),
+      };
+    });
+
 export const ecosystemMenuItems: EcosystemMenuItem[] = [
   {
     id: "modullar",
@@ -48,13 +68,6 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     path: "/ecosystem/modullar",
     icon: LayoutGrid,
     moduleKind: "modullar",
-  },
-  {
-    id: "toza-hudud",
-    label: "Toza hudud",
-    path: "/ecosystem/toza-hudud",
-    icon: Recycle,
-    moduleKind: "coming-soon",
   },
   {
     id: "murojaat24",
@@ -82,6 +95,14 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
         moduleKind: "murojaat24",
       },
     ],
+  },
+
+  {
+    id: "toza-hudud",
+    label: "Toza hudud",
+    path: "/ecosystem/toza-hudud",
+    icon: Recycle,
+    moduleKind: "coming-soon",
   },
   {
     id: "kommunal-chaqiruvlar",
@@ -241,6 +262,6 @@ const normalizePath = (path: string) => {
 export const getEcosystemEntryByPath = (pathname: string) => {
   const normalizedPath = normalizePath(pathname);
   return ecosystemRouteEntries.find(
-    (entry) => normalizePath(entry.path) === normalizedPath,
+    (entry) => normalizePath(entry.path) === normalizedPath
   );
 };

@@ -17,11 +17,15 @@ Modals: `src/components/AddUserModal.tsx`, `EditUserModal.tsx`. API: `src/lib/ap
 
 ## Appeals list (`murojaatlar`)
 
-Static table of mock appeals in `MurojaatlarSection.tsx`. Status badges for completed / in-progress / pending / unknown.
+Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → `GET /api/requests/` and row detail via `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id` (`src/lib/api/requests.ts`).
 
-**API:** none. **Roles:** admin only (via ecosystem gate).
+**Filters (query params):** `search`, `status`, `organization`, `priority`, `startDate`, `endDate` (`yyyy-MM-dd`). Options from `REQUEST_STATUS_OPTIONS` and `REQUEST_PRIORITY_OPTIONS`; organizations from `useOrganizations`. Pass `options.role: "admin"` so `organization` is sent when filtered. Changing any filter resets to page 1.
 
-**Edge cases:** data is hardcoded literals, not filtered by UI controls.
+**Table columns:** request number, citizen name, organization (via `resolveOrganizationName`), priority label, created time (`formatRequestDateTime`), `RequestStatusBadge`, Eye action.
+
+**Roles:** admin only (via ecosystem gate).
+
+**Edge cases:** loading spinner, `ApiError` message, empty “Murojaatlar topilmadi”; Eye disabled when `_id` missing; pagination Prev/Next when `pagination.pages > 1`.
 
 ---
 
