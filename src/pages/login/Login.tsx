@@ -14,6 +14,7 @@ import { FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
 import { getRoleRedirectPath, useCurrentUser, useLogin } from "@/lib/api/auth";
+import { MobileQRCode } from "@/components/specialist/MobileQRCode";
 
 const Login = () => {
   const [phone, setPhone] = useState("");
@@ -22,14 +23,35 @@ const Login = () => {
   const { toast } = useToast();
   const loginMutation = useLogin();
   const currentUserQuery = useCurrentUser();
+  const currentUser = currentUserQuery.data;
 
   useEffect(() => {
-    if (currentUserQuery.data) {
-      navigate(getRoleRedirectPath(currentUserQuery.data.role), {
+    if (currentUser && currentUser.role !== "specialist") {
+      navigate(getRoleRedirectPath(currentUser.role), {
         replace: true,
       });
     }
-  }, [currentUserQuery.data, navigate]);
+  }, [currentUser, navigate]);
+
+  const renderSplashScreen = (message: string) => (
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-4 text-white">
+      <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 px-8 py-10 text-center shadow-2xl backdrop-blur">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10">
+          <FileText className="h-8 w-8 text-white" />
+        </div>
+        <h1 className="mt-5 text-2xl font-bold">Murojaat24</h1>
+        <p className="mt-2 text-sm text-slate-200">{message}</p>
+        <div
+          className="mt-6 flex items-center justify-center gap-2"
+          aria-label="Loading"
+        >
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white/80" />
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white/80 [animation-delay:150ms]" />
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-white/80 [animation-delay:300ms]" />
+        </div>
+      </div>
+    </div>
+  );
 
   const normalizePhone = (value: string) => {
     const digits = value.replace(/\D/g, "");
@@ -66,12 +88,14 @@ const Login = () => {
         password,
       });
 
-      toast({
-        title: "Muvaffaqiyatli kirish",
-        description: "Tizimga muvaffaqiyatli kirdingiz",
-      });
+      if (user.role !== "specialist") {
+        toast({
+          title: "Muvaffaqiyatli kirish",
+          description: "Tizimga muvaffaqiyatli kirdingiz",
+        });
 
-      navigate(getRoleRedirectPath(user.role));
+        navigate(getRoleRedirectPath(user.role));
+      }
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -84,6 +108,18 @@ const Login = () => {
       });
     }
   };
+
+  if (currentUserQuery.isLoading || currentUserQuery.isFetching) {
+    return renderSplashScreen("Sessiya tekshirilmoqda...");
+  }
+
+  if (currentUser?.role === "specialist") {
+    return <MobileQRCode />;
+  }
+
+  if (currentUser) {
+    return renderSplashScreen("Siz tizimga yo'naltirilmoqdasiz...");
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">

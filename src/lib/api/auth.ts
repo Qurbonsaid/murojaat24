@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "./client";
+import { unregisterSpecialistPwa } from "@/lib/pwa";
 
 export type UserRole =
   | "admin"
@@ -132,6 +133,7 @@ export const useLogout = () => {
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["auth", "me"] });
       clearLegacySessions();
+      void unregisterSpecialistPwa();
     },
   });
 };
