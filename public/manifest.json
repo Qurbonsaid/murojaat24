@@ -1,0 +1,18 @@
+{
+  "name": "Termiz - Aqlli Shahar",
+  "short_name": "Termiz - Aqlli Shahar",
+  "description": "Termiz aqlli shahar platformasi",
+  "start_url": "/login",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b4f88",
+  "theme_color": "#0c7a5a",
+  "icons": [
+    {
+      "src": "/termiz-aqlli-shahar-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
