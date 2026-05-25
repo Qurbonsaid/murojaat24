@@ -34,7 +34,6 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
     useState<SpecialistPermissionStatus | null>(null);
   const [isRequestingPermissions, setIsRequestingPermissions] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(isStandalonePwa());
-  const [closeHintVisible, setCloseHintVisible] = useState(false);
 
   const hasStoredPwaAccess = () => {
     return localStorage.getItem(SPECIALIST_PWA_ACCESS_KEY) === "true";
@@ -94,6 +93,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
       window.removeEventListener("focus", updateStandaloneState);
       window.removeEventListener("visibilitychange", updateStandaloneState);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const needsPermissions = useMemo(() => {
@@ -179,13 +179,6 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
     permissionStatus,
   ]);
 
-  const handleCloseWindow = () => {
-    setCloseHintVisible(true);
-    setTimeout(() => {
-      window.close();
-    }, 100);
-  };
-
   const handleReturn = async () => {
     await logoutMutation.mutateAsync();
     navigate("/");
@@ -226,53 +219,49 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
 
             {!isInstalled ? (
               <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
-                <div className="grid gap-5 sm:grid-cols-3">
-                  <div className="rounded-xl bg-white p-4 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">
-                      1. O'rnatish
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      Qurilmaga ilovani qo'shing va tezkor ish rejimiga o'ting.
-                    </p>
+                <div className="rounded-xl bg-white p-6 shadow-sm">
+                  <div className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                    Install step
                   </div>
-                  <div className="rounded-xl bg-white p-4 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">
-                      2. Ruxsatlar
+
+                  <h2 className="mt-4 text-xl font-bold text-slate-950">
+                    Ilovani o'rnating
+                  </h2>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Avval ilovani qurilmaga qo'shing. O'rnatilgach, appni qayta
+                    ochib ruxsatlar beriladi.
+                  </p>
+
+                  <div className="mt-5 space-y-2 text-sm text-slate-700">
+                    <p>
+                      • Chrome yoki browser menyusidan install oynasi chiqadi.
                     </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      Kamera, lokatsiya va bildirishnomalarni yoqing.
-                    </p>
+                    <p>• Oynani ko'rmasangiz, sahifani qayta tekshiring.</p>
+                    <p>• O'rnatilgach browserdan chiqing.</p>
                   </div>
-                  <div className="rounded-xl bg-white p-4 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">
-                      3. Boshlash
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      O'rnatilgach tizimga o'tib ishni boshlaysiz.
-                    </p>
-                  </div>
+
+                  <button
+                    type="button"
+                    className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleInstallApp}
+                    disabled={isInstalling}
+                  >
+                    {isInstalling
+                      ? "O'rnatilmoqda..."
+                      : installPrompt
+                        ? "Ilovani o'rnatish"
+                        : "Qayta tekshirish"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                    onClick={handleReturn}
+                    disabled={isInstalling}
+                  >
+                    Bosh sahifaga qaytish
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={handleInstallApp}
-                  disabled={isInstalling}
-                >
-                  {isInstalling
-                    ? "O'rnatilmoqda..."
-                    : installPrompt
-                      ? "Ilovani o'rnatish"
-                      : "Sahifani yangilash"}
-                </button>
-
-                <button
-                  type="button"
-                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                  onClick={handleCloseWindow}
-                >
-                  Brauzer oynasini yopish
-                </button>
               </div>
             ) : !isStandalone ? (
               <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
@@ -295,9 +284,10 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
                 <button
                   type="button"
                   className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                  onClick={handleCloseWindow}
+                  onClick={handleReturn}
+                  disabled={isInstalling}
                 >
-                  Brauzer oynasini yopish
+                  Bosh sahifaga qaytish
                 </button>
               </div>
             ) : isCheckingAccess || !permissionStatus ? (
@@ -307,7 +297,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
                     Ilova tekshirilmoqda...
                   </p>
                   <p className="mt-2 text-sm text-slate-600">
-                    Standalone rejim va ruxsatlar holati aniqlanmoqda.
+                    O'rnatish va ruxsatlar holati aniqlanmoqda.
                   </p>
                   <div className="mt-5 flex items-center justify-center gap-2">
                     <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400" />
@@ -319,9 +309,9 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
                 <button
                   type="button"
                   className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                  onClick={handleCloseWindow}
+                  onClick={handleReturn}
                 >
-                  Brauzer oynasini yopish
+                  Bosh sahifaga qaytish
                 </button>
               </div>
             ) : (
@@ -356,17 +346,12 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
                 <button
                   type="button"
                   className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                  onClick={handleCloseWindow}
+                  onClick={handleReturn}
+                  disabled={isInstalling}
                 >
-                  Brauzer oynasini yopish
+                  Bosh sahifaga qaytish
                 </button>
               </div>
-            )}
-            {closeHintVisible && (
-              <p className="mt-4 text-center text-sm text-slate-500">
-                Brauzer oynasini qo'lda yoping va ilovani uy ekranidan qayta
-                oching.
-              </p>
             )}
           </div>
         </div>
@@ -408,7 +393,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
               type="button"
               className="mt-5 w-full rounded-lg bg-blue-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-6"
               onClick={handleReturn}
-              disabled={logoutMutation.isPending}
+              disabled={logoutMutation.isPending || isInstalling}
             >
               {logoutMutation.isPending
                 ? "Chiqilmoqda..."
