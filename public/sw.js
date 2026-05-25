@@ -1,4 +1,4 @@
-const CACHE_NAME = "murojaat24-specialist-pwa-v1";
+const CACHE_NAME = "murojaat24-specialist-pwa-v3";
 const APP_SHELL = [
   "/",
   "/login",
