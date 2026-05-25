@@ -17,6 +17,8 @@ type Props = {
   loginUrl?: string;
 };
 
+const SPECIALIST_PWA_ACCESS_KEY = "specialist_pwa_permissions_granted";
+
 export const MobileQRCode = ({ loginUrl }: Props) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -32,6 +34,11 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
     useState<SpecialistPermissionStatus | null>(null);
   const [isRequestingPermissions, setIsRequestingPermissions] = useState(false);
   const [isCheckingAccess, setIsCheckingAccess] = useState(isStandalonePwa());
+  const [closeHintVisible, setCloseHintVisible] = useState(false);
+
+  const hasStoredPwaAccess = () => {
+    return localStorage.getItem(SPECIALIST_PWA_ACCESS_KEY) === "true";
+  };
 
   useEffect(() => {
     if (shouldEnableSpecialistPwa(currentUser?.role)) {
@@ -58,6 +65,13 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
       setIsStandalone(standalone);
 
       if (standalone) {
+        if (hasStoredPwaAccess()) {
+          navigate(getRoleRedirectPath(currentUser?.role || "specialist"), {
+            replace: true,
+          });
+          return;
+        }
+
         setIsCheckingAccess(true);
         void getSpecialistPermissionStatus().then((nextStatus) => {
           setPermissionStatus(nextStatus);
@@ -96,6 +110,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
 
   const handleInstallApp = async () => {
     if (!installPrompt) {
+      window.location.reload();
       return;
     }
 
@@ -130,6 +145,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
         nextStatus.location === "granted";
 
       if (allGranted) {
+        localStorage.setItem(SPECIALIST_PWA_ACCESS_KEY, "true");
         navigate(getRoleRedirectPath(currentUser?.role || "specialist"), {
           replace: true,
         });
@@ -150,6 +166,7 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
       permissionStatus.location === "granted";
 
     if (allGranted) {
+      localStorage.setItem(SPECIALIST_PWA_ACCESS_KEY, "true");
       navigate(getRoleRedirectPath(currentUser?.role || "specialist"), {
         replace: true,
       });
@@ -161,6 +178,13 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
     navigate,
     permissionStatus,
   ]);
+
+  const handleCloseWindow = () => {
+    setCloseHintVisible(true);
+    setTimeout(() => {
+      window.close();
+    }, 100);
+  };
 
   const handleReturn = async () => {
     await logoutMutation.mutateAsync();
@@ -183,176 +207,167 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
 
   if (isMobile) {
     return (
-      <div className="min-h-dvh bg-slate-950 p-4 text-white md:p-6">
-        <div className="mx-auto flex h-[calc(100dvh-2rem)] w-full max-w-7xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur md:h-[calc(100dvh-3rem)] lg:flex-row">
-          <div className="flex flex-1 items-center justify-center overflow-auto bg-white px-5 py-8 text-slate-900 sm:px-8 lg:w-7/12 lg:px-12 lg:py-10">
-            <div className="w-full max-w-2xl">
-              <div className="text-center">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">
-                  Mutaxasis ilovasini o'rnatish
-                </p>
-                <h1 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
-                  Ilovani o'rnating va ruxsatlarni bering
-                </h1>
-                <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                  Avval ilovani mobil qurilmangizga o'rnating. O'rnatilgandan
-                  so'ng xabarnomalar, kamera va joylashuv xizmatlariga ruxsat
-                  berish kerak bo'ladi.
-                </p>
-              </div>
-
-              {!isInstalled ? (
-                <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
-                  <div className="grid gap-5 sm:grid-cols-3">
-                    <div className="rounded-xl bg-white p-4 shadow-sm">
-                      <p className="text-sm font-semibold text-slate-900">
-                        1. O'rnatish
-                      </p>
-                      <p className="mt-2 text-sm text-slate-600">
-                        Qurilmaga ilovani qo'shing va tezkor ish rejimiga
-                        o'ting.
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-white p-4 shadow-sm">
-                      <p className="text-sm font-semibold text-slate-900">
-                        2. Ruxsatlar
-                      </p>
-                      <p className="mt-2 text-sm text-slate-600">
-                        Kamera, lokatsiya va bildirishnomalarni yoqing.
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-white p-4 shadow-sm">
-                      <p className="text-sm font-semibold text-slate-900">
-                        3. Boshlash
-                      </p>
-                      <p className="mt-2 text-sm text-slate-600">
-                        O'rnatilgach tizimga o'tib ishni boshlaysiz.
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleInstallApp}
-                    disabled={!installPrompt || isInstalling}
-                  >
-                    {isInstalling
-                      ? "O'rnatilmoqda..."
-                      : installPrompt
-                        ? "Ilovani o'rnatish"
-                        : "O'rnatish oynasi tayyor emas, biroz kuting"}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    onClick={handleReturn}
-                    disabled={logoutMutation.isPending}
-                  >
-                    {logoutMutation.isPending
-                      ? "Chiqilmoqda..."
-                      : "Bosh sahifaga qaytish"}
-                  </button>
-                </div>
-              ) : !isStandalone ? (
-                <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
-                  <div className="rounded-xl bg-white p-5 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">
-                      Ilova o'rnatildi.
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      Endi Chrome web oynasini yoping va ilovani uy ekranidan
-                      yoki ilovalar ro'yxatidan oching. Ruxsatlar faqat
-                      standalone rejimda so'raladi.
-                    </p>
-
-                    <div className="mt-4 rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                      Ilovani qayta ochgandan keyin kamera, joylashuv va
-                      bildirishnomalar so'raladi.
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    onClick={handleReturn}
-                    disabled={logoutMutation.isPending}
-                  >
-                    {logoutMutation.isPending
-                      ? "Chiqilmoqda..."
-                      : "Bosh sahifaga qaytish"}
-                  </button>
-                </div>
-              ) : isCheckingAccess || !permissionStatus ? (
-                <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
-                  <div className="rounded-xl bg-white p-5 shadow-sm text-center">
-                    <p className="text-sm font-semibold text-slate-900">
-                      Ilova tekshirilmoqda...
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      Standalone rejim va ruxsatlar holati aniqlanmoqda.
-                    </p>
-                    <div className="mt-5 flex items-center justify-center gap-2">
-                      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400" />
-                      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400 [animation-delay:150ms]" />
-                      <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400 [animation-delay:300ms]" />
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    onClick={handleReturn}
-                    disabled={logoutMutation.isPending}
-                  >
-                    {logoutMutation.isPending
-                      ? "Chiqilmoqda..."
-                      : "Bosh sahifaga qaytish"}
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
-                  <div className="rounded-xl bg-white p-5 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">
-                      O'rnatildi. Endi ruxsat bering.
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600">
-                      Bildirishnomalar, kamera va joylashuvsiz ilova to'liq
-                      ishlamaydi.
-                    </p>
-
-                    <div className="mt-4 rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-700">
-                      {renderPermissionState()}
-                    </div>
-
-                    <button
-                      type="button"
-                      className="mt-5 w-full rounded-xl bg-slate-950 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                      onClick={handleGrantPermissions}
-                      disabled={isRequestingPermissions}
-                    >
-                      {isRequestingPermissions
-                        ? "Ruxsat so'ralmoqda..."
-                        : needsPermissions
-                          ? "Ruxsatlarni berish"
-                          : "Davom etish"}
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
-                    onClick={handleReturn}
-                    disabled={logoutMutation.isPending}
-                  >
-                    {logoutMutation.isPending
-                      ? "Chiqilmoqda..."
-                      : "Bosh sahifaga qaytish"}
-                  </button>
-                </div>
-              )}
+      <div className="min-h-dvh bg-slate-950 text-white md:p-6">
+        <div className="flex flex-1 items-center justify-center overflow-auto bg-white px-5 py-8 text-slate-900 sm:px-8 lg:w-7/12 lg:px-12 lg:py-10">
+          <div className="w-full max-w-2xl">
+            <div className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-600">
+                Mutaxasis ilovasini o'rnatish
+              </p>
+              <h1 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
+                Ilovani o'rnating va ruxsatlarni bering
+              </h1>
+              <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                Avval ilovani mobil qurilmangizga o'rnating. O'rnatilgandan
+                so'ng xabarnomalar, kamera va joylashuv xizmatlariga ruxsat
+                berish kerak bo'ladi.
+              </p>
             </div>
+
+            {!isInstalled ? (
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
+                <div className="grid gap-5 sm:grid-cols-3">
+                  <div className="rounded-xl bg-white p-4 shadow-sm">
+                    <p className="text-sm font-semibold text-slate-900">
+                      1. O'rnatish
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Qurilmaga ilovani qo'shing va tezkor ish rejimiga o'ting.
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white p-4 shadow-sm">
+                    <p className="text-sm font-semibold text-slate-900">
+                      2. Ruxsatlar
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      Kamera, lokatsiya va bildirishnomalarni yoqing.
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white p-4 shadow-sm">
+                    <p className="text-sm font-semibold text-slate-900">
+                      3. Boshlash
+                    </p>
+                    <p className="mt-2 text-sm text-slate-600">
+                      O'rnatilgach tizimga o'tib ishni boshlaysiz.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleInstallApp}
+                  disabled={isInstalling}
+                >
+                  {isInstalling
+                    ? "O'rnatilmoqda..."
+                    : installPrompt
+                      ? "Ilovani o'rnatish"
+                      : "Sahifani yangilash"}
+                </button>
+
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  onClick={handleCloseWindow}
+                >
+                  Brauzer oynasini yopish
+                </button>
+              </div>
+            ) : !isStandalone ? (
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
+                <div className="rounded-xl bg-white p-5 shadow-sm">
+                  <p className="text-sm font-semibold text-slate-900">
+                    Ilova o'rnatildi.
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Endi Chrome web oynasini yoping va ilovani uy ekranidan yoki
+                    ilovalar ro'yxatidan oching. Ruxsatlar faqat standalone
+                    rejimda so'raladi.
+                  </p>
+
+                  <div className="mt-4 rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-700">
+                    Ilovani qayta ochgandan keyin kamera, joylashuv va
+                    bildirishnomalar so'raladi.
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  onClick={handleCloseWindow}
+                >
+                  Brauzer oynasini yopish
+                </button>
+              </div>
+            ) : isCheckingAccess || !permissionStatus ? (
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
+                <div className="rounded-xl bg-white p-5 shadow-sm text-center">
+                  <p className="text-sm font-semibold text-slate-900">
+                    Ilova tekshirilmoqda...
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Standalone rejim va ruxsatlar holati aniqlanmoqda.
+                  </p>
+                  <div className="mt-5 flex items-center justify-center gap-2">
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400" />
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400 [animation-delay:150ms]" />
+                    <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-slate-400 [animation-delay:300ms]" />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  onClick={handleCloseWindow}
+                >
+                  Brauzer oynasini yopish
+                </button>
+              </div>
+            ) : (
+              <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm sm:p-8">
+                <div className="rounded-xl bg-white p-5 shadow-sm">
+                  <p className="text-sm font-semibold text-slate-900">
+                    O'rnatildi. Endi ruxsat bering.
+                  </p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Bildirishnomalar, kamera va joylashuvsiz ilova to'liq
+                    ishlamaydi.
+                  </p>
+
+                  <div className="mt-4 rounded-lg bg-slate-100 px-4 py-3 text-sm text-slate-700">
+                    {renderPermissionState()}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="mt-5 w-full rounded-xl bg-slate-950 px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleGrantPermissions}
+                    disabled={isRequestingPermissions}
+                  >
+                    {isRequestingPermissions
+                      ? "Ruxsat so'ralmoqda..."
+                      : needsPermissions
+                        ? "Ruxsatlarni berish"
+                        : "Davom etish"}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  onClick={handleCloseWindow}
+                >
+                  Brauzer oynasini yopish
+                </button>
+              </div>
+            )}
+            {closeHintVisible && (
+              <p className="mt-4 text-center text-sm text-slate-500">
+                Brauzer oynasini qo'lda yoping va ilovani uy ekranidan qayta
+                oching.
+              </p>
+            )}
           </div>
         </div>
       </div>
