@@ -31,10 +31,6 @@ export const shouldEnableSpecialistPwa = (role?: UserRole) => {
 
 /** Skip PWA install + permission gate (Vite dev server, or VITE_BYPASS_SPECIALIST_PWA_WALL=true). */
 export const shouldBypassSpecialistInstallWall = () => {
-  if (import.meta.env.DEV) {
-    return true;
-  }
-
   return import.meta.env.VITE_BYPASS_SPECIALIST_PWA_WALL === "true";
 };
 
