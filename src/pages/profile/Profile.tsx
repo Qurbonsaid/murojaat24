@@ -42,7 +42,7 @@ const ROLES_WITH_ORGANIZATION: UserRole[] = [
 const roleLabels: Record<UserRole, string> = {
   admin: "Hokimiyat",
   operator: "Operator",
-  dispatcher: "Dispatcher",
+  dispatcher: "Dispetcher",
   specialist: "Mutaxassis",
   manager: "Menejer",
 };
@@ -77,7 +77,7 @@ const getProfileDefaults = (user: CurrentUser): ProfileFormData => ({
   firstName: user.profile?.firstName ?? "",
   lastName: user.profile?.lastName ?? "",
   avatar: user.profile?.avatar?.trim()
-    ? resolveAssetUrl(user.profile.avatar.trim()) ?? null
+    ? (resolveAssetUrl(user.profile.avatar.trim()) ?? null)
     : null,
 });
 
@@ -222,7 +222,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
       avatar: data.avatar?.trim()
-        ? resolveAssetUrl(data.avatar.trim()) ?? null
+        ? (resolveAssetUrl(data.avatar.trim()) ?? null)
         : null,
     };
 
@@ -467,11 +467,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background px-4 py-6">
-      {content}
-    </div>
-  );
+  return <div className="min-h-screen bg-background px-4 py-6">{content}</div>;
 };
 
 export default Profile;
