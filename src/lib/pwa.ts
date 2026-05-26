@@ -22,7 +22,11 @@ export const isMobileDevice = () => {
 };
 
 export const shouldEnableSpecialistPwa = (role?: UserRole) => {
-  return role === "specialist" && isMobileDevice() && !shouldBypassSpecialistInstallWall();
+  return (
+    role === "specialist" &&
+    isMobileDevice() &&
+    !shouldBypassSpecialistInstallWall()
+  );
 };
 
 /** Skip PWA install + permission gate (Vite dev server, or VITE_BYPASS_SPECIALIST_PWA_WALL=true). */
