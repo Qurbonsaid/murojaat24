@@ -11,6 +11,7 @@ import {
   requestSpecialistPermissions,
   shouldBypassSpecialistInstallWall,
   shouldEnableSpecialistPwa,
+  unregisterSpecialistPwa,
   type SpecialistPermissionStatus,
 } from "@/lib/pwa";
 
@@ -119,7 +120,18 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
 
   const handleInstallApp = async () => {
     if (!installPrompt) {
-      window.location.reload();
+      // beforeinstallprompt may not fire in some environments (browser, engagement criteria).
+      // Try to ensure the service worker is registered, then reload to let the browser re-evaluate installability.
+      setIsInstalling(true);
+      try {
+        await registerSpecialistPwa();
+      } catch (err) {
+        // ignore
+      }
+      setTimeout(() => {
+        setIsInstalling(false);
+        window.location.reload();
+      }, 800);
       return;
     }
 
@@ -129,7 +141,9 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
       await installPrompt.prompt();
       const choice = await installPrompt.userChoice;
       if (choice.outcome === "accepted") {
-        setIsInstalled(true);
+        setTimeout(() => {
+          setIsInstalling(false);
+        }, 3000);
       }
     } finally {
       setIsInstalling(false);
