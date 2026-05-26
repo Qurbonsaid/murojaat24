@@ -208,15 +208,6 @@ const EditUserModal = ({ open, onOpenChange, user }: EditUserModalProps) => {
           autoComplete="off"
         >
           <div className="space-y-2">
-            <Label htmlFor="phone">Telefon raqami</Label>
-            <Input
-              id="phone"
-              disabled={user?.role === "admin"}
-              {...register("phone")}
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="firstName">Ism *</Label>
             <Input
               id="firstName"
@@ -307,6 +298,15 @@ const EditUserModal = ({ open, onOpenChange, user }: EditUserModalProps) => {
               id="sector"
               placeholder="Masalan: 3-sektor (ixtiyoriy)"
               {...register("sector")}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefon raqami</Label>
+            <Input
+              id="phone"
+              disabled={user?.role === "admin"}
+              {...register("phone")}
             />
           </div>
 
