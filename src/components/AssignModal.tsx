@@ -8,8 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateAssignment } from "@/lib/api/assignments";
 import { ApiError } from "@/lib/api/client";
@@ -33,6 +35,8 @@ const AssignModal = ({
   organizationId,
 }: AssignModalProps) => {
   const [selectedSpecialist, setSelectedSpecialist] = useState("");
+  const [notes, setNotes] = useState("");
+  const [estimatedTimeInput, setEstimatedTimeInput] = useState("");
   const { toast } = useToast();
   const createAssignment = useCreateAssignment();
 
@@ -49,6 +53,8 @@ const AssignModal = ({
   useEffect(() => {
     if (!open) {
       setSelectedSpecialist("");
+      setNotes("");
+      setEstimatedTimeInput("");
     }
   }, [open]);
 
@@ -65,10 +71,29 @@ const AssignModal = ({
   const handleAssign = async () => {
     if (!requestId || !selectedSpecialist) return;
 
+    const trimmedNotes = notes.trim();
+    const estimatedTimeValue = estimatedTimeInput.trim();
+    let estimatedTime: number | undefined;
+
+    if (estimatedTimeValue) {
+      const parsed = Number(estimatedTimeValue);
+      if (!Number.isFinite(parsed) || parsed <= 0) {
+        toast({
+          variant: "destructive",
+          title: "Xatolik",
+          description: "Taxminiy vaqt musbat son bo'lishi kerak",
+        });
+        return;
+      }
+      estimatedTime = parsed;
+    }
+
     try {
       await createAssignment.mutateAsync({
         requestId,
         specialistId: selectedSpecialist,
+        ...(trimmedNotes ? { notes: trimmedNotes } : {}),
+        ...(estimatedTime !== undefined ? { estimatedTime } : {}),
       });
 
       const specialist = specialistOptions.find(
@@ -80,7 +105,6 @@ const AssignModal = ({
         description: `Murojaat ${specialist?.name ?? "mutaxassis"}ga tayinlandi`,
       });
       onOpenChange(false);
-      setSelectedSpecialist("");
     } catch (error) {
       const message =
         error instanceof ApiError
@@ -106,6 +130,37 @@ const AssignModal = ({
             <span className="font-semibold text-foreground">{requestNumber}</span>
           </DialogDescription>
         </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="assignment-notes">Izoh (ixtiyoriy)</Label>
+            <Textarea
+              id="assignment-notes"
+              rows={3}
+              placeholder="Mutaxassis uchun qo'shimcha ma'lumot..."
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              disabled={createAssignment.isPending}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="assignment-estimated-time">
+              Bajarish uchun muddat
+            </Label>
+            <Input
+              id="assignment-estimated-time"
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              placeholder="3-15 ish kuni"
+              value={estimatedTimeInput}
+              onChange={(event) => setEstimatedTimeInput(event.target.value)}
+              disabled={createAssignment.isPending}
+            />
+          </div>
+        </div>
 
         {specialistsQuery.isLoading ? (
           <div className="flex justify-center py-8">
