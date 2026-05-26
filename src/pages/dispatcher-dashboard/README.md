@@ -4,7 +4,7 @@ Dispatcher workflow for assigning new appeals to specialists and managing active
 
 ## User-facing behavior
 
-- **Yangi murojaatlar** (`/dispatcher-dashboard/appeals`): paginated table of appeals with `status=new`, scoped to the signed-in dispatcher’s organization (`useCurrentUser` → `organization` query param). Row actions: view detail (`OperatorRequestDetailModal`), assign specialist (`AssignModal` → `POST /api/assignments`).
+- **Yangi murojaatlar** (`/dispatcher-dashboard/appeals`): paginated table of appeals with `status=new`, scoped to the signed-in dispatcher’s organization (`useCurrentUser` → `organization` query param). Row actions: view detail (`OperatorRequestDetailModal`), assign specialist (`AssignModal` with optional `notes` and `estimatedTime` → `POST /api/assignments`).
 - **Topshiriqlar** (`/dispatcher-dashboard/assignments`): paginated assignments list with optional status filter. Cancel opens `AlertDialog` confirmation, then `PUT /api/assignments/:id/cancel`.
 - Sidebar shows only the two menu items above (no map, stats, or monitoring).
 
