@@ -4,6 +4,7 @@ import { ClipboardList, FileText, Inbox } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
 import { resolveAssetUrl } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 
 const DispatcherSidebar = () => {
   const location = useLocation();
@@ -73,11 +74,12 @@ const DispatcherSidebar = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-4 py-3 transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-slate-300 hover:bg-slate-700"
-                  }`}
+                      : "text-slate-300 hover:bg-slate-700",
+                  )}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>

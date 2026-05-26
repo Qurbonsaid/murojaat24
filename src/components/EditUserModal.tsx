@@ -259,9 +259,9 @@ const EditUserModal = ({ open, onOpenChange, user }: EditUserModalProps) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="operator">Call Center Operator</SelectItem>
-                <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                <SelectItem value="dispatcher">Dispetcher</SelectItem>
                 <SelectItem value="specialist">Mutaxassis</SelectItem>
-                <SelectItem value="manager">Menjer</SelectItem>
+                <SelectItem value="manager">Menejer</SelectItem>
                 <SelectItem value="admin">Administrator</SelectItem>
               </SelectContent>
             </Select>

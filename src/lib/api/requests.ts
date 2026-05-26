@@ -103,6 +103,13 @@ export type AppealRequest = {
   };
 };
 
+export type VerifyRequestStatus = "approved" | "rejected";
+
+export type VerifyRequestInput = {
+  status: VerifyRequestStatus;
+  comment?: string;
+};
+
 export type OperatorAppealFormValues = {
   fullName: string;
   phone: string;
@@ -310,6 +317,214 @@ export const useCreateOperatorRequest = () => {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+  });
+};
+
+export const useVerifyRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: VerifyRequestInput & { id: string }) => {
+      const response = await apiRequest<AppealRequestDetail>(
+        `/api/requests/${id}/verify`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        },
+      );
+
+      return response.data;
+    },
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["requests", "detail", variables.id],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["statistics"] }),
+      ]);
+    },
+  });
+};
+
+export type CompleteRequestInput = {
+  images: string[];
+  report: string;
+  signature: string;
+};
+
+const normalizeRequestImagePath = (value: unknown): string | undefined => {
+  if (typeof value !== "string" || !value.trim()) {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    try {
+      const url = new URL(trimmed);
+      const pathname = url.pathname.replace(/^\/+/, "");
+      if (pathname.startsWith("uploads/")) {
+        return pathname;
+      }
+      return pathname || trimmed;
+    } catch {
+      return trimmed;
+    }
+  }
+
+  return trimmed.replace(/^\/+/, "");
+};
+
+export const extractRequestImagePaths = (data: unknown): string[] => {
+  if (Array.isArray(data)) {
+    return data
+      .map(normalizeRequestImagePath)
+      .filter((path): path is string => Boolean(path));
+  }
+
+  if (typeof data === "object" && data !== null) {
+    if ("images" in data && Array.isArray(data.images)) {
+      return extractRequestImagePaths(data.images);
+    }
+
+    if ("paths" in data && Array.isArray(data.paths)) {
+      return extractRequestImagePaths(data.paths);
+    }
+
+    if ("data" in data) {
+      return extractRequestImagePaths(data.data);
+    }
+
+    const single = normalizeRequestImagePath(
+      "url" in data
+        ? data.url
+        : "path" in data
+          ? data.path
+          : "filePath" in data
+            ? data.filePath
+            : undefined,
+    );
+
+    if (single) {
+      return [single];
+    }
+  }
+
+  return [];
+};
+
+export const uploadRequestImages = async (
+  requestId: string,
+  files: File[],
+): Promise<string[]> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append("images", file));
+
+  const response = await apiRequest<unknown>(
+    `/api/requests/${requestId}/images`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+
+  const paths = extractRequestImagePaths(response.data);
+  if (!paths.length) {
+    throw new Error("Yuklangan rasm manzili topilmadi");
+  }
+
+  return paths;
+};
+
+export const completeRequest = async (
+  requestId: string,
+  payload: CompleteRequestInput,
+) => {
+  const response = await apiRequest<AppealRequestDetail>(
+    `/api/requests/${requestId}/complete`,
+    {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    },
+  );
+
+  return response.data;
+};
+
+export const submitRequestCompletion = async ({
+  requestId,
+  imageFiles,
+  report,
+  signature,
+}: {
+  requestId: string;
+  imageFiles: File[];
+  report: string;
+  signature: string;
+}) => {
+  const images = await uploadRequestImages(requestId, imageFiles);
+
+  return completeRequest(requestId, {
+    images,
+    report: report.trim(),
+    signature,
+  });
+};
+
+export const useUploadRequestImages = () => {
+  return useMutation({
+    mutationFn: async ({
+      requestId,
+      files,
+    }: {
+      requestId: string;
+      files: File[];
+    }) => uploadRequestImages(requestId, files),
+  });
+};
+
+export const useCompleteRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: CompleteRequestInput & { id: string }) => {
+      return completeRequest(id, payload);
+    },
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["requests", "detail", variables.id],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["assignments"] }),
+        queryClient.invalidateQueries({ queryKey: ["statistics"] }),
+      ]);
+    },
+  });
+};
+
+export const useSubmitRequestCompletion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: submitRequestCompletion,
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["requests", "detail", variables.requestId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["assignments"] }),
+        queryClient.invalidateQueries({ queryKey: ["statistics"] }),
+      ]);
     },
   });
 };

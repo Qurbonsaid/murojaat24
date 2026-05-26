@@ -12,8 +12,8 @@ A Vite + React SPA for **Termiz aqlli shahar** employee workflows around citizen
 | --- | --- |
 | `admin` | Ecosystem shell at `/ecosystem/*`, Murojaat24 admin sections, settings; may also open every role dashboard. |
 | `operator` | Phone intake form and mock “today’s appeals” list. |
-| `dispatcher` | Mock queue, map markers, specialist cards, assignment modal (toast only). |
-| `specialist` | Mobile-width task UI, completion flow, history/stats/profile tabs. |
+| `dispatcher` | API-backed new appeals + assignments (`assignments.ts`); two-route sidebar (appeals, assignments). |
+| `specialist` | Mobile task UI on `/specialist-mobile` (mock tasks); login PWA install gate (`MobileQRCode`, bypass in dev); history/stats/profile tabs. |
 | `manager` | Mock completed-work review table and approve/reject modal (toast only). |
 
 Canonical role strings live in `src/lib/api/auth.ts` (`UserRole`). UI labels may say “Dispetcher” while the code value is `dispatcher`.
@@ -83,9 +83,11 @@ Domain hooks live beside the client (see `docs/api/README.md` for tag → file m
 - `src/lib/api/organizations.ts` — organization CRUD.
 - `src/lib/api/requests.ts` — appeals list, detail, operator create.
 - `src/lib/api/statistics.ts` — admin statistics (daily, by-organization, specialists, export).
+- `src/lib/api/assignments.ts` — dispatcher list/create/cancel; specialist `my/*` paths in spec but not hooked.
 - `src/lib/api/uploads.ts` — avatar upload.
+- `src/lib/pwa.ts` — specialist install gate helpers (`shouldBypassSpecialistInstallWall`, SW register).
 
-Many workflow screens (dispatcher assign, specialist tasks, manager verify, admin statistics) are still mock; endpoints exist in the spec but may lack frontend hooks.
+Dispatcher assignment is API-backed; specialist tasks, manager verify, and some admin KPIs remain mock. Specialist assignment endpoints exist in the spec but lack frontend hooks.
 
 Details: `docs/architecture/conventions.md` (API section), `docs/architecture/implementation-gaps.md`.
 
@@ -143,7 +145,7 @@ Full conventions: `docs/architecture/conventions.md`. Footguns: `docs/architectu
 | Operator intake | `src/pages/operator-dashboard/README.md` |
 | Murojaat24 admin (appeals, stats, users) | `src/modules/ecosystem/pages/murojaat24/README.md` |
 | Dispatcher dashboard | `src/pages/dispatcher-dashboard/README.md` |
-| Specialist mobile | `src/pages/specialist-mobile/SpecialistMobile.tsx` + `src/components/specialist/README.md` |
+| Specialist mobile | `src/pages/specialist-mobile/README.md`, `src/components/specialist/README.md` |
 | Manager review | `src/pages/manager-dashboard/README.md` |
 | Settings (orgs, templates, general) | `src/modules/ecosystem/pages/sozlamalar/README.md` |
 | Unrouted citizen pages | `src/pages/citizen/README.md` |

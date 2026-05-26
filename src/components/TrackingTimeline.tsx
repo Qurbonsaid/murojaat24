@@ -2,6 +2,8 @@ import { CheckCircle2, Loader2, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { cn } from "@/lib/utils";
+
 interface TimelineStep {
   id: number;
   title: string;
@@ -58,9 +60,10 @@ const TrackingTimeline = ({ steps }: TrackingTimelineProps) => {
                   {/* Connecting Line */}
                   {index < steps.length - 1 && (
                     <div
-                      className={`absolute left-1/2 top-10 w-0.5 h-[calc(100%+1rem)] -translate-x-1/2 ${getStatusColor(
-                        step.status
-                      )} transition-all duration-500`}
+                      className={cn(
+                        "absolute left-1/2 top-10 w-0.5 h-[calc(100%+1rem)] -translate-x-1/2 transition-all duration-500",
+                        getStatusColor(step.status),
+                      )}
                     />
                   )}
                 </div>
@@ -72,11 +75,10 @@ const TrackingTimeline = ({ steps }: TrackingTimelineProps) => {
                     {step.badge && (
                       <Badge
                         variant={step.status === "in-progress" ? "default" : "secondary"}
-                        className={
-                          step.status === "in-progress"
-                            ? "bg-warning text-warning-foreground"
-                            : ""
-                        }
+                        className={cn(
+                          step.status === "in-progress" &&
+                            "bg-warning text-warning-foreground",
+                        )}
                       >
                         {step.badge}
                       </Badge>

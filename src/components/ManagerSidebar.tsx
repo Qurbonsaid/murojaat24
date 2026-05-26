@@ -1,14 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import {
-  FileText,
-  LayoutDashboard,
-  CheckCircle,
-  BarChart3,
-  Users,
-} from "lucide-react";
+import { BarChart3, CheckCircle, FileText, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
 import { resolveAssetUrl } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 
 const ManagerSidebar = () => {
   const location = useLocation();
@@ -25,13 +20,16 @@ const ManagerSidebar = () => {
     "Foydalanuvchi";
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/manager-dashboard" },
     {
       icon: CheckCircle,
       label: "Nazorat qilish",
-      path: "/manager-dashboard#review",
+      path: "/manager/nazorat",
     },
-    { icon: BarChart3, label: "Statistika", path: "/manager-dashboard#stats" },
+    {
+      icon: BarChart3,
+      label: "Statistika",
+      path: "/manager/statistika",
+    },
     {
       icon: Users,
       label: "Foydalanuvchilar",
@@ -64,7 +62,7 @@ const ManagerSidebar = () => {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate">{name || "Foydalanuvchi"}</p>
-            <p className="text-sm text-slate-400 truncate">Menjer</p>
+            <p className="text-sm text-slate-400 truncate">Menejer</p>
           </div>
         </div>
       </div>
@@ -72,19 +70,18 @@ const ManagerSidebar = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-2">
           {menuItems.map((item) => {
-            const isActive =
-              location.pathname === item.path ||
-              location.pathname === item.path.split("#")[0];
+            const isActive = location.pathname.startsWith(item.path);
 
             return (
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-slate-300 hover:bg-slate-700"
-                  }`}
+                      : "text-slate-300 hover:bg-slate-700",
+                  )}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>

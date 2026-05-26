@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 type ModuleEntry = {
   id: string;
@@ -163,7 +164,10 @@ const ModullarPage = () => {
 
               <CardContent className="flex h-full flex-col gap-4 p-6">
                 <span
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm ${module.accent}`}
+                  className={cn(
+                    "flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm",
+                    module.accent,
+                  )}
                 >
                   <Icon className="h-6 w-6" />
                 </span>

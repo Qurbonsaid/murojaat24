@@ -13,6 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateAssignment } from "@/lib/api/assignments";
 import { ApiError } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 import { getStaffUserDisplayName, useSpecialists } from "@/lib/api/users";
 import { Loader2 } from "lucide-react";
 
@@ -127,11 +128,12 @@ const AssignModal = ({
             {specialistOptions.map((specialist) => (
               <div
                 key={specialist.id}
-                className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-colors ${
+                className={cn(
+                  "flex cursor-pointer items-start gap-3 rounded-lg border-2 p-4 transition-colors",
                   selectedSpecialist === specialist.id
                     ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                }`}
+                    : "border-border hover:border-primary/50",
+                )}
                 onClick={() => setSelectedSpecialist(specialist.id)}
               >
                 <RadioGroupItem

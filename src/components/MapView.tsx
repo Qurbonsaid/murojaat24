@@ -1,5 +1,7 @@
 import { MapPin, Navigation } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface MapViewProps {
   compact?: boolean;
 }
@@ -39,9 +41,12 @@ const MapView = ({ compact = false }: MapViewProps) => {
   };
 
   return (
-    <div className={compact ? "space-y-3" : "space-y-4"}>
+    <div className={cn(compact ? "space-y-3" : "space-y-4")}>
       <div
-        className={`relative w-full rounded-lg overflow-hidden border border-border bg-slate-100 ${compact ? "h-[calc(100vh-360px)] min-h-[300px]" : "h-[500px]"}`}
+        className={cn(
+          "relative w-full rounded-lg overflow-hidden border border-border bg-slate-100",
+          compact ? "h-[calc(100vh-360px)] min-h-[300px]" : "h-[500px]",
+        )}
       >
         {/* Grid pattern */}
         <div
@@ -142,7 +147,10 @@ const MapView = ({ compact = false }: MapViewProps) => {
 
       {/* Legend */}
       <div
-        className={`flex items-center justify-center flex-wrap ${compact ? "gap-4" : "gap-6"}`}
+        className={cn(
+          "flex items-center justify-center flex-wrap",
+          compact ? "gap-4" : "gap-6",
+        )}
       >
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500"></div>

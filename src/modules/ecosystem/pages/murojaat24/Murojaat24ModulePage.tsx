@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import AddUserModal from "@/components/AddUserModal";
+import { cn } from "@/lib/utils";
 import EditUserModal from "@/components/EditUserModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { resolveAssetUrl } from "@/lib/api/client";
@@ -360,11 +361,9 @@ const Murojaat24ModulePage = () => {
                         <TableCell>{roleLabels[user.role]}</TableCell>
                         <TableCell>
                           <Badge
-                            className={
-                              status === "active"
-                                ? "bg-green-500"
-                                : "bg-gray-500"
-                            }
+                            className={cn(
+                              status === "active" ? "bg-green-500" : "bg-gray-500",
+                            )}
                           >
                             {status === "active"
                               ? "Faol"

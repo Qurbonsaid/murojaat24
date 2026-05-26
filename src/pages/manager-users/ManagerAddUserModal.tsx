@@ -189,7 +189,7 @@ const ManagerAddUserModal = ({ open, onOpenChange }: ManagerAddUserModalProps) =
                 <SelectValue placeholder="Rolni tanlang" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="dispatcher">Dispatcher</SelectItem>
+                <SelectItem value="dispatcher">Dispetcher</SelectItem>
                 <SelectItem value="specialist">Mutaxassis</SelectItem>
               </SelectContent>
             </Select>

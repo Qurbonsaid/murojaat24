@@ -25,6 +25,10 @@ User opens profile from dashboard profile menu or specialist profile tab. Edits 
 
 Avatar file pick → `useUploadAvatar` → `POST /api/uploads/avatar` (multipart `file`) → URL stored in form.
 
+Form fields sync from `useCurrentUser` via `reset()` when `user._id` / `profile` changes.
+
+Login → `useLogin` seeds `["auth", "me"]` then **refetches** `GET /api/auth/me` (login payload can omit profile/org fields). Logout invalidates all queries so the next session does not reuse stale lists.
+
 Save → `useUpdateProfile` → `PUT /api/auth/profile` (includes avatar URL or `null`) → update `["auth", "me"]` → invalidate `["users"]`.
 
 Admin hitting `/profile` is redirected to `/ecosystem/profile` so the ecosystem sidebar stays visible.
@@ -37,6 +41,7 @@ All authenticated roles. Public landing `Header` does not expose profile (employ
 
 - Avatar: JPG/PNG file picker, max 5MB; uploaded on select via `POST /api/uploads/avatar`; form and `PUT /api/auth/profile` send full URL `{VITE_BASE_URL}/uploads/{filePath}` via `resolveAssetUrl`; display uses the same helper; clear sends `null`.
 - Organization: shown read-only for `dispatcher`, `manager`, `specialist` only; not editable on this page.
+- Specialist extended fields in `PersonalInfoModal` are unused; this page is the supported profile editor.
 - Save disabled until dirty or while mutation pending.
 - Image type validation on client.
 

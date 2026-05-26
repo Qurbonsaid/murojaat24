@@ -41,7 +41,8 @@ Gate: `ProtectedRoute` with `requiredRoles={["admin"]}` on `/ecosystem` in `src/
 - Settings: `src/modules/ecosystem/pages/sozlamalar/README.md`
 - Auth: `src/lib/api/README.md`
 - Profile: `src/pages/profile/README.md`
-- Operator / dispatcher / specialist / manager UIs: respective `src/pages/*/README.md` or `src/components/specialist/README.md`
+- Operator / dispatcher / manager UIs: respective `src/pages/*/README.md`
+- Specialist mobile: `src/pages/specialist-mobile/README.md`, `src/components/specialist/README.md`
 
 ## Permission checks
 

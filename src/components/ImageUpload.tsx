@@ -3,6 +3,8 @@ import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 interface ImageUploadProps {
   uploadedImage: string | null;
   setUploadedImage: (image: string | null) => void;
@@ -88,11 +90,12 @@ const ImageUpload = ({ uploadedImage, setUploadedImage }: ImageUploadProps) => {
         </div>
       ) : (
         <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={cn(
+            "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
             isDragging
               ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50"
-          }`}
+              : "border-border hover:border-primary/50",
+          )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

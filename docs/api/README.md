@@ -53,7 +53,7 @@ Full hook patterns: `src/lib/api/README.md`, `docs/architecture/conventions.md`.
 | `Users` | `src/lib/api/users.ts`, admin/manager user screens |
 | `Organizations` | `src/lib/api/organizations.ts`, settings |
 | `Requests`, `Requests - Staff`, `Requests - Public` | `src/lib/api/requests.ts`, operator/citizen flows |
-| `Assignments` | Dispatcher/specialist (not wired yet) |
+| `Assignments` | Dispatcher wired (`assignments.ts`); specialist `my/current`, `my/history`, accept, start in spec — hooks not added |
 | `Statistics` | `src/lib/api/statistics.ts` — admin `StatisticsSection` |
 | `Uploads` | `src/lib/api/uploads.ts`, profile avatar |
 

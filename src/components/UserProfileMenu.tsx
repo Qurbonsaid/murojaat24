@@ -63,7 +63,7 @@ const UserProfileMenu = ({
       operator: "Operator",
       dispatcher: "Dispatcher",
       specialist: "Mutaxassis",
-      manager: "Menjer",
+      manager: "Menejer",
     };
 
     return roleLabels[user.role] || user.role;

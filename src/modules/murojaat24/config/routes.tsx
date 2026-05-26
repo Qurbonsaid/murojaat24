@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 
 import DispatcherDashboardRoutes from "@/pages/dispatcher-dashboard/DispatcherDashboardRoutes";
 import Login from "@/pages/login/Login";
-import ManagerDashboard from "@/pages/manager-dashboard/ManagerDashboard";
+import ManagerDashboardRoutes from "@/pages/manager-dashboard/ManagerDashboardRoutes";
 import ManagerUsersPage from "@/pages/manager-users/ManagerUsersPage";
 import OperatorDashboardRoutes from "@/pages/operator-dashboard/OperatorDashboardRoutes";
 import Profile from "@/pages/profile/Profile";
@@ -41,7 +41,12 @@ export const murojaat24Routes: Murojaat24Route[] = [
   },
   {
     path: "/manager-dashboard",
-    element: <ManagerDashboard />,
+    element: <Navigate to="/manager/nazorat" replace />,
+    requiredRoles: ["manager", "admin"],
+  },
+  {
+    path: "/manager/*",
+    element: <ManagerDashboardRoutes />,
     requiredRoles: ["manager", "admin"],
   },
   {
