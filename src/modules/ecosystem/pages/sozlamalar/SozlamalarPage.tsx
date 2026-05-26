@@ -554,7 +554,7 @@ const TashkilotlarSection = () => {
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="organization-governance">Boshqaruv turi</Label>
+                <Label htmlFor="organization-governance">Rahbariyat</Label>
                 <ComboboxInput
                   id="organization-governance"
                   value={formGovernance}

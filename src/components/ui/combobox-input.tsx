@@ -29,7 +29,10 @@ export function ComboboxInput({
   const filteredSuggestions = React.useMemo(() => {
     const query = value.trim().toLowerCase();
     if (!query) return suggestions;
-    return suggestions.filter((item) => item.toLowerCase().includes(query));
+    return [
+      value,
+      ...suggestions.filter((item) => item.toLowerCase().includes(query)),
+    ];
   }, [suggestions, value]);
 
   React.useEffect(() => {
