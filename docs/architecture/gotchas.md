@@ -22,7 +22,7 @@ Current traps and mismatches. Snapshot of behavior in the repo — not a backlog
 
 ## Mock-only workflows
 
-No backend call for: dispatcher assignment, specialist task lifecycle, manager approve/reject, admin ecosystem dashboard KPIs, sozlamalar templates/general save, citizen submit/track simulations. Admin appeals list and `StatisticsSection` use API (`requests.ts`, `statistics.ts`).
+No backend call for: specialist task lifecycle (OpenAPI `my/current`, accept, start exist but no hooks), manager approve/reject, admin ecosystem dashboard KPIs, sozlamalar templates/general save, citizen submit/track simulations. Dispatcher assignment uses `assignments.ts`. Admin appeals list and `StatisticsSection` use API (`requests.ts`, `statistics.ts`).
 
 Operator dashboard uses `GET /api/organizations`, `POST /api/requests/operator`, and `GET /api/requests/` (list). `useRequests` omits the `organization` query param when `options.role` is `operator` or `admin`. Operator list KPI cards are still static mock values. List status badges expect API values (`new`, `assigned`, `in-progress`, etc.), not legacy mock labels like `pending`.
 
@@ -38,6 +38,8 @@ Static org names in `src/lib/organizations.ts` remain for other mock screens (e.
 
 - `StaffUser.organization` may be object, string, or null — table rendering assumes object shape in places.
 - Specialist `ProfileTab` may read `user.profile` without optional chaining on `user` while loading.
+- Specialist PWA install gate runs on `/login` (`MobileQRCode`), not on `/specialist-mobile`. Direct URL to `/specialist-mobile` skips install/permissions. Bypass in dev: `import.meta.env.DEV` or `VITE_BYPASS_SPECIALIST_PWA_WALL=true` (`src/lib/pwa.ts`).
+- `PersonalInfoModal` under `src/components/specialist/` is unused; profile edits go through `/profile`.
 - `Statistics.tsx` may import unused symbols without compile errors due to relaxed TS settings.
 
 ## Static and demo data

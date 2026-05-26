@@ -24,10 +24,10 @@ flowchart TD
 | Area | Entry | Notes |
 | --- | --- | --- |
 | Public landing | `src/pages/landing/Index.tsx` | Static sections; external citizen appeal URL in header/hero. |
-| Login | `src/pages/login/Login.tsx` | Phone + password; redirect by role. |
+| Login | `src/pages/login/Login.tsx` | Phone + password; redirect by role; specialists see PWA install gate unless dev bypass. |
 | Admin ecosystem | `src/modules/ecosystem/layouts/EcosystemLayout.tsx` | All `/ecosystem/*` except routes registered only in `App.tsx`. |
 | Murojaat24 admin module | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | Dashboard, appeals list, statistics, users — by pathname. |
-| Role dashboards | `src/pages/*-dashboard/`, `specialist-mobile/` | Mock workflow state. |
+| Role dashboards | `src/pages/*-dashboard/`, `specialist-mobile/` | Dispatcher assign API-backed; specialist tasks mock. |
 | Profile | `src/pages/profile/Profile.tsx` | API-backed; admin uses `/ecosystem/profile`. |
 
 ## Stack (behavior-relevant)
@@ -43,9 +43,10 @@ HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`,
 | Backed by API | Mock / local only |
 | --- | --- |
 | Auth session, profile | Operator list KPI cards (static) |
-| Operator appeal create + today’s list | Dispatcher assignment |
-| Staff users CRUD | Specialist tasks & completion |
-| Organizations CRUD | Manager approve/reject |
+| Operator appeal create + today’s list | Specialist tasks & completion |
+| Dispatcher assignment (create/list/cancel) | Manager approve/reject |
+| Staff users CRUD | Specialist mobile history/stats (mock) |
+| Organizations CRUD | Admin ecosystem dashboard KPIs (static) |
 | Admin appeals list + detail | Admin ecosystem dashboard KPIs (static) |
 | Admin statistics page (daily + org charts, export, Rahbariyat for admin) | Settings templates & general toggles (routes hidden from sidebar) |
 | | Unmounted citizen submit/track pages |

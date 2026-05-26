@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Navigation, CheckCircle } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface TaskDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -16,10 +18,20 @@ interface TaskDetailModalProps {
     status: "new" | "in-progress";
   };
   onAccept?: () => void;
+  onStart?: () => void;
   onStartCompletion?: () => void;
+  isActionPending?: boolean;
 }
 
-const TaskDetailModal = ({ open, onOpenChange, task, onAccept, onStartCompletion }: TaskDetailModalProps) => {
+const TaskDetailModal = ({
+  open,
+  onOpenChange,
+  task,
+  onAccept,
+  onStart,
+  onStartCompletion,
+  isActionPending = false,
+}: TaskDetailModalProps) => {
   const handleCall = () => {
     window.location.href = `tel:${task.phone.replace(/\s/g, '')}`;
   };
@@ -35,7 +47,11 @@ const TaskDetailModal = ({ open, onOpenChange, task, onAccept, onStartCompletion
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>{task.requestNumber}</DialogTitle>
-            <Badge className={task.status === "new" ? "bg-blue-500" : "bg-yellow-500"}>
+            <Badge
+              className={cn(
+                task.status === "new" ? "bg-blue-500" : "bg-yellow-500",
+              )}
+            >
               {task.status === "new" ? "Yangi" : "Jarayonda"}
             </Badge>
           </div>
@@ -97,14 +113,34 @@ const TaskDetailModal = ({ open, onOpenChange, task, onAccept, onStartCompletion
               Navigatsiyani boshlash
             </Button>
             {task.status === "new" && onAccept && (
-              <Button className="w-full" size="lg" onClick={onAccept}>
-                Qabul qilish
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={onAccept}
+                disabled={isActionPending}
+              >
+                {isActionPending ? "Qabul qilinmoqda..." : "Qabul qilish"}
+              </Button>
+            )}
+            {onStart && (
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={onStart}
+                disabled={isActionPending}
+              >
+                {isActionPending ? "Boshlanmoqda..." : "Ishni boshlash"}
               </Button>
             )}
             {task.status === "in-progress" && onStartCompletion && (
-              <Button className="w-full" size="lg" onClick={onStartCompletion}>
+              <Button
+                className="w-full"
+                size="lg"
+                onClick={onStartCompletion}
+                disabled={isActionPending}
+              >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Ishni yakunlash
+                {isActionPending ? "Kutilmoqda..." : "Ishni yakunlash"}
               </Button>
             )}
           </div>

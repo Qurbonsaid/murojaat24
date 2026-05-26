@@ -30,12 +30,18 @@ Declared in `src/modules/murojaat24/config/routes.tsx`, wrapped with `ProtectedR
 | Path | Component | Allowed roles |
 | --- | --- | --- |
 | `/operator-dashboard/*` | `OperatorDashboardRoutes` → `new`, `list` | `operator`, `admin` |
-| `/dispatcher-dashboard` | `DispatcherDashboard` | `dispatcher`, `admin` |
+| `/dispatcher-dashboard/*` | `DispatcherDashboardRoutes` | `dispatcher`, `admin` |
 | `/specialist-mobile` | `SpecialistMobile` | `specialist`, `admin` |
-| `/manager-dashboard` | `ManagerDashboard` | `manager`, `admin` |
+| `/manager/nazorat` | `ManagerReviewPage` | `manager`, `admin` |
+| `/manager/statistika` | `ManagerStatisticsPage` | `manager`, `admin` |
+| `/manager-dashboard` | Redirect → `/manager/nazorat` | `manager`, `admin` |
 | `/manager/foydalanuvchilar` | `ManagerUsersPage` | `manager`, `admin` |
 | `/profile` | `Profile` | all five roles |
 | `/admin-dashboard` | redirect → `/ecosystem/modullar` | `admin` |
+
+### Specialist login (not a separate route)
+
+Logged-in `specialist` on `/login` renders `MobileQRCode` until PWA install and permissions succeed, unless `shouldBypassSpecialistInstallWall()` (`src/lib/pwa.ts`). Then navigation goes to `/specialist-mobile`. See `docs/roles/specialist.md`.
 
 ## Admin ecosystem routes
 

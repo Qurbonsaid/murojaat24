@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildRequestsQueryString,
+  extractRequestImagePaths,
   formatRequestDateTime,
   formatRequestTime,
   getRequestPriorityLabel,
@@ -132,6 +133,51 @@ describe("buildRequestsQueryString", () => {
         search: "test",
       }),
     ).toBe("?page=2&limit=10&status=new&search=test");
+  });
+});
+
+describe("extractRequestImagePaths", () => {
+  it("extracts paths from a string array", () => {
+    expect(
+      extractRequestImagePaths(["uploads/a.jpg", "uploads/b.jpg"]),
+    ).toEqual(["uploads/a.jpg", "uploads/b.jpg"]);
+  });
+
+  it("extracts from nested images and paths keys", () => {
+    expect(extractRequestImagePaths({ images: ["uploads/a.jpg"] })).toEqual([
+      "uploads/a.jpg",
+    ]);
+    expect(extractRequestImagePaths({ paths: ["uploads/b.jpg"] })).toEqual([
+      "uploads/b.jpg",
+    ]);
+  });
+
+  it("unwraps nested data payloads", () => {
+    expect(
+      extractRequestImagePaths({
+        data: { images: ["uploads/c.jpg"] },
+      }),
+    ).toEqual(["uploads/c.jpg"]);
+  });
+
+  it("normalizes full URL to uploads pathname", () => {
+    expect(
+      extractRequestImagePaths({
+        url: "https://example.com/uploads/req/photo.jpg",
+      }),
+    ).toEqual(["uploads/req/photo.jpg"]);
+  });
+
+  it("reads single path from path or filePath fields", () => {
+    expect(extractRequestImagePaths({ path: "uploads/d.jpg" })).toEqual([
+      "uploads/d.jpg",
+    ]);
+  });
+
+  it("filters empty and invalid entries", () => {
+    expect(extractRequestImagePaths(["", "  ", "uploads/ok.jpg"])).toEqual([
+      "uploads/ok.jpg",
+    ]);
   });
 });
 

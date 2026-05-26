@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
 import { getRoleRedirectPath, useCurrentUser, useLogin } from "@/lib/api/auth";
 import { MobileQRCode } from "@/components/specialist/MobileQRCode";
+import { shouldBypassSpecialistInstallWall } from "@/lib/pwa";
 
 const Login = () => {
   const [phone, setPhone] = useState("");
@@ -26,7 +27,14 @@ const Login = () => {
   const currentUser = currentUserQuery.data;
 
   useEffect(() => {
-    if (currentUser && currentUser.role !== "specialist") {
+    if (!currentUser) {
+      return;
+    }
+
+    const bypassSpecialistWall =
+      currentUser.role === "specialist" && shouldBypassSpecialistInstallWall();
+
+    if (currentUser.role !== "specialist" || bypassSpecialistWall) {
       navigate(getRoleRedirectPath(currentUser.role), {
         replace: true,
       });
@@ -88,11 +96,16 @@ const Login = () => {
         password,
       });
 
-      if (user.role !== "specialist") {
-        toast({
-          title: "Muvaffaqiyatli kirish",
-          description: "Tizimga muvaffaqiyatli kirdingiz",
-        });
+      if (
+        user.role !== "specialist" ||
+        shouldBypassSpecialistInstallWall()
+      ) {
+        if (user.role !== "specialist") {
+          toast({
+            title: "Muvaffaqiyatli kirish",
+            description: "Tizimga muvaffaqiyatli kirdingiz",
+          });
+        }
 
         navigate(getRoleRedirectPath(user.role));
       }
@@ -113,8 +126,15 @@ const Login = () => {
     return renderSplashScreen("Sessiya tekshirilmoqda...");
   }
 
-  if (currentUser?.role === "specialist") {
+  if (
+    currentUser?.role === "specialist" &&
+    !shouldBypassSpecialistInstallWall()
+  ) {
     return <MobileQRCode />;
+  }
+
+  if (currentUser?.role === "specialist") {
+    return renderSplashScreen("Siz tizimga yo'naltirilmoqdasiz...");
   }
 
   if (currentUser) {
@@ -174,9 +194,9 @@ const Login = () => {
             <p className="font-medium mb-1">Demo hisoblar:</p>
             <div className="space-y-0.5">
               <p>Operator: +998 90 123 45 70</p>
-              <p>Dispatcher: +998 90 123 45 69</p>
+              <p>Dispetcher: +998 90 123 45 69</p>
               <p>Mutaxassis: +998 90 123 45 72</p>
-              <p>Menjer: +998 90 123 45 68</p>
+              <p>Menejer: +998 90 123 45 68</p>
               <p>Hokimiyat: +998 90 123 45 67</p>
             </div>
             <p className="mt-2">Parol: murojaat24</p>

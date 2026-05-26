@@ -44,7 +44,7 @@ const roleRedirects: Record<UserRole, string> = {
   operator: "/operator-dashboard/new",
   dispatcher: "/dispatcher-dashboard/appeals",
   specialist: "/specialist-mobile",
-  manager: "/manager-dashboard",
+  manager: "/manager/nazorat",
 };
 
 const legacySessionKeys: Record<UserRole, string> = {
@@ -60,7 +60,7 @@ const roleLabels: Record<UserRole, string> = {
   operator: "Operator",
   dispatcher: "Dispatcher",
   specialist: "Mutaxassis",
-  manager: "Menjer",
+  manager: "Menejer",
 };
 
 const allLegacyKeys = Array.from(new Set(Object.values(legacySessionKeys)));
@@ -117,8 +117,9 @@ export const useLogin = () => {
 
       return response.data;
     },
-    onSuccess: (user) => {
+    onSuccess: async (user) => {
       queryClient.setQueryData(["auth", "me"], user);
+      await queryClient.refetchQueries({ queryKey: ["auth", "me"] });
     },
   });
 };
@@ -130,8 +131,9 @@ export const useLogout = () => {
     mutationFn: async () => {
       await apiRequest<null>("/api/auth/logout", { method: "POST" });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.removeQueries({ queryKey: ["auth", "me"] });
+      await queryClient.invalidateQueries();
       clearLegacySessions();
       void unregisterSpecialistPwa();
     },

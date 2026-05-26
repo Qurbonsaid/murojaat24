@@ -9,6 +9,7 @@ import {
   isStandalonePwa,
   registerSpecialistPwa,
   requestSpecialistPermissions,
+  shouldBypassSpecialistInstallWall,
   shouldEnableSpecialistPwa,
   type SpecialistPermissionStatus,
 } from "@/lib/pwa";
@@ -38,6 +39,14 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
   const hasStoredPwaAccess = () => {
     return localStorage.getItem(SPECIALIST_PWA_ACCESS_KEY) === "true";
   };
+
+  useEffect(() => {
+    if (shouldBypassSpecialistInstallWall()) {
+      navigate(getRoleRedirectPath(currentUser?.role || "specialist"), {
+        replace: true,
+      });
+    }
+  }, [currentUser?.role, navigate]);
 
   useEffect(() => {
     if (shouldEnableSpecialistPwa(currentUser?.role)) {

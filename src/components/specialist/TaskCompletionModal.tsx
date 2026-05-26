@@ -1,37 +1,82 @@
-import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, Image, CheckCircle, ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
+import {
+  Camera,
+  Image,
+  CheckCircle,
+  ArrowLeft,
+  ArrowRight,
+  Trash2,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
+
+import { ApiError } from "@/lib/api/client";
+import { useSubmitRequestCompletion } from "@/lib/api/requests";
 
 interface TaskCompletionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task: {
+    requestId: string;
     requestNumber: string;
   };
   onComplete: () => void;
 }
 
-const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompletionModalProps) => {
+const TaskCompletionModal = ({
+  open,
+  onOpenChange,
+  task,
+  onComplete,
+}: TaskCompletionModalProps) => {
   const [step, setStep] = useState(1);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [report, setReport] = useState("");
   const [isDrawing, setIsDrawing] = useState(false);
+  const [hasSignature, setHasSignature] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
 
+  const submitCompletion = useSubmitRequestCompletion();
+
+  const resetForm = () => {
+    setStep(1);
+    setImagePreview(null);
+    setImageFile(null);
+    setReport("");
+    setHasSignature(false);
+    setIsDrawing(false);
+    contextRef.current = null;
+  };
+
+  const getErrorMessage = (error: unknown) =>
+    error instanceof ApiError
+      ? error.message
+      : error instanceof Error
+        ? error.message
+        : "Xatolik yuz berdi";
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const initCanvas = () => {
@@ -50,13 +95,17 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
     }
   };
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const startDrawing = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     const canvas = canvasRef.current;
     if (!canvas || !contextRef.current) return;
 
     setIsDrawing(true);
+    setHasSignature(true);
     const rect = canvas.getBoundingClientRect();
-    let x, y;
+    let x;
+    let y;
 
     if ("touches" in e) {
       x = e.touches[0].clientX - rect.left;
@@ -70,11 +119,14 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
     contextRef.current.moveTo(x, y);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const draw = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
+  ) => {
     if (!isDrawing || !canvasRef.current || !contextRef.current) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
-    let x, y;
+    let x;
+    let y;
 
     if ("touches" in e) {
       x = e.touches[0].clientX - rect.left;
@@ -100,22 +152,61 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
     if (canvas && contextRef.current) {
       contextRef.current.clearRect(0, 0, canvas.width, canvas.height);
     }
+    setHasSignature(false);
   };
 
-  const handleComplete = () => {
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      onComplete();
-      onOpenChange(false);
-      setStep(1);
-      setImagePreview(null);
-      setReport("");
-    }, 2000);
+  const getSignatureDataUrl = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      throw new Error("Imzo maydoni topilmadi");
+    }
+
+    return canvas.toDataURL("image/png");
+  };
+
+  const handleComplete = async () => {
+    if (!task.requestId) {
+      toast.error("Murojaat identifikatori topilmadi");
+      return;
+    }
+
+    if (!imageFile) {
+      toast.error("Iltimos, rasm yuklang");
+      return;
+    }
+
+    if (!report.trim()) {
+      toast.error("Iltimos, hisobot yozing");
+      return;
+    }
+
+    if (!hasSignature) {
+      toast.error("Iltimos, fuqaro imzosini oling");
+      return;
+    }
+
+    try {
+      await submitCompletion.mutateAsync({
+        requestId: task.requestId,
+        imageFiles: [imageFile],
+        report,
+        signature: getSignatureDataUrl(),
+      });
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        onComplete();
+        onOpenChange(false);
+        resetForm();
+      }, 2000);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
   };
 
   const handleNext = () => {
-    if (step === 1 && !imagePreview) {
+    if (step === 1 && !imageFile) {
       toast.error("Iltimos, rasm yuklang");
       return;
     }
@@ -124,7 +215,7 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
       return;
     }
     if (step === 3) {
-      handleComplete();
+      void handleComplete();
       return;
     }
     setStep(step + 1);
@@ -133,9 +224,16 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
     }
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && !submitCompletion.isPending) {
+      resetForm();
+    }
+    onOpenChange(nextOpen);
+  };
+
   if (showSuccess) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-sm mx-auto">
           <div className="flex flex-col items-center py-8">
             <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mb-4 animate-scale-in">
@@ -147,7 +245,9 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
             <p className="text-sm text-muted-foreground text-center mb-4">
               Ma'lumotlar menejerga yuborildi
             </p>
-            <p className="text-sm font-medium text-primary">{task.requestNumber}</p>
+            <p className="text-sm font-medium text-primary">
+              {task.requestNumber}
+            </p>
           </div>
         </DialogContent>
       </Dialog>
@@ -155,15 +255,12 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-sm mx-auto max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            Ishni yakunlash ({step}/3)
-          </DialogTitle>
+          <DialogTitle>Ishni yakunlash ({step}/3)</DialogTitle>
         </DialogHeader>
 
-        {/* Step 1: Photo Upload */}
         {step === 1 && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -181,7 +278,11 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
                   variant="destructive"
                   size="icon"
                   className="absolute top-2 right-2"
-                  onClick={() => setImagePreview(null)}
+                  onClick={() => {
+                    setImagePreview(null);
+                    setImageFile(null);
+                  }}
+                  disabled={submitCompletion.isPending}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -203,6 +304,7 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
                   capture="environment"
                   className="hidden"
                   onChange={handleImageUpload}
+                  disabled={submitCompletion.isPending}
                 />
                 <Button variant="default" className="w-full" asChild>
                   <span>
@@ -217,6 +319,7 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
                   accept="image/*"
                   className="hidden"
                   onChange={handleImageUpload}
+                  disabled={submitCompletion.isPending}
                 />
                 <Button variant="outline" className="w-full" asChild>
                   <span>
@@ -227,14 +330,17 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
               </label>
             </div>
 
-            <Button className="w-full" onClick={handleNext}>
+            <Button
+              className="w-full"
+              onClick={handleNext}
+              disabled={submitCompletion.isPending}
+            >
               Keyingi
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
         )}
 
-        {/* Step 2: Report */}
         {step === 2 && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -247,17 +353,27 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
               placeholder="Masalan: Rozetka almashtirildi, simlar tekshirildi va izolyatsiya qilindi..."
               className="min-h-32"
               maxLength={500}
+              disabled={submitCompletion.isPending}
             />
             <p className="text-xs text-muted-foreground text-right">
               {report.length}/500
             </p>
 
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setStep(1)}
+                disabled={submitCompletion.isPending}
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Orqaga
               </Button>
-              <Button className="flex-1" onClick={handleNext}>
+              <Button
+                className="flex-1"
+                onClick={handleNext}
+                disabled={submitCompletion.isPending}
+              >
                 Keyingi
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -265,7 +381,6 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
           </div>
         )}
 
-        {/* Step 3: Signature */}
         {step === 3 && (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -289,6 +404,7 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
                 size="sm"
                 className="absolute top-2 right-2"
                 onClick={clearSignature}
+                disabled={submitCompletion.isPending}
               >
                 Tozalash
               </Button>
@@ -299,13 +415,31 @@ const TaskCompletionModal = ({ open, onOpenChange, task, onComplete }: TaskCompl
             </p>
 
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setStep(2)}
+                disabled={submitCompletion.isPending}
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Orqaga
               </Button>
-              <Button className="flex-1" onClick={handleNext}>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Yakunlash
+              <Button
+                className="flex-1"
+                onClick={handleNext}
+                disabled={submitCompletion.isPending}
+              >
+                {submitCompletion.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Yuborilmoqda...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Yakunlash
+                  </>
+                )}
               </Button>
             </div>
           </div>

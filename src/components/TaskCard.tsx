@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Clock, Zap, Droplet, Wrench } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface TaskCardProps {
   requestNumber: string;
   organization: string;
@@ -26,7 +28,7 @@ const TaskCard = ({ requestNumber, organization, address, distance, time, status
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={onClick}>
-      <div className={`h-1 ${statusColor} rounded-t-lg`} />
+      <div className={cn("h-1 rounded-t-lg", statusColor)} />
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">

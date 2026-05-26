@@ -8,6 +8,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 const services = [
   {
     icon: PhoneCall,
@@ -80,7 +82,10 @@ const Features = () => {
               >
                 <CardContent className="flex h-full flex-col gap-4 p-7">
                   <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm ${service.accent}`}
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-sm",
+                      service.accent,
+                    )}
                   >
                     <Icon className="h-6 w-6" />
                   </span>

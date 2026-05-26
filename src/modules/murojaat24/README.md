@@ -8,7 +8,7 @@ This folder defines **standalone Murojaat24 routes** in `config/routes.tsx`: log
 | --- | --- |
 | Login | `src/pages/login/Login.tsx` |
 | Operator / dispatcher / manager dashboards | `src/pages/operator-dashboard/`, `dispatcher-dashboard/`, `manager-dashboard/` |
-| Specialist mobile | `src/pages/specialist-mobile/SpecialistMobile.tsx` |
+| Specialist mobile | `src/pages/specialist-mobile/SpecialistMobile.tsx` — see `src/pages/specialist-mobile/README.md` |
 | Profile | `src/pages/profile/Profile.tsx` |
 | Admin shell | `src/modules/ecosystem/` |
 

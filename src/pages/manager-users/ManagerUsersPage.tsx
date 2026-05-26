@@ -22,6 +22,7 @@ import { ToastAction } from "@/components/ui/toast";
 
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/api/auth";
 import type { StaffUser } from "@/lib/api/users";
@@ -206,11 +207,9 @@ const ManagerUsersPage = () => {
                         <TableCell>{roleLabels[user.role]}</TableCell>
                         <TableCell>
                           <Badge
-                            className={
-                              status === "active"
-                                ? "bg-green-500"
-                                : "bg-gray-500"
-                            }
+                            className={cn(
+                              status === "active" ? "bg-green-500" : "bg-gray-500",
+                            )}
                           >
                             {status === "active"
                               ? "Faol"

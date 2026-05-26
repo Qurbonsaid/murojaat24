@@ -3,6 +3,7 @@ import { FileText, FilePlus, ListChecks } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCurrentUser } from "@/lib/api/auth";
 import { resolveAssetUrl } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 
 const OperatorSidebar = () => {
   const location = useLocation();
@@ -76,11 +77,12 @@ const OperatorSidebar = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-slate-300 hover:bg-slate-700"
-                  }`}
+                      : "text-slate-300 hover:bg-slate-700",
+                  )}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>

@@ -14,5 +14,9 @@ export default defineConfig(() => ({
   test: {
     environment: "node",
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
+    env: {
+      VITE_BASE_URL: "http://test.local",
+    },
+    setupFiles: ["./src/test/setup.ts"],
   },
 }));

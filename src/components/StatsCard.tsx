@@ -1,6 +1,8 @@
 import { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { cn } from "@/lib/utils";
+
 interface StatsCardProps {
   icon: LucideIcon;
   label: string;
@@ -17,7 +19,7 @@ const StatsCard = ({ icon: Icon, label, value, iconColor }: StatsCardProps) => {
             <p className="text-sm font-medium text-muted-foreground mb-1">{label}</p>
             <p className="text-3xl font-bold text-foreground">{value}</p>
           </div>
-          <div className={`p-3 rounded-lg ${iconColor}`}>
+          <div className={cn("p-3 rounded-lg", iconColor)}>
             <Icon className="h-6 w-6" />
           </div>
         </div>

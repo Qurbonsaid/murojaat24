@@ -17,11 +17,11 @@ Snapshot of what is **wired to the backend** versus **local/mock/UI-only** in th
 | Admin: appeals list + row detail | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination) |
 | Admin: dashboard KPIs | Still mock/local |
 | Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics` |
-| Appeal lifecycle (assign → execute → review) | Dispatcher assign/cancel **API-backed**; specialist execute and manager review still mock |
+| Appeal lifecycle (assign → execute → review) | Dispatcher assign/cancel **API-backed**; specialist list/accept/start/history **API-backed**; completion submit and manager review still mock |
 | Citizen in-app flows | Built but **not routed**; production landing uses an external portal |
 | Ecosystem modules (non-Murojaat24) | Mostly **coming soon**; sidebar hides `coming-soon` menu entries |
 
-There is **no** frontend API module for specialist tasks, manager verification, or request update/delete beyond what `requests.ts` / `statistics.ts` / `assignments.ts` already expose.
+Specialist **my** assignment hooks exist in `assignments.ts` (`my/current`, `my/history`, accept, start). Task **completion** upload and manager verification are still not wired. See `docs/api/openapi.json` for remaining paths.
 
 ---
 
@@ -36,11 +36,11 @@ Implemented in `src/lib/api/`:
 | `users.ts` | `/api/users` CRUD, reset password | Admin Murojaat24 users, manager users, modals |
 | `organizations.ts` | `/api/organizations` CRUD | Settings, operator org picker, user modals, admin appeals org filter |
 | `requests.ts` | `GET /api/requests/`, `GET /api/requests/:id`, `POST /api/requests/operator` | Operator list + new appeal; **admin `MurojaatlarSection`**; **dispatcher new appeals** |
-| `assignments.ts` | `GET /api/assignments/`, `GET /api/assignments/:id`, `POST /api/assignments`, `PUT .../cancel` | **Dispatcher** appeals assign + assignments list |
+| `assignments.ts` | `GET /api/assignments/`, `my/current`, `my/history`, `POST`, `PUT .../accept`, `start`, `cancel` | **Dispatcher** assign/list/cancel; **specialist** active tasks, history, accept, start |
 | `statistics.ts` | `GET /api/statistics/daily`, `by-organization`, `specialists`, `export` | Admin **`StatisticsSection`** (daily, by-organization, export only) |
 | `uploads.ts` | `POST /api/uploads/avatar` | Profile |
 
-**Not implemented in the frontend** (no hooks/files): specialist task fetch/update, completion upload, manager approve/reject, citizen public submit/track, notifications/templates persistence, general settings persistence, real-time map, optional `GET /api/statistics/dashboard` for ecosystem KPI cards.
+**Not implemented in the frontend** (no hooks/files): specialist completion upload/submit, manager approve/reject, citizen public submit/track, notifications/templates persistence, general settings persistence, real-time map, optional `GET /api/statistics/dashboard` for ecosystem KPI cards.
 
 Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useResetPassword`) but **`Login.tsx` has no forgot-password UI**.
 
@@ -72,8 +72,9 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 | Piece | Path | Reality |
 | --- | --- | --- |
 | User management | `src/pages/manager-users/` | **API-backed** (parallel to admin users UI) |
-| Review dashboard | `src/pages/manager-dashboard/ManagerDashboard.tsx` | Static `reviewRequests`, static KPIs, placeholder images |
-| Approve / reject | `src/components/ReviewModal.tsx` | **Toast only** — no API, list does not update |
+| Review dashboard | `src/pages/manager-dashboard/ManagerReviewPage.tsx` | **API-backed** list (`useRequests` + organization filter) |
+| Statistics | `src/pages/manager-dashboard/ManagerStatisticsPage.tsx` | **API-backed** (`statistics.ts` hooks) |
+| Approve / reject | `src/components/ReviewModal.tsx` | **API-backed** (`useVerifyRequest` → `PUT /api/requests/:id/verify`) |
 
 ### Settings (Sozlamalar)
 
@@ -102,12 +103,13 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 
 | Data / action | Source | Notes |
 | --- | --- | --- |
-| Task list | `initialTasks` in `SpecialistMobile.tsx` | Local `useState`; accept/complete mutates client state only |
-| History tab | `src/components/specialist/HistoryTab.tsx` | Static `historyData` |
-| Stats / badges | `src/components/specialist/StatsTab.tsx` | Static weekly bars and gamification badges |
-| Task completion | `src/components/specialist/TaskCompletionModal.tsx` | Multi-step UI; success animation — **no upload/report API** |
+| Login gate | `MobileQRCode.tsx` on `/login` | PWA install + permissions; bypass via `shouldBypassSpecialistInstallWall()` in dev / env |
+| Task list | `SpecialistMobile.tsx` | `useMyCurrentAssignments`; accept/start mutations |
+| History tab | `src/components/specialist/HistoryTab.tsx` | `useMyAssignmentHistory` + infinite scroll |
+| Stats tab | `src/components/specialist/StatsTab.tsx` | **API-backed** via `useSpecialistDetailStatistics` and `useMonthlyStatistics` (badges/ratings when API returns them) |
+| Task completion | `src/components/specialist/TaskCompletionModal.tsx` | **API-backed**: `POST /api/requests/:id/images`, `PUT /api/requests/:id/complete` via `useSubmitRequestCompletion` |
 | Change password | `src/components/specialist/ChangePasswordModal.tsx` | **Sonner toast only** — not `useResetPassword` / profile API |
-| Personal info modal | `src/components/specialist/PersonalInfoModal.tsx` | Defaults like `"Akmal Rahimov"`; `handleSave` comment: no API |
+| Personal info modal | `src/components/specialist/PersonalInfoModal.tsx` | **Unused** (not imported); defaults like `"Akmal Rahimov"`; specialists use `/profile` |
 | Profile tab | `src/components/specialist/ProfileTab.tsx` | Logout uses API; link to `/profile` for real profile edits |
 
 Header uses `useCurrentUser` (API); tasks do not.
@@ -187,7 +189,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 | `SozlamalarPage` | Shablon edit, Umumiy Saqlash | None / local state only |
 | `ChangePasswordModal` (specialist) | Saqlash | Success toast only |
 | `PersonalInfoModal` | Saqlash | Closes edit mode locally |
-| `TaskCompletionModal` | Yakunlash | Removes task from local list after animation |
+| `TaskCompletionModal` | Yakunlash | `POST` images + `PUT` complete; refreshes assignment queries |
 
 **Previously UI-only, now wired:**
 
@@ -227,7 +229,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 Grouped by workflow stage — names are illustrative; align with `docs/api/openapi.json`.
 
 1. **Dispatcher:** optional map/real-time coordinates; specialist load/location in assign UI (list + assign **done**).
-2. **Specialist:** list assigned tasks; accept/start; upload completion photos and report; signature payload; history and stats endpoints.
+2. **Specialist:** optional history date filter (completion and stats tab **done**).
 3. **Manager:** queue of `completed` awaiting verification; approve/reject with comment; KPI aggregates.
 4. **Admin statistics:** core charts/export **done** in `StatisticsSection`; optional `GET /api/statistics/dashboard` for ecosystem KPI cards (list/detail **done** for `MurojaatlarSection`).
 5. **Citizen (if in-app):** public create/track (or keep external portal only).

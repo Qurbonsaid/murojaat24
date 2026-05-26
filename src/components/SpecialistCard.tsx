@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface SpecialistCardProps {
   name: string;
   position: string;
@@ -30,11 +32,12 @@ const SpecialistCard = ({ name, position, status, currentTasks, location }: Spec
                 <p className="font-medium text-sm text-foreground truncate">{name}</p>
                 <p className="text-xs text-muted-foreground truncate">{position}</p>
               </div>
-              <Badge 
-                className={status === "available" 
-                  ? "bg-green-500 hover:bg-green-600" 
-                  : "bg-yellow-500 hover:bg-yellow-600"
-                }
+              <Badge
+                className={cn(
+                  status === "available"
+                    ? "bg-green-500 hover:bg-green-600"
+                    : "bg-yellow-500 hover:bg-yellow-600",
+                )}
               >
                 {status === "available" ? "Bo'sh" : "Band"}
               </Badge>

@@ -1,5 +1,7 @@
 import { ClipboardList, History, BarChart3, User } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 interface BottomNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -24,11 +26,12 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
-                  isActive ? "text-primary" : "text-muted-foreground"
-                }`}
+                className={cn(
+                  "flex flex-col items-center gap-1 px-4 py-2 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground",
+                )}
               >
-                <Icon className={`h-5 w-5 ${isActive ? "fill-primary" : ""}`} />
+                <Icon className="h-5 w-5" />
                 <span className="text-xs font-medium">{tab.label}</span>
               </button>
             );

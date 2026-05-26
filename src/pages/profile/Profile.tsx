@@ -44,7 +44,7 @@ const roleLabels: Record<UserRole, string> = {
   operator: "Operator",
   dispatcher: "Dispatcher",
   specialist: "Mutaxassis",
-  manager: "Menjer",
+  manager: "Menejer",
 };
 
 const formSchema = z.object({
@@ -124,7 +124,7 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   useEffect(() => {
     if (!user) return;
     reset(getProfileDefaults(user));
-  }, [reset, user]);
+  }, [reset, user?._id, user?.profile, user?.phone]);
 
   const dashboardPath = user ? getRoleRedirectPath(user.role) : "/";
   const roleLabel = user ? roleLabels[user.role] : "";
