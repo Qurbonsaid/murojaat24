@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,7 @@ import {
   useStartAssignment,
   type SpecialistTask,
 } from "@/lib/api/assignments";
+import { isStandalonePwa, requestSpecialistPermissions } from "@/lib/pwa";
 import TaskCard from "@/components/TaskCard";
 import TaskDetailModal from "@/components/TaskDetailModal";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -26,6 +27,8 @@ const SpecialistMobile = () => {
   const [selectedTask, setSelectedTask] = useState<SpecialistTask | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [completionModalOpen, setCompletionModalOpen] = useState(false);
+  const [isBootstrappingPermissions, setIsBootstrappingPermissions] =
+    useState(false);
 
   const currentUserQuery = useCurrentUser();
   const user = currentUserQuery.data;
@@ -33,6 +36,30 @@ const SpecialistMobile = () => {
   const currentAssignmentsQuery = useMyCurrentAssignments();
   const acceptAssignment = useAcceptAssignment();
   const startAssignment = useStartAssignment();
+
+  useEffect(() => {
+    if (!isStandalonePwa()) {
+      return;
+    }
+
+    const requestedKey = "specialist_pwa_permissions_requested_v1";
+    if (localStorage.getItem(requestedKey) === "true") {
+      return;
+    }
+
+    localStorage.setItem(requestedKey, "true");
+    setIsBootstrappingPermissions(true);
+
+    const timer = window.setTimeout(() => {
+      void requestSpecialistPermissions()
+        .catch(() => undefined)
+        .finally(() => {
+          setIsBootstrappingPermissions(false);
+        });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const tasks = useMemo(
     () =>
@@ -148,7 +175,10 @@ const SpecialistMobile = () => {
                 <div className="space-y-4">
                   {currentAssignmentsQuery.isLoading ? (
                     Array.from({ length: 3 }).map((_, index) => (
-                      <Skeleton key={index} className="h-40 w-full rounded-xl" />
+                      <Skeleton
+                        key={index}
+                        className="h-40 w-full rounded-xl"
+                      />
                     ))
                   ) : currentAssignmentsQuery.isError ? (
                     <div className="text-center py-8 text-destructive text-sm">
@@ -189,6 +219,11 @@ const SpecialistMobile = () => {
   return (
     <div className="min-h-screen bg-background flex justify-center">
       <div className="w-full max-w-md relative">
+        {isBootstrappingPermissions ? (
+          <div className="absolute inset-x-4 top-4 z-20 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-center text-xs font-medium text-primary shadow-sm">
+            Ruxsatlar fonda so'ralmoqda...
+          </div>
+        ) : null}
         <div className="animate-fade-in">{renderTabContent()}</div>
 
         <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
