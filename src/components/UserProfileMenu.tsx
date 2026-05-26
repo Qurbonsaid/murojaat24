@@ -61,7 +61,7 @@ const UserProfileMenu = ({
     const roleLabels: Record<string, string> = {
       admin: "Hokimiyat",
       operator: "Operator",
-      dispatcher: "Dispatcher",
+      dispatcher: "Dispetcher",
       specialist: "Mutaxassis",
       manager: "Menejer",
     };
