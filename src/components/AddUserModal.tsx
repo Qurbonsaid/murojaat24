@@ -177,6 +177,36 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="password">Parol *</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Kamida 6 ta belgi"
+              {...register("password")}
+            />
+            {errors.password && (
+              <p className="text-sm text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Parolni tasdiqlash *</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="Parolni qaytaring"
+              {...register("confirmPassword")}
+            />
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="role">Rol *</Label>
             <Select
               onValueChange={(value) =>
@@ -238,36 +268,6 @@ const AddUserModal = ({ open, onOpenChange }: AddUserModalProps) => {
               placeholder="Masalan: 3-sektor (ixtiyoriy)"
               {...register("sector")}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Parol *</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Kamida 6 ta belgi"
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-sm text-destructive">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Parolni tasdiqlash *</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Parolni qaytaring"
-              {...register("confirmPassword")}
-            />
-            {errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {errors.confirmPassword.message}
-              </p>
-            )}
           </div>
 
           <div className="flex gap-3 pt-4">
