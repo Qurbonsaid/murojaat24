@@ -24,9 +24,10 @@ flowchart TD
   Index --> Stats["Statistics component"]
   Index --> Footer
   Hero --> External["External appeal URL"]
+  Hero --> PublicStats["GET /api/statistics/public"]
 ```
 
-No API calls for content. Copy and figures are local arrays inside section components.
+Hero trust-card figures load from `GET /api/statistics/public` via `usePublicStatistics` in `src/lib/api/statistics.ts` (`overview.today`, `overview.completed`, `overview.verified`). Other sections still use local copy; the `Statistics` band below remains static placeholders until wired separately.
 
 ## Roles
 

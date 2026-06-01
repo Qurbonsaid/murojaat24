@@ -96,10 +96,7 @@ const Login = () => {
         password,
       });
 
-      if (
-        user.role !== "specialist" ||
-        shouldBypassSpecialistInstallWall()
-      ) {
+      if (user.role !== "specialist" || shouldBypassSpecialistInstallWall()) {
         if (user.role !== "specialist") {
           toast({
             title: "Muvaffaqiyatli kirish",

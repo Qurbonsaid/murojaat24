@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 import { normalizePhone } from "@/lib/phone";
+import { uploadCompletionImages } from "./uploads";
 
 import type { UserRole } from "./auth";
 import type { ApiSuccess, PaginationInfo } from "./client";
@@ -354,91 +355,8 @@ export const useVerifyRequest = () => {
 export type CompleteRequestInput = {
   images: string[];
   report: string;
+  /** Base64 data URL from canvas (e.g. `image/png`). Sent with `PUT /api/requests/:id/complete`. */
   signature: string;
-};
-
-const normalizeRequestImagePath = (value: unknown): string | undefined => {
-  if (typeof value !== "string" || !value.trim()) {
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    try {
-      const url = new URL(trimmed);
-      const pathname = url.pathname.replace(/^\/+/, "");
-      if (pathname.startsWith("uploads/")) {
-        return pathname;
-      }
-      return pathname || trimmed;
-    } catch {
-      return trimmed;
-    }
-  }
-
-  return trimmed.replace(/^\/+/, "");
-};
-
-export const extractRequestImagePaths = (data: unknown): string[] => {
-  if (Array.isArray(data)) {
-    return data
-      .map(normalizeRequestImagePath)
-      .filter((path): path is string => Boolean(path));
-  }
-
-  if (typeof data === "object" && data !== null) {
-    if ("images" in data && Array.isArray(data.images)) {
-      return extractRequestImagePaths(data.images);
-    }
-
-    if ("paths" in data && Array.isArray(data.paths)) {
-      return extractRequestImagePaths(data.paths);
-    }
-
-    if ("data" in data) {
-      return extractRequestImagePaths(data.data);
-    }
-
-    const single = normalizeRequestImagePath(
-      "url" in data
-        ? data.url
-        : "path" in data
-          ? data.path
-          : "filePath" in data
-            ? data.filePath
-            : undefined,
-    );
-
-    if (single) {
-      return [single];
-    }
-  }
-
-  return [];
-};
-
-export const uploadRequestImages = async (
-  requestId: string,
-  files: File[],
-): Promise<string[]> => {
-  const formData = new FormData();
-  files.forEach((file) => formData.append("images", file));
-
-  const response = await apiRequest<unknown>(
-    `/api/requests/${requestId}/images`,
-    {
-      method: "POST",
-      body: formData,
-    },
-  );
-
-  const paths = extractRequestImagePaths(response.data);
-  if (!paths.length) {
-    throw new Error("Yuklangan rasm manzili topilmadi");
-  }
-
-  return paths;
 };
 
 export const completeRequest = async (
@@ -467,24 +385,16 @@ export const submitRequestCompletion = async ({
   report: string;
   signature: string;
 }) => {
-  const images = await uploadRequestImages(requestId, imageFiles);
+  const images = await uploadCompletionImages(imageFiles);
+  const trimmedSignature = signature.trim();
+  if (!trimmedSignature) {
+    throw new Error("Imzo topilmadi");
+  }
 
   return completeRequest(requestId, {
     images,
     report: report.trim(),
-    signature,
-  });
-};
-
-export const useUploadRequestImages = () => {
-  return useMutation({
-    mutationFn: async ({
-      requestId,
-      files,
-    }: {
-      requestId: string;
-      files: File[];
-    }) => uploadRequestImages(requestId, files),
+    signature: trimmedSignature,
   });
 };
 
