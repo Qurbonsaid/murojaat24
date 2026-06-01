@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format, isValid, parseISO } from "date-fns";
 
-import { API_BASE_URL, ApiError, apiRequest } from "./client";
+import { API_BASE_URL, apiRequest } from "./client";
 
 export type DailyStatisticsPoint = {
   date: string;
@@ -548,55 +548,17 @@ export const buildStatisticsExportQuery = (params: StatisticsExportParams) => {
   return query ? `?${query}` : "";
 };
 
-const parseFilename = (contentDisposition: string | null): string | undefined => {
-  if (!contentDisposition) return undefined;
-  const match = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(
-    contentDisposition,
-  );
-  const raw = match?.[1] ?? match?.[2];
-  if (!raw) return undefined;
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return raw;
-  }
-};
-
-export const downloadStatisticsExport = async (
+export const downloadStatisticsExport = (
   params: StatisticsExportParams,
-): Promise<void> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/statistics/export${buildStatisticsExportQuery(params)}`,
-    {
-      credentials: "include",
-      headers: { Accept: "*/*" },
-    },
-  );
-
-  if (!response.ok) {
-    const contentType = response.headers.get("content-type") || "";
-    if (contentType.includes("application/json")) {
-      const payload = await response.json();
-      const message =
-        typeof payload === "object" && payload && "message" in payload
-          ? String(payload.message)
-          : response.statusText;
-      throw new ApiError(message, response.status, payload);
-    }
-    throw new ApiError(response.statusText, response.status);
-  }
-
-  const blob = await response.blob();
-  const filename =
-    parseFilename(response.headers.get("content-disposition")) ??
-    `murojaatlar-${params.startDate ?? "export"}.xlsx`;
-
-  const url = URL.createObjectURL(blob);
+): void => {
+  const url = `${API_BASE_URL}/api/statistics/export${buildStatisticsExportQuery(params)}`;
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = filename;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer";
+  document.body.appendChild(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(anchor);
 };
 
 const normalizeDashboardStatistics = (payload: unknown): DashboardStatistics => {
@@ -715,5 +677,64 @@ export const useMonthlyStatistics = (
 export const useExportStatistics = () => {
   return useMutation({
     mutationFn: downloadStatisticsExport,
+  });
+};
+
+export type PublicStatisticsOverview = {
+  total: number;
+  new: number;
+  inProgress: number;
+  completed: number;
+  verified: number;
+  rejected: number;
+  today: number;
+  thisMonth: number;
+};
+
+export type PublicStatisticsStatusItem = {
+  status: string;
+  label: string;
+  count: number;
+  color: string;
+};
+
+export type PublicStatisticsOrganizationItem = {
+  organizationId: string;
+  name: string;
+  governance: string;
+  count: number;
+  color: string;
+};
+
+export type PublicStatisticsDailyItem = {
+  date: string;
+  received: number;
+  completed: number;
+};
+
+export type PublicStatistics = {
+  overview: PublicStatisticsOverview;
+  statusDistribution: PublicStatisticsStatusItem[];
+  governanceDistribution: Array<{
+    governance: string;
+    count: number;
+    color: string;
+  }>;
+  organizationDistribution: PublicStatisticsOrganizationItem[];
+  dailyTrend: PublicStatisticsDailyItem[];
+  updatedAt: string;
+};
+
+export const fetchPublicStatistics = async (): Promise<PublicStatistics> => {
+  const response = await apiRequest<PublicStatistics>("/api/statistics/public");
+  return response.data;
+};
+
+export const usePublicStatistics = () => {
+  return useQuery({
+    queryKey: ["public-statistics"],
+    queryFn: fetchPublicStatistics,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 };

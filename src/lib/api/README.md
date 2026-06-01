@@ -73,11 +73,11 @@ Specialist completion (see `docs/api/openapi.json`):
 
 | Hook / helper | Endpoint | Notes |
 | --- | --- | --- |
-| `uploadRequestImages` | `POST /api/requests/:id/images` | `FormData` field `images` per file; `extractRequestImagePaths` normalizes response paths |
-| `useUploadRequestImages` | same | Mutation wrapper |
-| `completeRequest` | `PUT /api/requests/:id/complete` | Body `{ images: string[], report, signature }` — signature is PNG data URL from canvas |
+| `uploadCompletionImages` | `POST /api/uploads/images` | `FormData` field `files` per file; response `data.urls` |
+| `useUploadCompletionImages` | same | Mutation wrapper (`src/lib/api/uploads.ts`) |
+| `completeRequest` | `PUT /api/requests/:id/complete` | Body `{ images, report, signature }` — `signature` is base64 data URL from canvas |
 | `useCompleteRequest` | same | Invalidates `["requests"]`, detail, `["assignments"]`, `["statistics"]` |
-| `submitRequestCompletion` / `useSubmitRequestCompletion` | upload then complete | Used by `TaskCompletionModal` |
+| `submitRequestCompletion` / `useSubmitRequestCompletion` | `POST /api/uploads/images` then `PUT` complete | Used by `TaskCompletionModal` |
 
 Consumer: `src/components/specialist/TaskCompletionModal.tsx`.
 
@@ -113,8 +113,9 @@ Task list, accept, start, completion, and **stats** tab are API-backed (`assignm
 | `useSpecialistStatistics` | `GET /api/statistics/specialists` | Rankings list; manager statistics page |
 | `useSpecialistDetailStatistics` | `GET /api/statistics/specialist/{id}?days=` | Specialist mobile `StatsTab` (`days` 1 / 7 / 30 by period) |
 | `useMonthlyStatistics` | `GET /api/statistics/monthly?year=` | Specialist `StatsTab` chart when period is **Oy** |
-| `useExportStatistics` | `GET /api/statistics/export` | Blob download; query `startDate`, `endDate`, `organization` |
+| `useExportStatistics` | `GET /api/statistics/export` | Opens export URL in a new tab (backend `.xlsx`); query `startDate`, `endDate`, `organization` |
 | `useDashboardStatistics` | `GET /api/statistics/dashboard` | KPI counts for requests (manager review + statistics pages) |
+| `usePublicStatistics` | `GET /api/statistics/public` | Landing hero overview counts; no auth required |
 
 Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normalizeSpecialistStatistics`, `mapStatisticsToChartSeries`, `groupOrganizationStatisticsByGovernance`, `downloadStatisticsExport`. Consumers: `StatisticsSection.tsx` (admin), `ManagerStatisticsPage.tsx`, `ManagerReviewPage.tsx`.
 

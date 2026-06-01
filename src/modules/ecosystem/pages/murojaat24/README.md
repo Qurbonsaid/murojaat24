@@ -46,7 +46,7 @@ Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days`
 
 **Roles:** admin ecosystem (`/ecosystem/murojaat24/statistika`).
 
-**Edge cases:** response normalizers tolerate varying envelope shapes; export downloads blob via `Content-Disposition` filename when present.
+**Edge cases:** response normalizers tolerate varying envelope shapes; export opens `GET /api/statistics/export` in a new tab so the backend serves the `.xlsx` directly (session cookie on the API origin).
 
 ---
 

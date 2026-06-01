@@ -38,7 +38,7 @@ Helpers: `src/lib/pwa.ts`, UI: `src/components/specialist/MobileQRCode.tsx`. Ser
 - Login, logout (`ProfileTab`, `MobileQRCode`).
 - Update profile on `/profile` (`useUpdateProfile`, `useUploadAvatar`).
 - View / accept / start tasks — `useMyCurrentAssignments`, `useAcceptAssignment`, `useStartAssignment` in `SpecialistMobile.tsx`.
-- Complete tasks — `TaskCompletionModal` → `POST /api/requests/:id/images`, `PUT /api/requests/:id/complete` (`useSubmitRequestCompletion`).
+- Complete tasks — `TaskCompletionModal` → `POST /api/uploads/images`, `PUT /api/requests/:id/complete` with signature in body (`useSubmitRequestCompletion`).
 - Call citizen (`tel:`), open Google Maps from task detail.
 - Completion: photo upload, report, canvas signature → `useSubmitRequestCompletion`.
 - History tab — API with infinite scroll; period `Select` does not filter rows.

@@ -107,7 +107,7 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 | Task list | `SpecialistMobile.tsx` | `useMyCurrentAssignments`; accept/start mutations |
 | History tab | `src/components/specialist/HistoryTab.tsx` | `useMyAssignmentHistory` + infinite scroll |
 | Stats tab | `src/components/specialist/StatsTab.tsx` | **API-backed** via `useSpecialistDetailStatistics` and `useMonthlyStatistics` (badges/ratings when API returns them) |
-| Task completion | `src/components/specialist/TaskCompletionModal.tsx` | **API-backed**: `POST /api/requests/:id/images`, `PUT /api/requests/:id/complete` via `useSubmitRequestCompletion` |
+| Task completion | `src/components/specialist/TaskCompletionModal.tsx` | **API-backed**: `POST /api/uploads/images`, `PUT /api/requests/:id/complete` via `useSubmitRequestCompletion` |
 | Change password | `src/components/specialist/ChangePasswordModal.tsx` | **Sonner toast only** — not `useResetPassword` / profile API |
 | Personal info modal | `src/components/specialist/PersonalInfoModal.tsx` | **Unused** (not imported); defaults like `"Akmal Rahimov"`; specialists use `/profile` |
 | Profile tab | `src/components/specialist/ProfileTab.tsx` | Logout uses API; link to `/profile` for real profile edits |

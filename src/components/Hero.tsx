@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { usePublicStatistics } from "@/lib/api/statistics";
 import { ArrowRight, CheckCircle2, PhoneCall, ShieldCheck } from "lucide-react";
+
+const formatStatCount = (value: number | undefined) =>
+  typeof value === "number" && Number.isFinite(value)
+    ? value.toLocaleString("uz-UZ")
+    : "—";
 
 const bullets = [
   "Murojaatlarni qabul qilish",
@@ -8,6 +15,30 @@ const bullets = [
 ];
 
 const Hero = () => {
+  const { data, isPending, isError } = usePublicStatistics();
+  const overview = data?.overview;
+
+  const heroStats = [
+    {
+      label: "Bugun qabul qilingan",
+      value: formatStatCount(overview?.today),
+      className: "bg-sky-50",
+      valueClassName: "text-[#0d4c8b]",
+    },
+    {
+      label: "Bajarilgan murojaatlar",
+      value: formatStatCount(overview?.completed),
+      className: "bg-emerald-50",
+      valueClassName: "text-emerald-700",
+    },
+    {
+      label: "Tasdiqlangan murojaatlar",
+      value: formatStatCount(overview?.verified),
+      className: "bg-amber-50",
+      valueClassName: "text-amber-700",
+    },
+  ];
+
   return (
     <section
       id="hero"
@@ -103,30 +134,25 @@ const Hero = () => {
                 </div>
 
                 <div className="mt-5 space-y-4">
-                  <div className="flex items-center justify-between rounded-xl bg-sky-50 px-4 py-3">
-                    <span className="text-sm font-medium text-slate-700">
-                      Bugun qabul qilingan
-                    </span>
-                    <span className="text-lg font-bold text-[#0d4c8b]">
-                      145
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3">
-                    <span className="text-sm font-medium text-slate-700">
-                      Bajarilgan murojaatlar
-                    </span>
-                    <span className="text-lg font-bold text-emerald-700">
-                      98
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-3">
-                    <span className="text-sm font-medium text-slate-700">
-                      Fuqaro mamnuniyati
-                    </span>
-                    <span className="text-lg font-bold text-amber-700">
-                      4.6 / 5
-                    </span>
-                  </div>
+                  {heroStats.map((stat) => (
+                    <div
+                      key={stat.label}
+                      className={`flex items-center justify-between rounded-xl px-4 py-3 ${stat.className}`}
+                    >
+                      <span className="text-sm font-medium text-slate-700">
+                        {stat.label}
+                      </span>
+                      {isPending && !isError ? (
+                        <Skeleton className="h-7 w-14 rounded-md" />
+                      ) : (
+                        <span
+                          className={`text-lg font-bold ${stat.valueClassName}`}
+                        >
+                          {stat.value}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

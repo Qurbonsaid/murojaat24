@@ -6,7 +6,7 @@ Components for the specialist experience: post-login **PWA install gate** (`Mobi
 
 **Login gate (`MobileQRCode`):** After specialist login, desktop users see a QR to open `/login` on a phone; mobile users walk through install → standalone app → notifications/camera/location, then redirect to `/specialist-mobile`. Logout returns to `/`.
 
-**In-app (`SpecialistMobile`):** Assigned tasks from API, detail, accept/start, complete with photo + report + signature via `useSubmitRequestCompletion` (`POST` images, `PUT` complete). History tab paginates via infinite scroll. Stats tab uses `GET /api/statistics/specialist/{id}` (and `GET /api/statistics/monthly` for the Oy chart). Profile tab links to `/profile` for real edits and API logout.
+**In-app (`SpecialistMobile`):** Assigned tasks from API, detail, accept/start, complete with photo + report + signature via `useSubmitRequestCompletion` (`POST /api/uploads/images`, `PUT` complete with base64 signature). History tab paginates via infinite scroll. Stats tab uses `GET /api/statistics/specialist/{id}` (and `GET /api/statistics/monthly` for the Oy chart). Profile tab links to `/profile` for real edits and API logout.
 
 ## Entry points
 
@@ -63,7 +63,7 @@ Schemas and paths: `docs/api/openapi.json` (Assignments tag). Hooks in `src/lib/
 
 **History infinite scroll:** `HistoryTab` renders a sentinel `div`; when it enters the viewport, `fetchNextPage()` runs. Next page uses `pagination.hasNext`, `pagination.pages`, or a full page of rows as fallback.
 
-Completion: `TaskCompletionModal` → `POST /api/requests/:id/images` then `PUT /api/requests/:id/complete` (`src/lib/api/requests.ts`). Requires `requestId` on the task (from assignment).
+Completion: `TaskCompletionModal` → `POST /api/uploads/images`, then `PUT /api/requests/:id/complete` with `{ images, report, signature }`. Requires `requestId` on the task (from assignment).
 
 ## Roles
 
