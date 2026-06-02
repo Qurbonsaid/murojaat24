@@ -5,8 +5,8 @@ Top-level role for the Termiz aqlli shahar **ecosystem shell** and Murojaat24 ad
 ## Identifier
 
 - Code value: `admin` (`UserRole` in `src/lib/api/auth.ts`)
-- Post-login home: `/ecosystem/modullar` via `getRoleRedirectPath`
-- Legacy redirect: `/admin-dashboard` → `/ecosystem/modullar`
+- Post-login home: `/ecosystem/modules` via `getRoleRedirectPath`
+- Legacy redirect: `/admin-dashboard` → `/ecosystem/modules`
 
 ## Routes
 

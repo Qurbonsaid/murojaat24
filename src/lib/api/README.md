@@ -102,7 +102,7 @@ Task list, accept, start, completion, and **stats** tab are API-backed (`assignm
 
 ## Specialists (`users.ts`)
 
-`useSpecialists(params)` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Used by `AssignModal` and dispatcher assignments table.
+`useUsers(params)` → `GET /api/users` with query `page`, `limit`, `role` (single value or comma-separated via `role: UserRole[]`), `search`, `organizations` (comma-separated ids), `isActive`, `status`, `quarter`, `sector`. `useSpecialists` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Consumers: admin users UI, `ManagerUsersPage`, `AssignModal`.
 
 ## Statistics (`statistics.ts`)
 

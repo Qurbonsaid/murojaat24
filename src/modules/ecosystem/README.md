@@ -4,7 +4,7 @@ Admin-only `/ecosystem` layout: sidebar menu, module catalog, nested routes for 
 
 ## User-facing behavior
 
-After login as `admin`, user lands on module grid (`modullar`), navigates sidebar to Murojaat24 or Sozlamalar sections, or opens placeholder modules. Header shows date/time; mobile uses sheet menu.
+After login as `admin`, user lands on module grid (`/ecosystem/modules`), navigates sidebar to Murojaat24 or Settings sections, or opens placeholder modules. Header shows date/time; mobile uses sheet menu.
 
 ## Entry points
 

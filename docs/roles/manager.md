@@ -5,19 +5,19 @@
 ## Identifier
 
 - Code value: `manager`
-- Post-login home: `/manager/nazorat`
+- Post-login home: `/manager/review`
 
 ## Routes
 
 | Path | Component | Gate |
 | --- | --- | --- |
-| `/manager/nazorat` | `ManagerReviewPage` | `manager`, `admin` |
-| `/manager/statistika` | `ManagerStatisticsPage` | `manager`, `admin` |
-| `/manager/foydalanuvchilar` | `ManagerUsersPage` | `manager`, `admin` |
-| `/manager-dashboard` | Redirect → `/manager/nazorat` | `manager`, `admin` |
+| `/manager/review` | `ManagerReviewPage` | `manager`, `admin` |
+| `/manager/statistics` | `ManagerStatisticsPage` | `manager`, `admin` |
+| `/manager/users` | `ManagerUsersPage` | `manager`, `admin` |
+| `/manager-dashboard` | Redirect → `/manager/review` | `manager`, `admin` |
 | `/profile` | `Profile` + `ManagerSidebar` | all staff roles |
 
-Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/foydalanuvchilar`).
+Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/users`).
 
 ## Actions
 
@@ -25,11 +25,11 @@ Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/fo
 - List appeals for their organization (`GET /api/requests/`).
 - Open review modal; approve or reject completed work (`PUT /api/requests/{id}/verify`).
 - View statistics and export Excel for their organization.
-- List, search, add, edit, and delete **dispatcher** and **specialist** users on `/manager/foydalanuvchilar` (create/update/delete may return **403** until backend allows manager mutations).
+- List, search, and filter staff on `/manager/users` via `GET /api/users` (`organizations`, `role`, `search`); add/edit/delete dispatcher and specialist (mutations may return **403** until backend allows manager access).
 
 ## Data read / write
 
-**Reads:** `CurrentUser`; `GET /api/requests` (organization filter); `GET /api/requests/:id`; statistics endpoints (`dashboard`, `daily`, `by-organization`, `specialists`); `GET /api/users` for staff list.
+**Reads:** `CurrentUser`; `GET /api/requests` (organization filter); `GET /api/requests/:id`; statistics endpoints (`dashboard`, `daily`, `by-organization`, `specialists`); `GET /api/users` (`organizations`, `role`, `search`).
 
 **Writes:** auth/profile API; verify request; `POST`/`PUT`/`DELETE` users via manager modals (subject to backend role checks).
 
@@ -45,4 +45,4 @@ Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/fo
 - Route gate in `murojaat24/config/routes.tsx`.
 - `ProtectedRoute` at runtime.
 - Appeals list passes manager `organization` from `GET /api/auth/me`.
-- Add/edit modals only offer `dispatcher` and `specialist` roles; table client-filters to those roles.
+- Add/edit modals only offer `dispatcher` and `specialist` roles; list filtering uses API query params (`organizations`, `role`).

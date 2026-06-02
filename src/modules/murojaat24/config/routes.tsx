@@ -41,7 +41,7 @@ export const murojaat24Routes: Murojaat24Route[] = [
   },
   {
     path: "/manager-dashboard",
-    element: <Navigate to="/manager/nazorat" replace />,
+    element: <Navigate to="/manager/review" replace />,
     requiredRoles: ["manager", "admin"],
   },
   {
@@ -50,7 +50,7 @@ export const murojaat24Routes: Murojaat24Route[] = [
     requiredRoles: ["manager", "admin"],
   },
   {
-    path: "/manager/foydalanuvchilar",
+    path: "/manager/users",
     element: <ManagerUsersPage />,
     requiredRoles: ["manager", "admin"],
   },
@@ -61,7 +61,7 @@ export const murojaat24Routes: Murojaat24Route[] = [
   },
   {
     path: "/admin-dashboard",
-    element: <Navigate to="/ecosystem/modullar" replace />,
+    element: <Navigate to="/ecosystem/modules" replace />,
     requiredRoles: ["admin"],
   },
 ];

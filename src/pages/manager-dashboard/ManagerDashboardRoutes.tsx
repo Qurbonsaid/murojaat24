@@ -8,9 +8,9 @@ const ManagerDashboardRoutes = () => {
   return (
     <Routes>
       <Route element={<ManagerLayout />}>
-        <Route index element={<Navigate to="nazorat" replace />} />
-        <Route path="nazorat" element={<ManagerReviewPage />} />
-        <Route path="statistika" element={<ManagerStatisticsPage />} />
+        <Route index element={<Navigate to="review" replace />} />
+        <Route path="review" element={<ManagerReviewPage />} />
+        <Route path="statistics" element={<ManagerStatisticsPage />} />
       </Route>
     </Routes>
   );

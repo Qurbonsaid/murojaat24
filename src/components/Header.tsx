@@ -1,5 +1,6 @@
+import TestModeBanner from "@/components/TestModeBanner";
 import { Button } from "@/components/ui/button";
-import { LogIn, Menu, Phone } from "lucide-react";
+import { LogIn, Menu } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,20 +17,7 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-sky-900/10 bg-white/90 backdrop-blur">
-      <div className="border-b border-slate-100 bg-[#0d4c8b] text-sky-50">
-        <div className="container mx-auto flex flex-wrap items-center justify-between gap-2 px-4 py-1.5 text-xs">
-          <span className="font-medium">
-            Termiz shahar hokimligi rasmiy raqamli platformasi
-          </span>
-          <a
-            href="tel:1089"
-            className="inline-flex items-center gap-1.5 text-sky-100 transition-colors hover:text-white"
-          >
-            <Phone className="h-3.5 w-3.5" />
-            Ishonch telefoni: 1089
-          </a>
-        </div>
-      </div>
+      <TestModeBanner />
 
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
         <Link to="/" className="flex items-center gap-3">

@@ -187,17 +187,6 @@ const Login = () => {
               {loginMutation.isPending ? "Kuting..." : "Kirish"}
             </Button>
           </form>
-          <div className="mt-6 p-3 bg-muted rounded-lg text-sm text-muted-foreground text-center">
-            <p className="font-medium mb-1">Demo hisoblar:</p>
-            <div className="space-y-0.5">
-              <p>Operator: +998 90 123 45 70</p>
-              <p>Dispetcher: +998 90 123 45 69</p>
-              <p>Mutaxassis: +998 90 123 45 72</p>
-              <p>Menejer: +998 90 123 45 68</p>
-              <p>Hokimiyat: +998 90 123 45 67</p>
-            </div>
-            <p className="mt-2">Parol: murojaat24</p>
-          </div>
         </CardContent>
       </Card>
     </div>

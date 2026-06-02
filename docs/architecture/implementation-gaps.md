@@ -165,7 +165,7 @@ See `src/pages/citizen/README.md`, `docs/architecture/routing.md`.
 
 **Hidden from sidebar (representative):** Toza hudud, Kommunal chaqiruvlar, Nazorat 24, Shahar passporti, Hududlar taqsimoti (+ children), Hisobotlar (+ children); under **Sozlamalar**: Obyekt turi, Chaqiruv turi, Ish vaqtlari, Bildirishnoma shablonlari, Umumiy sozlamalar.
 
-**Typically visible in sidebar:** Modullar, Murojaat24 (+ murojaatlar, statistika, foydalanuvchilar), Sozlamalar (+ Rahbariyat, Tashkilotlar only).
+**Typically visible in sidebar:** Modules (`/ecosystem/modules`), Murojaat24 (`/appeals`, `/statistics`, `/users`), Settings (`/leadership`, `/organizations` only).
 
 Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
@@ -174,7 +174,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 | Item | Notes |
 | --- | --- |
 | `/role-select` | Redirects to `/login` — no role picker |
-| `/admin-dashboard` | Redirect to `/ecosystem/modullar` |
+| `/admin-dashboard` | Redirect to `/ecosystem/modules` |
 | Manager vs admin | `/ecosystem/*` is **admin-only**; managers use `/manager/*` routes, not ecosystem user admin |
 
 ---
@@ -204,7 +204,6 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
 | Topic | Detail |
 | --- | --- |
-| Demo accounts on login | `Login.tsx` shows phone numbers and password `murojaat24` in UI |
 | Legacy storage | `clearLegacySessions` on logout; `saveLegacySession` exists but login path does not write legacy keys |
 | Role labeling | API `dispatcher` vs UI “Dispetcher” / “Dispatcher” |
 | Admin access | `admin` in `requiredRoles` for all role dashboards — admins can open mock operator/dispatcher/specialist/manager UIs |

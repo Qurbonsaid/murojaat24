@@ -60,9 +60,14 @@ type FormData = z.infer<typeof formSchema>;
 interface ManagerAddUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultOrganizationId?: string;
 }
 
-const ManagerAddUserModal = ({ open, onOpenChange }: ManagerAddUserModalProps) => {
+const ManagerAddUserModal = ({
+  open,
+  onOpenChange,
+  defaultOrganizationId,
+}: ManagerAddUserModalProps) => {
   const { toast } = useToast();
   const createUser = useCreateUser();
   const organizationsQuery = useOrganizations();
@@ -77,7 +82,7 @@ const ManagerAddUserModal = ({ open, onOpenChange }: ManagerAddUserModalProps) =
     resolver: zodResolver(formSchema),
     defaultValues: {
       phone: "+998 ",
-      organization: "none",
+      organization: defaultOrganizationId ?? "none",
       quarter: "",
       sector: "",
     },
@@ -124,7 +129,12 @@ const ManagerAddUserModal = ({ open, onOpenChange }: ManagerAddUserModalProps) =
         title: "Foydalanuvchi qo'shildi",
         description: `${data.name} muvaffaqiyatli qo'shildi`,
       });
-      reset({ phone: "+998 ", organization: "none", quarter: "", sector: "" });
+      reset({
+        phone: "+998 ",
+        organization: defaultOrganizationId ?? "none",
+        quarter: "",
+        sector: "",
+      });
       onOpenChange(false);
     } catch (error) {
       const message =
@@ -275,7 +285,7 @@ const ManagerAddUserModal = ({ open, onOpenChange }: ManagerAddUserModalProps) =
               onClick={() => {
                 reset({
                   phone: "+998 ",
-                  organization: "none",
+                  organization: defaultOrganizationId ?? "none",
                   quarter: "",
                   sector: "",
                 });

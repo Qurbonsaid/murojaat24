@@ -43,9 +43,9 @@ import StatisticsSection from "./StatisticsSection";
 
 type Murojaat24Section =
   | "dashboard"
-  | "murojaatlar"
-  | "statistika"
-  | "foydalanuvchilar";
+  | "appeals"
+  | "statistics"
+  | "users";
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Administrator",
@@ -88,16 +88,16 @@ const resolveSection = (pathname: string): Murojaat24Section => {
       ? pathname.slice(0, -1)
       : pathname;
 
-  if (normalizedPath.endsWith("/murojaatlar")) {
-    return "murojaatlar";
+  if (normalizedPath.endsWith("/appeals")) {
+    return "appeals";
   }
 
-  if (normalizedPath.endsWith("/statistika")) {
-    return "statistika";
+  if (normalizedPath.endsWith("/statistics")) {
+    return "statistics";
   }
 
-  if (normalizedPath.endsWith("/foydalanuvchilar")) {
-    return "foydalanuvchilar";
+  if (normalizedPath.endsWith("/users")) {
+    return "users";
   }
 
   return "dashboard";
@@ -128,17 +128,17 @@ const Murojaat24ModulePage = () => {
 
   const { sectionTitle, sectionSubtitle } = useMemo(() => {
     switch (section) {
-      case "murojaatlar":
+      case "appeals":
         return {
           sectionTitle: "Murojaatlar",
           sectionSubtitle: "Barcha murojaatlar ro'yxati",
         };
-      case "statistika":
+      case "statistics":
         return {
           sectionTitle: "Statistika",
           sectionSubtitle: "Murojaatlar statistikasi va tahlili",
         };
-      case "foydalanuvchilar":
+      case "users":
         return {
           sectionTitle: "Foydalanuvchilarni boshqarish",
           sectionSubtitle: "Tizim foydalanuvchilari va ularning rollari",
@@ -246,7 +246,7 @@ const Murojaat24ModulePage = () => {
         </>
       )}
 
-      {section === "foydalanuvchilar" && (
+      {section === "users" && (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -455,9 +455,9 @@ const Murojaat24ModulePage = () => {
         </Card>
       )}
 
-      {section === "murojaatlar" && <MurojaatlarSection />}
+      {section === "appeals" && <MurojaatlarSection />}
 
-      {section === "statistika" && <StatisticsSection />}
+      {section === "statistics" && <StatisticsSection />}
 
       <AddUserModal
         open={addUserModalOpen}

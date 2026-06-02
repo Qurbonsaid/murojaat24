@@ -29,6 +29,8 @@ flowchart TD
 
 Hero trust-card figures load from `GET /api/statistics/public` via `usePublicStatistics` in `src/lib/api/statistics.ts` (`overview.today`, `overview.completed`, `overview.verified`). Other sections still use local copy; the `Statistics` band below remains static placeholders until wired separately.
 
+The header test-mode marquee (`TestModeBanner`) renders only after client mount and uses `data-nosnippet` so crawlers are less likely to index that copy for SEO.
+
 ## Roles
 
 Public — no auth required. Header does not show authenticated profile controls.

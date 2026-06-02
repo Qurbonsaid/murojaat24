@@ -33,7 +33,7 @@ const App = () => (
               </ProtectedRoute>
             }
           >
-            <Route index element={<Navigate to="modullar" replace />} />
+            <Route index element={<Navigate to="modules" replace />} />
             <Route path="profile" element={<Profile embedded />} />
             {ecosystemRouteEntries.map((routeEntry) => {
               const element =

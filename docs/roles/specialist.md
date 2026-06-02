@@ -6,7 +6,6 @@
 
 - Code value: `specialist`
 - Post-login home: `/specialist-mobile` (after optional PWA gate on `/login`)
-- Demo account (shown on login card): `+998 90 123 45 72`, password `murojaat24`
 
 ## Routes
 

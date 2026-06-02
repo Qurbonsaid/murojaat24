@@ -36,13 +36,13 @@ import {
 } from "@/lib/api/organizations";
 
 type SozlamalarSection =
-  | "rahbariyat"
-  | "tashkilotlar"
-  | "obyekt-turi"
-  | "chaqiruv-turi"
-  | "ish-vaqtlari"
-  | "shablonlar"
-  | "umumiy"
+  | "leadership"
+  | "organizations"
+  | "object-types"
+  | "call-types"
+  | "work-hours"
+  | "templates"
+  | "general"
   | "overview";
 
 const sectionMeta: Record<
@@ -53,48 +53,48 @@ const sectionMeta: Record<
     title: "Sozlamalar",
     subtitle: "Tizimning barcha sozlamalari bitta joyda birlashtirilgan.",
   },
-  rahbariyat: {
+  leadership: {
     title: "Rahbariyat",
     subtitle: "Tashkilotlarning rahbariyat kesimidagi taqsimoti.",
   },
-  tashkilotlar: {
+  organizations: {
     title: "Tashkilotlar",
     subtitle: "Ekotizimga ulangan tashkilotlar ro'yxati.",
   },
-  "obyekt-turi": {
+  "object-types": {
     title: "Obyekt turi",
     subtitle: "Murojaat obyektlari turlari sozlamalari.",
   },
-  "chaqiruv-turi": {
+  "call-types": {
     title: "Chaqiruv turi",
     subtitle: "Kommunal chaqiruv turlari sozlamalari.",
   },
-  "ish-vaqtlari": {
+  "work-hours": {
     title: "Ish vaqtlari",
     subtitle: "Xizmatlar uchun ish vaqtlari jadvali.",
   },
-  shablonlar: {
+  templates: {
     title: "Bildirishnoma shablonlari",
     subtitle: "SMS va email xabarnomalar uchun shablonlar.",
   },
-  umumiy: {
+  general: {
     title: "Umumiy sozlamalar",
     subtitle: "Tizim bo'ylab amal qiladigan umumiy sozlamalar.",
   },
 };
 
 const resolveSection = (pathname: string): SozlamalarSection => {
-  const match = pathname.match(/\/ecosystem\/sozlamalar\/([^/]+)/);
+  const match = pathname.match(/\/ecosystem\/settings\/([^/]+)/);
   const slug = match?.[1];
 
   switch (slug) {
-    case "rahbariyat":
-    case "tashkilotlar":
-    case "obyekt-turi":
-    case "chaqiruv-turi":
-    case "ish-vaqtlari":
-    case "shablonlar":
-    case "umumiy":
+    case "leadership":
+    case "organizations":
+    case "object-types":
+    case "call-types":
+    case "work-hours":
+    case "templates":
+    case "general":
       return slug;
     default:
       return "overview";
@@ -675,19 +675,19 @@ const SozlamalarPage = () => {
 
   const renderSection = () => {
     switch (section) {
-      case "rahbariyat":
+      case "leadership":
         return <RahbariyatSection />;
-      case "tashkilotlar":
+      case "organizations":
         return <TashkilotlarSection />;
-      case "shablonlar":
+      case "templates":
         return <ShablonlarSection />;
-      case "umumiy":
+      case "general":
         return <UmumiySection />;
-      case "obyekt-turi":
+      case "object-types":
         return <ComingSoonCard sectionLabel="Obyekt turi" />;
-      case "chaqiruv-turi":
+      case "call-types":
         return <ComingSoonCard sectionLabel="Chaqiruv turi" />;
-      case "ish-vaqtlari":
+      case "work-hours":
         return <ComingSoonCard sectionLabel="Ish vaqtlari" />;
       case "overview":
       default:

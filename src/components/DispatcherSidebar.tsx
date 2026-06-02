@@ -1,27 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { ClipboardList, FileText, Inbox } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useCurrentUser } from "@/lib/api/auth";
-import { resolveAssetUrl } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 const DispatcherSidebar = () => {
   const location = useLocation();
-
-  const currentUserQuery = useCurrentUser();
-  const user = currentUserQuery.data;
-
-  const name =
-    [user?.profile?.firstName, user?.profile?.lastName]
-      .filter(Boolean)
-      .join(" ")
-      .trim() ||
-    user?.phone ||
-    "Foydalanuvchi";
-
-  const roleLabel =
-    user?.role === "admin" ? "Hokimiyat" : user?.role === "dispatcher" ? "Dispetcher" : "Dispetcher";
 
   const menuItems = [
     {
@@ -39,30 +22,9 @@ const DispatcherSidebar = () => {
   return (
     <aside className="fixed left-0 top-0 flex min-h-screen w-64 flex-col bg-slate-800 text-white">
       <div className="border-b border-slate-700 p-6">
-        <div className="mb-6 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <FileText className="h-8 w-8 text-primary" />
           <span className="text-xl font-bold">Murojaat24</span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Avatar>
-            {user?.profile?.avatar ? (
-              <AvatarImage
-                src={resolveAssetUrl(user.profile.avatar)}
-                alt={name}
-              />
-            ) : null}
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {name
-                ?.split(" ")
-                .map((part: string) => part[0])
-                .join("") || "DM"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{name}</p>
-            <p className="truncate text-sm text-slate-400">{roleLabel}</p>
-          </div>
         </div>
       </div>
 

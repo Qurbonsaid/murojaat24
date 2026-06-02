@@ -34,7 +34,7 @@ const modules: ModuleEntry[] = [
     label: "Hudud",
     description:
       "Shahar hududlari va obyektlari haqida umumiy ma'lumotlar moduli.",
-    path: "/ecosystem/hudud",
+    path: "/ecosystem/territory",
     icon: Building2,
     accent: "bg-sky-600",
     available: false,
@@ -44,7 +44,7 @@ const modules: ModuleEntry[] = [
     label: "Toza hudud",
     description:
       "Tozalik muammolari va ularga javob berish jarayonini kuzatish.",
-    path: "/ecosystem/toza-hudud",
+    path: "/ecosystem/clean-territory",
     icon: Recycle,
     accent: "bg-emerald-600",
     available: false,
@@ -64,7 +64,7 @@ const modules: ModuleEntry[] = [
     label: "Kommunal chaqiruvlar",
     description:
       "Kommunal xizmatlar bo'yicha chaqiruvlar va ularning bajarilishi.",
-    path: "/ecosystem/kommunal-chaqiruvlar",
+    path: "/ecosystem/utility-calls",
     icon: TextSearch,
     accent: "bg-amber-600",
     available: false,
@@ -73,7 +73,7 @@ const modules: ModuleEntry[] = [
     id: "nazorat-24",
     label: "Nazorat 24",
     description: "Shahar xavfsizligi va jamoat tartibi nazorati.",
-    path: "/ecosystem/nazorat-24",
+    path: "/ecosystem/supervision-24",
     icon: ShieldCheck,
     accent: "bg-indigo-700",
     available: false,
@@ -83,7 +83,7 @@ const modules: ModuleEntry[] = [
     label: "Shahar passporti",
     description:
       "Termiz shahri infratuzilmasi va obyektlari yagona ma'lumot bazasi.",
-    path: "/ecosystem/shahar-passporti",
+    path: "/ecosystem/city-passport",
     icon: MapPinned,
     accent: "bg-rose-600",
     available: false,
@@ -93,7 +93,7 @@ const modules: ModuleEntry[] = [
     label: "Hududlar taqsimoti",
     description:
       "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
-    path: "/ecosystem/hududlar-taqsimoti",
+    path: "/ecosystem/territory-distribution",
     icon: MapPinned,
     accent: "bg-purple-600",
     available: false,
@@ -103,7 +103,7 @@ const modules: ModuleEntry[] = [
     label: "Hisobotlar",
     description:
       "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
-    path: "/ecosystem/hisobotlar",
+    path: "/ecosystem/reports",
     icon: FileBarChart2,
     accent: "bg-teal-600",
     available: false,
@@ -113,7 +113,7 @@ const modules: ModuleEntry[] = [
     label: "Sozlamalar",
     description:
       "Ekotizim uchun umumiy sozlamalar: tashkilotlar, shablonlar va boshqalar.",
-    path: "/ecosystem/sozlamalar",
+    path: "/ecosystem/settings",
     icon: Settings2,
     accent: "bg-slate-700",
     available: true,

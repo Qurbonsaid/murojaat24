@@ -37,7 +37,8 @@ export type StaffUser = {
 export type UsersQueryParams = {
   page?: number;
   limit?: number;
-  role?: UserRole;
+  /** Single role or multiple roles (sent as comma-separated `role` query param). */
+  role?: UserRole | UserRole[];
   isActive?: boolean;
   search?: string;
   organizations?: string[];
@@ -72,12 +73,24 @@ export type UserUpdateInput = {
   sector?: string;
 };
 
+export const formatUsersRoleQuery = (
+  role: UserRole | UserRole[] | undefined,
+): string | undefined => {
+  if (!role) return undefined;
+  if (Array.isArray(role)) {
+    const values = role.filter(Boolean);
+    return values.length ? values.join(",") : undefined;
+  }
+  return role;
+};
+
 const buildUsersQueryString = (params: UsersQueryParams) => {
   const searchParams = new URLSearchParams();
 
   if (params.page) searchParams.set("page", String(params.page));
   if (params.limit) searchParams.set("limit", String(params.limit));
-  if (params.role) searchParams.set("role", params.role);
+  const roleQuery = formatUsersRoleQuery(params.role);
+  if (roleQuery) searchParams.set("role", roleQuery);
   if (typeof params.isActive === "boolean") {
     searchParams.set("isActive", String(params.isActive));
   }
@@ -122,7 +135,7 @@ export const useUsers = (
 ) => {
   const page = params.page ?? 1;
   const limit = params.limit ?? 100;
-  const role = params.role ?? "";
+  const role = formatUsersRoleQuery(params.role) ?? "";
   const search = params.search ?? "";
   const isActive =
     typeof params.isActive === "boolean" ? String(params.isActive) : "";
@@ -152,8 +165,6 @@ export const useUsers = (
           ...params,
           page,
           limit,
-          role: params.role,
-          search: params.search,
         })}`,
       );
 

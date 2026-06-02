@@ -1,44 +1,15 @@
-# Settings (Sozlamalar)
+# Ecosystem settings (Sozlamalar)
 
-Admin settings sections inside `SozlamalarPage.tsx`, routed under `/ecosystem/sozlamalar/*`. Section resolver switches UI by pathname.
+Admin settings sections inside `SozlamalarPage.tsx`, routed under `/ecosystem/settings/*`. Section resolver switches UI by pathname.
 
-## Entry points
+## Routes
 
-| Route | Section |
+| Path | Section |
 | --- | --- |
-| `/ecosystem/sozlamalar/rahbariyat` | Governance grouping |
-| `/ecosystem/sozlamalar/tashkilotlar` | Organization CRUD |
-| `/ecosystem/sozlamalar/shablonlar` | SMS templates (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
-| `/ecosystem/sozlamalar/umumiy` | General toggles/inputs (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
-| `obyekt-turi`, `chaqiruv-turi`, `ish-vaqtlari` | In-page coming-soon card (menu may point to `ComingSoonPage` for some) |
+| `/ecosystem/settings/leadership` | Governance grouping |
+| `/ecosystem/settings/organizations` | Organization CRUD |
+| `/ecosystem/settings/templates` | SMS templates (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
+| `/ecosystem/settings/general` | General toggles/inputs (local); hidden from ecosystem sidebar (`moduleKind: coming-soon` in menu) |
+| `/ecosystem/settings/object-types`, `call-types`, `work-hours` | Coming soon placeholders |
 
 File: `src/modules/ecosystem/pages/sozlamalar/SozlamalarPage.tsx`.
-
----
-
-## Organizations and governance
-
-Lists organizations from `useOrganizations`, groups by governance for rahbariyat view, supports search, create, edit, delete via `src/lib/api/organizations.ts`.
-
-**Edge cases:** loading/error/empty states; save disabled until name and governance filled; failures show destructive toast; delete opens `AlertDialog` confirmation before `useDeleteOrganization`; if the edited org is deleted, the edit dialog closes.
-
----
-
-## Notification templates and general settings
-
-**Shablonlar:** static `smsTemplates` cards; edit buttons without handlers.
-
-**Umumiy:** switches and inputs with default values; “Saqlash” without submit handler — changes are not persisted.
-
-**API:** none for these sections.
-
----
-
-## Roles
-
-`admin` only (ecosystem parent gate).
-
-## Related docs
-
-- Ecosystem shell: `src/modules/ecosystem/README.md`
-- API hooks: `src/lib/api/organizations.ts`

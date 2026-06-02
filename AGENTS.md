@@ -56,7 +56,7 @@ Unmounted pages: `src/pages/citizen/{SubmitRequest,TrackRequest,Statistics}.tsx`
 
 ## How auth and role gating work
 
-Session is **cookie-based** from the browser’s perspective: `apiRequest` in `src/lib/api/client.ts` always sends `credentials: "include"`. After login, `useCurrentUser` loads `GET /api/auth/me` into React Query key `["auth", "me"]`. `getRoleRedirectPath` in `src/lib/api/auth.ts` sends each role to its home route; admins go to `/ecosystem/modullar`.
+Session is **cookie-based** from the browser’s perspective: `apiRequest` in `src/lib/api/client.ts` always sends `credentials: "include"`. After login, `useCurrentUser` loads `GET /api/auth/me` into React Query key `["auth", "me"]`. `getRoleRedirectPath` in `src/lib/api/auth.ts` sends each role to its home route; admins go to `/ecosystem/modules`.
 
 `ProtectedRoute` (`src/components/ProtectedRoute.tsx`) wraps protected elements: loading skeleton, redirect to `/login` on 401/403, generic error for other failures, `Forbidden` when `requiredRoles` excludes the user’s role. Login page: `src/pages/login/Login.tsx`.
 

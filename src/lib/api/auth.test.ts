@@ -9,13 +9,13 @@ import {
 
 describe("getRoleRedirectPath", () => {
   it("returns home route for each role", () => {
-    expect(getRoleRedirectPath("admin")).toBe("/ecosystem/modullar");
+    expect(getRoleRedirectPath("admin")).toBe("/ecosystem/modules");
     expect(getRoleRedirectPath("operator")).toBe("/operator-dashboard/new");
     expect(getRoleRedirectPath("dispatcher")).toBe(
       "/dispatcher-dashboard/appeals",
     );
     expect(getRoleRedirectPath("specialist")).toBe("/specialist-mobile");
-    expect(getRoleRedirectPath("manager")).toBe("/manager/nazorat");
+    expect(getRoleRedirectPath("manager")).toBe("/manager/review");
   });
 
   it("returns login for unknown role", () => {

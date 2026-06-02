@@ -40,11 +40,11 @@ export type UpdateProfileInput = {
 };
 
 const roleRedirects: Record<UserRole, string> = {
-  admin: "/ecosystem/modullar",
+  admin: "/ecosystem/modules",
   operator: "/operator-dashboard/new",
   dispatcher: "/dispatcher-dashboard/appeals",
   specialist: "/specialist-mobile",
-  manager: "/manager/nazorat",
+  manager: "/manager/review",
 };
 
 const legacySessionKeys: Record<UserRole, string> = {
