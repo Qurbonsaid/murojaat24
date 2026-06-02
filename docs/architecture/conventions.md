@@ -4,13 +4,13 @@ Cross-cutting patterns in the codebase. For feature-specific flows, see colocate
 
 ## Project layout
 
-| Layer | Location | Rule |
-| --- | --- | --- |
-| Router | `src/App.tsx`, `menu.ts`, `murojaat24/config/routes.tsx` | Routes are centralized, not declared inside pages. |
-| Screens | `src/pages/*`, `src/modules/ecosystem/pages/*` | One primary component per route or menu section. |
-| Workflow UI | `src/components/*` | Reusable pieces shared across dashboards. |
-| Primitives | `src/components/ui/*` | shadcn/Radix; avoid business logic here. |
-| API | `src/lib/api/*` | Types + React Query hooks per domain file. |
+| Layer       | Location                                                 | Rule                                               |
+| ----------- | -------------------------------------------------------- | -------------------------------------------------- |
+| Router      | `src/App.tsx`, `menu.ts`, `murojaat24/config/routes.tsx` | Routes are centralized, not declared inside pages. |
+| Screens     | `src/pages/*`, `src/modules/ecosystem/pages/*`           | One primary component per route or menu section.   |
+| Workflow UI | `src/components/*`                                       | Reusable pieces shared across dashboards.          |
+| Primitives  | `src/components/ui/*`                                    | shadcn/Radix; avoid business logic here.           |
+| API         | `src/lib/api/*`                                          | Types + React Query hooks per domain file.         |
 
 Import alias: `@/` → `src/`.
 
@@ -38,11 +38,7 @@ Appeals: `requests.ts` exposes operator create today; list/assignment hooks belo
 
 - Role strings: `admin`, `operator`, `dispatcher`, `specialist`, `manager` — not `dispetcher`.
 - After login, cache user at query key `["auth", "me"]`; `ProtectedRoute` reads `useCurrentUser`.
-<<<<<<< HEAD
-- Redirects: admin → `/ecosystem/modullar`; others → their dashboard paths (see `getRoleRedirectPath`).
-=======
 - Redirects: admin → `/ecosystem/modules`; others → their dashboard paths (see `getRoleRedirectPath`).
->>>>>>> develop
 - `ProtectedRoute`: loading skeleton; 401/403 → `/login`; other errors → inline message; wrong role → `Forbidden`.
 - Logout: `POST /api/auth/logout`, remove auth query, clear legacy `localStorage` keys if present.
 - Profile update: `PUT /api/auth/profile` via `useUpdateProfile`; updates auth cache and invalidates `["users"]`.

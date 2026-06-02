@@ -8,18 +8,18 @@ Snapshot of what is **wired to the backend** versus **local/mock/UI-only** in th
 
 ## Summary
 
-| Layer | Status |
-| --- | --- |
-| Auth, profile, avatar upload | API-backed |
-| Staff users CRUD (admin + manager routes) | API-backed |
-| Organizations CRUD (settings) | API-backed (delete uses `AlertDialog` confirmation) |
-| Operator: create appeal + today’s list | Partially API-backed (KPI cards still static; list detail via `GET /api/requests/:id`) |
-| Admin: appeals list + row detail | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination) |
-| Admin: dashboard KPIs | Still mock/local |
-| Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics` |
+| Layer                                        | Status                                                                                                                                        |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth, profile, avatar upload                 | API-backed                                                                                                                                    |
+| Staff users CRUD (admin + manager routes)    | API-backed                                                                                                                                    |
+| Organizations CRUD (settings)                | API-backed (delete uses `AlertDialog` confirmation)                                                                                           |
+| Operator: create appeal + today’s list       | Partially API-backed (KPI cards still static; list detail via `GET /api/requests/:id`)                                                        |
+| Admin: appeals list + row detail             | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination)                                                           |
+| Admin: dashboard KPIs                        | Still mock/local                                                                                                                              |
+| Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics`                                                  |
 | Appeal lifecycle (assign → execute → review) | Dispatcher assign/cancel **API-backed**; specialist list/accept/start/history **API-backed**; completion submit and manager review still mock |
-| Citizen in-app flows | Built but **not routed**; production landing uses an external portal |
-| Ecosystem modules (non-Murojaat24) | Mostly **coming soon**; sidebar hides `coming-soon` menu entries |
+| Citizen in-app flows                         | Built but **not routed**; production landing uses an external portal                                                                          |
+| Ecosystem modules (non-Murojaat24)           | Mostly **coming soon**; sidebar hides `coming-soon` menu entries                                                                              |
 
 Specialist **my** assignment hooks exist in `assignments.ts` (`my/current`, `my/history`, accept, start). Task **completion** upload and manager verification are still not wired. See `docs/api/openapi.json` for remaining paths.
 
@@ -29,16 +29,16 @@ Specialist **my** assignment hooks exist in `assignments.ts` (`my/current`, `my/
 
 Implemented in `src/lib/api/`:
 
-| Module | Endpoints (representative) | Used by |
-| --- | --- | --- |
-| `client.ts` | Transport, `VITE_BASE_URL`, envelope | All hooks |
-| `auth.ts` | `/api/auth/login`, `me`, `logout`, `profile`; forgot-password hooks | Login, guards, profile, modals |
-| `users.ts` | `/api/users` CRUD, reset password | Admin Murojaat24 users, manager users, modals |
-| `organizations.ts` | `/api/organizations` CRUD | Settings, operator org picker, user modals, admin appeals org filter |
-| `requests.ts` | `GET /api/requests/`, `GET /api/requests/:id`, `POST /api/requests/operator` | Operator list + new appeal; **admin `MurojaatlarSection`**; **dispatcher new appeals** |
-| `assignments.ts` | `GET /api/assignments/`, `my/current`, `my/history`, `POST`, `PUT .../accept`, `start`, `cancel` | **Dispatcher** assign/list/cancel; **specialist** active tasks, history, accept, start |
-| `statistics.ts` | `GET /api/statistics/daily`, `by-organization`, `specialists`, `export` | Admin **`StatisticsSection`** (daily, by-organization, export only) |
-| `uploads.ts` | `POST /api/uploads/avatar` | Profile |
+| Module             | Endpoints (representative)                                                                       | Used by                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `client.ts`        | Transport, `VITE_BASE_URL`, envelope                                                             | All hooks                                                                              |
+| `auth.ts`          | `/api/auth/login`, `me`, `logout`, `profile`; forgot-password hooks                              | Login, guards, profile, modals                                                         |
+| `users.ts`         | `/api/users` CRUD, reset password                                                                | Admin Murojaat24 users, manager users, modals                                          |
+| `organizations.ts` | `/api/organizations` CRUD                                                                        | Settings, operator org picker, user modals, admin appeals org filter                   |
+| `requests.ts`      | `GET /api/requests/`, `GET /api/requests/:id`, `POST /api/requests/operator`                     | Operator list + new appeal; **admin `MurojaatlarSection`**; **dispatcher new appeals** |
+| `assignments.ts`   | `GET /api/assignments/`, `my/current`, `my/history`, `POST`, `PUT .../accept`, `start`, `cancel` | **Dispatcher** assign/list/cancel; **specialist** active tasks, history, accept, start |
+| `statistics.ts`    | `GET /api/statistics/daily`, `by-organization`, `specialists`, `export`                          | Admin **`StatisticsSection`** (daily, by-organization, export only)                    |
+| `uploads.ts`       | `POST /api/uploads/avatar`                                                                       | Profile                                                                                |
 
 **Not implemented in the frontend** (no hooks/files): specialist completion upload/submit, manager approve/reject, citizen public submit/track, notifications/templates persistence, general settings persistence, real-time map, optional `GET /api/statistics/dashboard` for ecosystem KPI cards.
 
@@ -50,39 +50,39 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 
 ### Operator dashboard
 
-| Piece | Path | Reality |
-| --- | --- | --- |
-| New appeal form | `src/pages/operator-dashboard/OperatorNewAppeal.tsx` | `POST /api/requests/operator` via `useCreateOperatorRequest`; orgs from `useOrganizations` |
-| Today’s appeals table | `src/pages/operator-dashboard/OperatorAppealsList.tsx` | `useRequests` with today’s date range; org names from API |
-| KPI cards on list page | Same file | **Hardcoded** values (23, 8, 15, `"3.5 soat"`) — not derived from `useRequests` |
-| Row “Eye” action | Same file | Opens `OperatorRequestDetailModal` → `useRequest` / `GET /api/requests/:id` |
-| Organization column | Same file | Assumes `request.organization._id`; OpenAPI list often returns **string id** — may show `"—"` (admin list uses `resolveOrganizationName`) |
+| Piece                  | Path                                                   | Reality                                                                                                                                   |
+| ---------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| New appeal form        | `src/pages/operator-dashboard/OperatorNewAppeal.tsx`   | `POST /api/requests/operator` via `useCreateOperatorRequest`; orgs from `useOrganizations`                                                |
+| Today’s appeals table  | `src/pages/operator-dashboard/OperatorAppealsList.tsx` | `useRequests` with today’s date range; org names from API                                                                                 |
+| KPI cards on list page | Same file                                              | **Hardcoded** values (23, 8, 15, `"3.5 soat"`) — not derived from `useRequests`                                                           |
+| Row “Eye” action       | Same file                                              | Opens `OperatorRequestDetailModal` → `useRequest` / `GET /api/requests/:id`                                                               |
+| Organization column    | Same file                                              | Assumes `request.organization._id`; OpenAPI list often returns **string id** — may show `"—"` (admin list uses `resolveOrganizationName`) |
 
 ### Admin Murojaat24 module
 
-| Piece | Path | Reality |
-| --- | --- | --- |
-| Dashboard KPI cards | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | Static numbers (e.g. 45 users, 145 appeals) |
-| Foydalanuvchilar | Same + `AddUserModal` / `EditUserModal` | **API-backed** (`useUsers`, create/update/delete) |
-| Murojaatlar | `MurojaatlarSection.tsx` | **API-backed**: `useRequests` (paginated, `search`, `status`, `organization`, `priority`, `startDate`, `endDate`); `OperatorRequestDetailModal` → `useRequest` |
-| Statistika | `StatisticsSection.tsx` | **API-backed** via `statistics.ts` (daily, by-organization, export, admin Rahbariyat); does not call `useSpecialistStatistics` |
+| Piece               | Path                                                              | Reality                                                                                                                                                        |
+| ------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard KPI cards | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | Static numbers (e.g. 45 users, 145 appeals)                                                                                                                    |
+| Foydalanuvchilar    | Same + `AddUserModal` / `EditUserModal`                           | **API-backed** (`useUsers`, create/update/delete)                                                                                                              |
+| Murojaatlar         | `MurojaatlarSection.tsx`                                          | **API-backed**: `useRequests` (paginated, `search`, `status`, `organization`, `priority`, `startDate`, `endDate`); `OperatorRequestDetailModal` → `useRequest` |
+| Statistika          | `StatisticsSection.tsx`                                           | **API-backed** via `statistics.ts` (daily, by-organization, export, admin Rahbariyat); does not call `useSpecialistStatistics`                                 |
 
 ### Manager
 
-| Piece | Path | Reality |
-| --- | --- | --- |
-| User management | `src/pages/manager-users/` | **API-backed** (parallel to admin users UI) |
-| Review dashboard | `src/pages/manager-dashboard/ManagerReviewPage.tsx` | **API-backed** list (`useRequests` + organization filter) |
-| Statistics | `src/pages/manager-dashboard/ManagerStatisticsPage.tsx` | **API-backed** (`statistics.ts` hooks) |
-| Approve / reject | `src/components/ReviewModal.tsx` | **API-backed** (`useVerifyRequest` → `PUT /api/requests/:id/verify`) |
+| Piece            | Path                                                    | Reality                                                              |
+| ---------------- | ------------------------------------------------------- | -------------------------------------------------------------------- |
+| User management  | `src/pages/manager-users/`                              | **API-backed** (parallel to admin users UI)                          |
+| Review dashboard | `src/pages/manager-dashboard/ManagerReviewPage.tsx`     | **API-backed** list (`useRequests` + organization filter)            |
+| Statistics       | `src/pages/manager-dashboard/ManagerStatisticsPage.tsx` | **API-backed** (`statistics.ts` hooks)                               |
+| Approve / reject | `src/components/ReviewModal.tsx`                        | **API-backed** (`useVerifyRequest` → `PUT /api/requests/:id/verify`) |
 
 ### Settings (Sozlamalar)
 
-| Piece | Path | Reality |
-| --- | --- | --- |
-| Rahbariyat / Tashkilotlar | `SozlamalarPage.tsx` | Organizations **API-backed**; delete confirmed via **AlertDialog** |
-| Shablonlar / Umumiy | Same + routes still registered | Local/mock UI; **hidden from ecosystem sidebar** (`moduleKind: coming-soon` in menu) |
-| Obyekt turi, Chaqiruv turi, Ish vaqtlari | Menu + routes | Coming-soon / stub; hidden from sidebar |
+| Piece                                    | Path                           | Reality                                                                              |
+| ---------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| Rahbariyat / Tashkilotlar                | `SozlamalarPage.tsx`           | Organizations **API-backed**; delete confirmed via **AlertDialog**                   |
+| Shablonlar / Umumiy                      | Same + routes still registered | Local/mock UI; **hidden from ecosystem sidebar** (`moduleKind: coming-soon` in menu) |
+| Obyekt turi, Chaqiruv turi, Ish vaqtlari | Menu + routes                  | Coming-soon / stub; hidden from sidebar                                              |
 
 ---
 
@@ -90,27 +90,27 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 
 ### Dispatcher (`/dispatcher-dashboard/*`)
 
-| Piece | Path | Reality |
-| --- | --- | --- |
-| Yangi murojaatlar | `DispatcherNewAppeals.tsx` | **API-backed** `useRequests` (`status=new`, org filter); assign via `AssignModal` → `POST /api/assignments` |
-| Topshiriqlar | `DispatcherAssignments.tsx` | **API-backed** `useAssignments`; cancel via `AlertDialog` → `PUT /api/assignments/:id/cancel` |
-| Specialists picker | `AssignModal.tsx` | `useSpecialists` → `GET /api/users?role=specialist` |
-| Sidebar | `DispatcherSidebar.tsx` | Two routes only: appeals + assignments |
+| Piece              | Path                        | Reality                                                                                                     |
+| ------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Yangi murojaatlar  | `DispatcherNewAppeals.tsx`  | **API-backed** `useRequests` (`status=new`, org filter); assign via `AssignModal` → `POST /api/assignments` |
+| Topshiriqlar       | `DispatcherAssignments.tsx` | **API-backed** `useAssignments`; cancel via `AlertDialog` → `PUT /api/assignments/:id/cancel`               |
+| Specialists picker | `AssignModal.tsx`           | `useSpecialists` → `GET /api/users?role=specialist`                                                         |
+| Sidebar            | `DispatcherSidebar.tsx`     | Two routes only: appeals + assignments                                                                      |
 
 **Removed from dispatcher UI:** mock map, daily stat cards, inline specialist cards (`MapView`, old `DispatcherDashboard.tsx` monitoring layout).
 
 ### Specialist mobile (`/specialist-mobile`)
 
-| Data / action | Source | Notes |
-| --- | --- | --- |
-| Login gate | `MobileQRCode.tsx` on `/login` | PWA install + permissions; bypass via `shouldBypassSpecialistInstallWall()` in dev / env |
-| Task list | `SpecialistMobile.tsx` | `useMyCurrentAssignments`; accept/start mutations |
-| History tab | `src/components/specialist/HistoryTab.tsx` | `useMyAssignmentHistory` + infinite scroll |
-| Stats tab | `src/components/specialist/StatsTab.tsx` | **API-backed** via `useSpecialistDetailStatistics` and `useMonthlyStatistics` (badges/ratings when API returns them) |
-| Task completion | `src/components/specialist/TaskCompletionModal.tsx` | **API-backed**: `POST /api/uploads/images`, `PUT /api/requests/:id/complete` via `useSubmitRequestCompletion` |
-| Change password | `src/components/specialist/ChangePasswordModal.tsx` | **Sonner toast only** — not `useResetPassword` / profile API |
-| Personal info modal | `src/components/specialist/PersonalInfoModal.tsx` | **Unused** (not imported); defaults like `"Akmal Rahimov"`; specialists use `/profile` |
-| Profile tab | `src/components/specialist/ProfileTab.tsx` | Logout uses API; link to `/profile` for real profile edits |
+| Data / action       | Source                                              | Notes                                                                                                                |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Login gate          | `MobileQRCode.tsx` on `/login`                      | PWA install + permissions; bypass via `shouldBypassSpecialistInstallWall()` in dev / env                             |
+| Task list           | `SpecialistMobile.tsx`                              | `useMyCurrentAssignments`; accept/start mutations                                                                    |
+| History tab         | `src/components/specialist/HistoryTab.tsx`          | `useMyAssignmentHistory` + infinite scroll                                                                           |
+| Stats tab           | `src/components/specialist/StatsTab.tsx`            | **API-backed** via `useSpecialistDetailStatistics` and `useMonthlyStatistics` (badges/ratings when API returns them) |
+| Task completion     | `src/components/specialist/TaskCompletionModal.tsx` | **API-backed**: `POST /api/uploads/images`, `PUT /api/requests/:id/complete` via `useSubmitRequestCompletion`        |
+| Change password     | `src/components/specialist/ChangePasswordModal.tsx` | **Sonner toast only** — not `useResetPassword` / profile API                                                         |
+| Personal info modal | `src/components/specialist/PersonalInfoModal.tsx`   | **Unused** (not imported); defaults like `"Akmal Rahimov"`; specialists use `/profile`                               |
+| Profile tab         | `src/components/specialist/ProfileTab.tsx`          | Logout uses API; link to `/profile` for real profile edits                                                           |
 
 Header uses `useCurrentUser` (API); tasks do not.
 
@@ -122,24 +122,24 @@ Header uses `useCurrentUser` (API); tasks do not.
 
 ### Settings — non-organization sections
 
-| Section | Path | Reality |
-| --- | --- | --- |
-| Rahbariyat / Tashkilotlar | `SozlamalarPage.tsx` | Organizations **API-backed** |
-| Shablonlar | Same | Static `smsTemplates`; edit buttons **without handlers**; route exists, sidebar hidden |
-| Umumiy | Same | Switches/inputs local; **Saqlash** does not persist; route exists, sidebar hidden |
-| Obyekt turi, Chaqiruv turi, Ish vaqtlari | Menu → `coming-soon` | Not built; hidden from sidebar |
+| Section                                  | Path                 | Reality                                                                                |
+| ---------------------------------------- | -------------------- | -------------------------------------------------------------------------------------- |
+| Rahbariyat / Tashkilotlar                | `SozlamalarPage.tsx` | Organizations **API-backed**                                                           |
+| Shablonlar                               | Same                 | Static `smsTemplates`; edit buttons **without handlers**; route exists, sidebar hidden |
+| Umumiy                                   | Same                 | Switches/inputs local; **Saqlash** does not persist; route exists, sidebar hidden      |
+| Obyekt turi, Chaqiruv turi, Ish vaqtlari | Menu → `coming-soon` | Not built; hidden from sidebar                                                         |
 
 ---
 
 ## Static data libraries
 
-| Asset | Path | Consumers |
-| --- | --- | --- |
-| Org names + governance (legacy list) | `src/lib/organizations.ts` | Citizen `SubmitRequest` org combobox; statistics helpers — **not** operator/admin appeals lists (those use API orgs) |
-| Demo appeal rows | Dispatcher/manager/specialist pages, citizen `Statistics.tsx` | Role dashboards — **not** admin `MurojaatlarSection` or `StatisticsSection` |
-| Map markers | `MapView.tsx` | Dispatcher |
-| Landing copy / stats | `src/pages/landing/*`, `src/components/Statistics.tsx` | Public marketing — intentional static |
-| Module catalog cards | `ModullarPage.tsx` | Most modules `available: false` except Murojaat24 |
+| Asset                                | Path                                                          | Consumers                                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Org names + governance (legacy list) | `src/lib/organizations.ts`                                    | Citizen `SubmitRequest` org combobox; statistics helpers — **not** operator/admin appeals lists (those use API orgs) |
+| Demo appeal rows                     | Dispatcher/manager/specialist pages, citizen `Statistics.tsx` | Role dashboards — **not** admin `MurojaatlarSection` or `StatisticsSection`                                          |
+| Map markers                          | `MapView.tsx`                                                 | Dispatcher                                                                                                           |
+| Landing copy / stats                 | `src/pages/landing/*`, `src/components/Statistics.tsx`        | Public marketing — intentional static                                                                                |
+| Module catalog cards                 | `ModullarPage.tsx`                                            | Most modules `available: false` except Murojaat24                                                                    |
 
 Sample IDs and dates overwhelmingly use **`MUR-2024-*`** and **2024** on mock screens — visual/demo convention, not live data.
 
@@ -149,11 +149,11 @@ Sample IDs and dates overwhelmingly use **`MUR-2024-*`** and **2024** on mock sc
 
 ### Unregistered pages (code exists, router does not mount)
 
-| Component | Path | Behavior if wired |
-| --- | --- | --- |
+| Component       | Path                                  | Behavior if wired                                                                                                  |
+| --------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `SubmitRequest` | `src/pages/citizen/SubmitRequest.tsx` | `setTimeout` fake submit; random tracking id; geolocation sets **hardcoded** `"Toshkent shahar, Yunusobod tumani"` |
-| `TrackRequest` | `src/pages/citizen/TrackRequest.tsx` | Search delay then always shows **same** `mockRequestData` |
-| `Statistics` | `src/pages/citizen/Statistics.tsx` | Full static dashboard; Excel button inert |
+| `TrackRequest`  | `src/pages/citizen/TrackRequest.tsx`  | Search delay then always shows **same** `mockRequestData`                                                          |
+| `Statistics`    | `src/pages/citizen/Statistics.tsx`    | Full static dashboard; Excel button inert                                                                          |
 
 Production citizen CTA: external URL in `src/components/Header.tsx` / `Hero.tsx` → `https://murojaat.aqllishahar-termizsh.uz`.
 
@@ -169,67 +169,66 @@ See `src/pages/citizen/README.md`, `docs/architecture/routing.md`.
 **Typically visible in sidebar:** Modullar, Murojaat24 (+ murojaatlar, statistika, foydalanuvchilar), Sozlamalar (+ Rahbariyat, Tashkilotlar only).
 =======
 **Typically visible in sidebar:** Modules (`/ecosystem/modules`), Murojaat24 (`/appeals`, `/statistics`, `/users`), Settings (`/leadership`, `/organizations` only).
->>>>>>> develop
+
+> > > > > > > develop
 
 Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
 ### Other routing gaps
 
-| Item | Notes |
-| --- | --- |
+| Item           | Notes                                  |
+| -------------- | -------------------------------------- |
 | `/role-select` | Redirects to `/login` — no role picker |
+
 <<<<<<< HEAD
 | `/admin-dashboard` | Redirect to `/ecosystem/modullar` |
 =======
 | `/admin-dashboard` | Redirect to `/ecosystem/modules` |
->>>>>>> develop
-| Manager vs admin | `/ecosystem/*` is **admin-only**; managers use `/manager/*` routes, not ecosystem user admin |
+
+> > > > > > > develop
+> > > > > > > | Manager vs admin | `/ecosystem/*` is **admin-only**; managers use `/manager/*` routes, not ecosystem user admin |
 
 ---
 
 ## UI-only actions (no backend effect)
 
-| Location | Control | Effect |
-| --- | --- | --- |
-| `AssignModal` (dispatcher) | Tayinlash | `POST /api/assignments` |
-| `ReviewModal` | Tasdiqlash / Rad etish | Toast |
-| `citizen/Statistics` | Excel ga yuklash | None (unmounted page) |
-| `SozlamalarPage` | Shablon edit, Umumiy Saqlash | None / local state only |
-| `ChangePasswordModal` (specialist) | Saqlash | Success toast only |
-| `PersonalInfoModal` | Saqlash | Closes edit mode locally |
-| `TaskCompletionModal` | Yakunlash | `POST` images + `PUT` complete; refreshes assignment queries |
+| Location                           | Control                      | Effect                                                       |
+| ---------------------------------- | ---------------------------- | ------------------------------------------------------------ |
+| `AssignModal` (dispatcher)         | Tayinlash                    | `POST /api/assignments`                                      |
+| `ReviewModal`                      | Tasdiqlash / Rad etish       | Toast                                                        |
+| `citizen/Statistics`               | Excel ga yuklash             | None (unmounted page)                                        |
+| `SozlamalarPage`                   | Shablon edit, Umumiy Saqlash | None / local state only                                      |
+| `ChangePasswordModal` (specialist) | Saqlash                      | Success toast only                                           |
+| `PersonalInfoModal`                | Saqlash                      | Closes edit mode locally                                     |
+| `TaskCompletionModal`              | Yakunlash                    | `POST` images + `PUT` complete; refreshes assignment queries |
 
 **Previously UI-only, now wired:**
 
-| Location | Control | Effect |
-| --- | --- | --- |
+| Location                                     | Control  | Effect                                                 |
+| -------------------------------------------- | -------- | ------------------------------------------------------ |
 | `OperatorAppealsList` / `MurojaatlarSection` | Eye icon | `OperatorRequestDetailModal` → `GET /api/requests/:id` |
-| `SozlamalarPage` (Tashkilotlar) | Trash | `AlertDialog` confirm → `useDeleteOrganization` |
+| `SozlamalarPage` (Tashkilotlar)              | Trash    | `AlertDialog` confirm → `useDeleteOrganization`        |
 
 ---
 
 ## Auth and session edges
 
-| Topic | Detail |
-| --- | --- |
-<<<<<<< HEAD
-| Demo accounts on login | `Login.tsx` shows phone numbers and password `murojaat24` in UI |
-=======
->>>>>>> develop
-| Legacy storage | `clearLegacySessions` on logout; `saveLegacySession` exists but login path does not write legacy keys |
-| Role labeling | API `dispatcher` vs UI “Dispetcher” / “Dispatcher” |
-| Admin access | `admin` in `requiredRoles` for all role dashboards — admins can open mock operator/dispatcher/specialist/manager UIs |
-| Profile routes | `/profile` vs `/ecosystem/profile` — admins steered to ecosystem profile |
+| Topic          | Detail                                                                                                               |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Legacy storage | `clearLegacySessions` on logout; `saveLegacySession` exists but login path does not write legacy keys                |
+| Role labeling  | API `dispatcher` vs UI “Dispetcher” / “Dispatcher”                                                                   |
+| Admin access   | `admin` in `requiredRoles` for all role dashboards — admins can open mock operator/dispatcher/specialist/manager UIs |
+| Profile routes | `/profile` vs `/ecosystem/profile` — admins steered to ecosystem profile                                             |
 
 ---
 
 ## Data model mismatches (when API is connected)
 
-| Area | Issue |
-| --- | --- |
+| Area                     | Issue                                                                                                                                        |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | Operator list org column | `organization` may be a **string id** per OpenAPI; list cell uses `request.organization._id` — use `resolveOrganizationName` like admin list |
-| `StaffUser.organization` | May be object, string, or null — some tables assume object shape |
-| Relaxed TypeScript | Unused imports / loose null checks (e.g. specialist profile while loading) may hide integration bugs |
+| `StaffUser.organization` | May be object, string, or null — some tables assume object shape                                                                             |
+| Relaxed TypeScript       | Unused imports / loose null checks (e.g. specialist profile while loading) may hide integration bugs                                         |
 
 **Resolved for admin appeals list:** statuses use API enums via `RequestStatusBadge` (`new`, `assigned`, `in-progress`, `completed`, `verified`, `rejected`); filters exposed in `MurojaatlarSection`.
 
@@ -251,13 +250,13 @@ Grouped by workflow stage — names are illustrative; align with `docs/api/opena
 
 ## Related documentation
 
-| Doc | Contents |
-| --- | --- |
+| Doc                             | Contents                       |
+| ------------------------------- | ------------------------------ |
 | `docs/architecture/overview.md` | High-level API vs mock diagram |
-| `docs/architecture/gotchas.md` | Traps and quick mismatches |
-| `docs/architecture/routing.md` | Full route tables |
-| `docs/roles/*.md` | Per-role routes and mock notes |
-| `src/lib/api/README.md` | Auth, requests, uploads hooks |
-| Colocated `src/**/README.md` | Feature behavior per folder |
+| `docs/architecture/gotchas.md`  | Traps and quick mismatches     |
+| `docs/architecture/routing.md`  | Full route tables              |
+| `docs/roles/*.md`               | Per-role routes and mock notes |
+| `src/lib/api/README.md`         | Auth, requests, uploads hooks  |
+| Colocated `src/**/README.md`    | Feature behavior per folder    |
 
 When closing a gap, update the **feature README** in the same change; update this file only when the overall mock/API boundary shifts.
