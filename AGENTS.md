@@ -8,13 +8,13 @@ A Vite + React SPA for **Termiz aqlli shahar** employee workflows around citizen
 
 ## Roles
 
-| Role | Purpose |
-| --- | --- |
-| `admin` | Ecosystem shell at `/ecosystem/*`, Murojaat24 admin sections, settings; may also open every role dashboard. |
-| `operator` | Phone intake form and mock “today’s appeals” list. |
-| `dispatcher` | API-backed new appeals + assignments (`assignments.ts`); two-route sidebar (appeals, assignments). |
+| Role         | Purpose                                                                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `admin`      | Ecosystem shell at `/ecosystem/*`, Murojaat24 admin sections, settings; may also open every role dashboard.                              |
+| `operator`   | Phone intake form and mock “today’s appeals” list.                                                                                       |
+| `dispatcher` | API-backed new appeals + assignments (`assignments.ts`); two-route sidebar (appeals, assignments).                                       |
 | `specialist` | Mobile task UI on `/specialist-mobile` (mock tasks); login PWA install gate (`MobileQRCode`, bypass in dev); history/stats/profile tabs. |
-| `manager` | Mock completed-work review table and approve/reject modal (toast only). |
+| `manager`    | Mock completed-work review table and approve/reject modal (toast only).                                                                  |
 
 Canonical role strings live in `src/lib/api/auth.ts` (`UserRole`). UI labels may say “Dispetcher” while the code value is `dispatcher`.
 
@@ -31,16 +31,16 @@ Canonical role strings live in `src/lib/api/auth.ts` (`UserRole`). UI labels may
 
 ### `src/`
 
-| Path | Owns |
-| --- | --- |
-| `src/App.tsx` | `QueryClientProvider`, router, `/ecosystem` nest, maps `murojaat24Routes`. |
-| `src/pages/<feature>/` | Route-level screens + colocated `README.md` (landing, login, dashboards, profile, citizen, errors). |
-| `src/components/` | Shared workflow UI, sidebars, modals, landing sections; `ui/` = shadcn primitives; `specialist/` = mobile tabs. |
-| `src/lib/api/` | `client.ts` + domain hooks (`auth`, `users`, `organizations`). |
-| `src/lib/organizations.ts` | Static org list for mock flows (not the API). |
-| `src/modules/ecosystem/` | Admin menu, layout, module pages, settings. |
-| `src/modules/murojaat24/` | Route config only — see `src/modules/murojaat24/README.md`; screens under `src/pages/<feature>/`. |
-| `src/hooks/` | Toast helper, mobile breakpoint. |
+| Path                       | Owns                                                                                                            |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `src/App.tsx`              | `QueryClientProvider`, router, `/ecosystem` nest, maps `murojaat24Routes`.                                      |
+| `src/pages/<feature>/`     | Route-level screens + colocated `README.md` (landing, login, dashboards, profile, citizen, errors).             |
+| `src/components/`          | Shared workflow UI, sidebars, modals, landing sections; `ui/` = shadcn primitives; `specialist/` = mobile tabs. |
+| `src/lib/api/`             | `client.ts` + domain hooks (`auth`, `users`, `organizations`).                                                  |
+| `src/lib/organizations.ts` | Static org list for mock flows (not the API).                                                                   |
+| `src/modules/ecosystem/`   | Admin menu, layout, module pages, settings.                                                                     |
+| `src/modules/murojaat24/`  | Route config only — see `src/modules/murojaat24/README.md`; screens under `src/pages/<feature>/`.               |
+| `src/hooks/`               | Toast helper, mobile breakpoint.                                                                                |
 
 Feature-level behavior is documented in colocated `README.md` files under these trees (see [Feature docs](#feature-docs)).
 
@@ -56,7 +56,7 @@ Unmounted pages: `src/pages/citizen/{SubmitRequest,TrackRequest,Statistics}.tsx`
 
 ## How auth and role gating work
 
-Session is **cookie-based** from the browser’s perspective: `apiRequest` in `src/lib/api/client.ts` always sends `credentials: "include"`. After login, `useCurrentUser` loads `GET /api/auth/me` into React Query key `["auth", "me"]`. `getRoleRedirectPath` in `src/lib/api/auth.ts` sends each role to its home route; admins go to `/ecosystem/modullar`.
+Session is **cookie-based** from the browser’s perspective: `apiRequest` in `src/lib/api/client.ts` always sends `credentials: "include"`. After login, `useCurrentUser` loads `GET /api/auth/me` into React Query key `["auth", "me"]`. `getRoleRedirectPath` in `src/lib/api/auth.ts` sends each role to its home route; admins go to `/ecosystem/modules`.
 
 `ProtectedRoute` (`src/components/ProtectedRoute.tsx`) wraps protected elements: loading skeleton, redirect to `/login` on 401/403, generic error for other failures, `Forbidden` when `requiredRoles` excludes the user’s role. Login page: `src/pages/login/Login.tsx`.
 
@@ -136,16 +136,16 @@ Full conventions: `docs/architecture/conventions.md`. Footguns: `docs/architectu
 
 ### Feature docs
 
-| Topic | README |
-| --- | --- |
-| Auth API, login, guards | `src/lib/api/README.md` |
-| Staff profile page | `src/pages/profile/README.md` |
-| Public landing | `src/pages/landing/README.md` |
-| Admin ecosystem shell | `src/modules/ecosystem/README.md` |
-| Operator intake | `src/pages/operator-dashboard/README.md` |
-| Murojaat24 admin (appeals, stats, users) | `src/modules/ecosystem/pages/murojaat24/README.md` |
-| Dispatcher dashboard | `src/pages/dispatcher-dashboard/README.md` |
-| Specialist mobile | `src/pages/specialist-mobile/README.md`, `src/components/specialist/README.md` |
-| Manager review | `src/pages/manager-dashboard/README.md` |
-| Settings (orgs, templates, general) | `src/modules/ecosystem/pages/sozlamalar/README.md` |
-| Unrouted citizen pages | `src/pages/citizen/README.md` |
+| Topic                                    | README                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| Auth API, login, guards                  | `src/lib/api/README.md`                                                        |
+| Staff profile page                       | `src/pages/profile/README.md`                                                  |
+| Public landing                           | `src/pages/landing/README.md`                                                  |
+| Admin ecosystem shell                    | `src/modules/ecosystem/README.md`                                              |
+| Operator intake                          | `src/pages/operator-dashboard/README.md`                                       |
+| Murojaat24 admin (appeals, stats, users) | `src/modules/ecosystem/pages/murojaat24/README.md`                             |
+| Dispatcher dashboard                     | `src/pages/dispatcher-dashboard/README.md`                                     |
+| Specialist mobile                        | `src/pages/specialist-mobile/README.md`, `src/components/specialist/README.md` |
+| Manager review                           | `src/pages/manager-dashboard/README.md`                                        |
+| Settings (orgs, templates, general)      | `src/modules/ecosystem/pages/sozlamalar/README.md`                             |
+| Unrouted citizen pages                   | `src/pages/citizen/README.md`                                                  |

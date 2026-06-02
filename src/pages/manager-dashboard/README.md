@@ -4,21 +4,21 @@ API-backed review queue and statistics for the manager role. Staff user manageme
 
 ## User-facing behavior
 
-- **Nazorat qilish** (`/manager/nazorat`): appeals list scoped to the signed-in manager’s organization (`GET /api/requests/` with `organization`), default status filter `completed`, search and status tabs, KPI cards from `GET /api/statistics/dashboard`. Row opens `ReviewModal` for verify/reject.
-- **Statistika** (`/manager/statistika`): dashboard KPIs, daily line chart, organization pie (scoped to manager org when id is known), specialist bar chart and table, Excel export for the manager organization.
-- **Foydalanuvchilar** (`/manager/foydalanuvchilar`): see `src/pages/manager-users/README.md`.
+- **Nazorat qilish** (`/manager/review`): appeals list scoped to the signed-in manager’s organization (`GET /api/requests/` with `organization`), default status filter `completed`, search and status tabs, KPI cards from `GET /api/statistics/dashboard`. Row opens `ReviewModal` for verify/reject.
+- **Statistika** (`/manager/statistics`): dashboard KPIs, daily line chart, organization pie (scoped to manager org when id is known), specialist bar chart and table, Excel export for the manager organization.
+- **Foydalanuvchilar** (`/manager/users`): see `src/pages/manager-users/README.md`.
 
-`/manager-dashboard` redirects to `/manager/nazorat` for old links.
+`/manager-dashboard` redirects to `/manager/review` for old links.
 
 ## Entry points
 
-| Route | File |
-| --- | --- |
-| `/manager/nazorat` | `ManagerReviewPage.tsx` |
-| `/manager/statistika` | `ManagerStatisticsPage.tsx` |
-| `/manager/*` shell | `ManagerLayout.tsx`, `ManagerDashboardRoutes.tsx` |
-| Sidebar | `src/components/ManagerSidebar.tsx` |
-| Review modal | `src/components/ReviewModal.tsx` |
+| Route                 | File                                              |
+| --------------------- | ------------------------------------------------- |
+| `/manager/review`     | `ManagerReviewPage.tsx`                           |
+| `/manager/statistics` | `ManagerStatisticsPage.tsx`                       |
+| `/manager/*` shell    | `ManagerLayout.tsx`, `ManagerDashboardRoutes.tsx` |
+| Sidebar               | `src/components/ManagerSidebar.tsx`               |
+| Review modal          | `src/components/ReviewModal.tsx`                  |
 
 ## Data flow
 

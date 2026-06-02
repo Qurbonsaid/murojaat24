@@ -5,8 +5,8 @@ Top-level role for the Termiz aqlli shahar **ecosystem shell** and Murojaat24 ad
 ## Identifier
 
 - Code value: `admin` (`UserRole` in `src/lib/api/auth.ts`)
-- Post-login home: `/ecosystem/modullar` via `getRoleRedirectPath`
-- Legacy redirect: `/admin-dashboard` → `/ecosystem/modullar`
+- Post-login home: `/ecosystem/modules` via `getRoleRedirectPath`
+- Legacy redirect: `/admin-dashboard` → `/ecosystem/modules`
 
 ## Routes
 
@@ -20,13 +20,13 @@ Gate: `ProtectedRoute` with `requiredRoles={["admin"]}` on `/ecosystem` in `src/
 
 ## Actions
 
-| Area | What admin can do | API |
-| --- | --- | --- |
-| Session | Login, logout, update own profile | `auth` hooks |
-| Ecosystem | Navigate modules, open coming-soon placeholders | — |
-| Murojaat24 admin | View dashboard KPIs (mock); appeals list + statistics page via API; manage staff users | `users`; `requests` (appeals); `statistics` (daily + org charts, export, Rahbariyat) |
-| Settings | Org/governance CRUD; view local template/general UI | `organizations` for orgs; templates not persisted |
-| Role dashboards | Same local actions as operator/dispatcher/specialist/manager when visiting those routes | Mostly mock |
+| Area             | What admin can do                                                                       | API                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Session          | Login, logout, update own profile                                                       | `auth` hooks                                                                         |
+| Ecosystem        | Navigate modules, open coming-soon placeholders                                         | —                                                                                    |
+| Murojaat24 admin | View dashboard KPIs (mock); appeals list + statistics page via API; manage staff users  | `users`; `requests` (appeals); `statistics` (daily + org charts, export, Rahbariyat) |
+| Settings         | Org/governance CRUD; view local template/general UI                                     | `organizations` for orgs; templates not persisted                                    |
+| Role dashboards  | Same local actions as operator/dispatcher/specialist/manager when visiting those routes | Mostly mock                                                                          |
 
 ## Data read / write
 

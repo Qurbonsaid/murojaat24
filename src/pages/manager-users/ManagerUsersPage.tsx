@@ -25,6 +25,7 @@ import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/api/auth";
+import { resolveOrganizationId } from "@/lib/api/requests";
 import type { StaffUser } from "@/lib/api/users";
 import { useDeleteUser, useUsers } from "@/lib/api/users";
 
@@ -33,7 +34,7 @@ import ManagerEditUserModal from "./ManagerEditUserModal";
 
 type ManagerUserFilter = "all" | "dispatcher" | "specialist";
 
-const MANAGER_MANAGEABLE_ROLES: UserRole[] = ["dispatcher", "specialist"];
+const MANAGER_LIST_ROLES: UserRole[] = ["dispatcher", "specialist"];
 
 const roleLabels: Record<UserRole, string> = {
   admin: "Administrator",
@@ -51,12 +52,12 @@ const getInitials = (firstName?: string, lastName?: string) => {
   return letters || "??";
 };
 
-const isManageableUser = (user: StaffUser) =>
-  MANAGER_MANAGEABLE_ROLES.includes(user.role);
-
 const ManagerUsersPage = () => {
   const { toast, dismiss } = useToast();
   const currentUserQuery = useCurrentUser();
+  const currentUser = currentUserQuery.data;
+  const isManager = currentUser?.role === "manager";
+  const organizationId = resolveOrganizationId(currentUser?.organization);
 
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [editUserModalOpen, setEditUserModalOpen] = useState(false);
@@ -65,17 +66,28 @@ const ManagerUsersPage = () => {
   const [searchValue, setSearchValue] = useState("");
   const deferredSearch = useDeferredValue(searchValue.trim());
 
-  const usersQuery = useUsers({
-    limit: 100,
-    role: userFilter === "all" ? undefined : userFilter,
-    search: deferredSearch.length ? deferredSearch : undefined,
+  const listParams = useMemo(
+    () => ({
+      limit: 100,
+      ...(userFilter !== "all" ? { role: userFilter } : {}),
+      ...(deferredSearch ? { search: deferredSearch } : {}),
+      ...(organizationId ? { organizations: [organizationId] } : {}),
+    }),
+    [userFilter, deferredSearch, organizationId]
+  );
+
+  const usersQuery = useUsers(listParams, {
+    enabled:
+      !currentUserQuery.isLoading && (!isManager || Boolean(organizationId)),
   });
   const deleteUser = useDeleteUser();
 
   const users = useMemo(() => {
-    const raw = usersQuery.data?.data ?? [];
-    return raw.filter(isManageableUser);
-  }, [usersQuery.data?.data]);
+    const rows = usersQuery.data?.data ?? [];
+    if (!currentUser?._id) return rows;
+    return rows.filter((user) => user._id !== currentUser._id);
+  }, [usersQuery.data?.data, currentUser?._id]);
+  const missingOrganization = isManager && !organizationId;
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -97,8 +109,11 @@ const ManagerUsersPage = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Foydalanuvchilar ro'yxati</CardTitle>
-              <Button onClick={() => setAddUserModalOpen(true)}>
+              <CardTitle>Foydalanuvchilar ro&apos;yxati</CardTitle>
+              <Button
+                onClick={() => setAddUserModalOpen(true)}
+                disabled={missingOrganization}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Yangi foydalanuvchi
               </Button>
@@ -113,9 +128,17 @@ const ManagerUsersPage = () => {
                   className="pl-10"
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
+                  disabled={missingOrganization}
                 />
               </div>
             </div>
+
+            {missingOrganization ? (
+              <p className="mb-6 text-sm text-destructive">
+                Profilda tashkilot tanlanmagan. Foydalanuvchilar ro&apos;yxatini
+                ko&apos;rish uchun administrator bilan bog&apos;laning.
+              </p>
+            ) : null}
 
             <Tabs
               value={userFilter}
@@ -158,7 +181,11 @@ const ManagerUsersPage = () => {
                       colSpan={6}
                       className="py-10 text-center text-destructive"
                     >
-                      {(usersQuery.error as Error).message}
+                      {usersQuery.error instanceof ApiError
+                        ? usersQuery.error.message
+                        : usersQuery.error instanceof Error
+                        ? usersQuery.error.message
+                        : "Foydalanuvchilarni yuklashda xatolik"}
                     </TableCell>
                   </TableRow>
                 ) : users.length === 0 ? (
@@ -177,10 +204,8 @@ const ManagerUsersPage = () => {
                         .filter(Boolean)
                         .join(" ") || user.phone;
                     const isSelf =
-                      currentUserQuery.data?._id &&
-                      currentUserQuery.data._id === user._id;
+                      currentUser?._id && currentUser._id === user._id;
                     const status = user.status || "active";
-                    const canManage = isManageableUser(user);
 
                     return (
                       <TableRow key={user._id}>
@@ -196,7 +221,7 @@ const ManagerUsersPage = () => {
                               <AvatarFallback>
                                 {getInitials(
                                   user.profile?.firstName,
-                                  user.profile?.lastName,
+                                  user.profile?.lastName
                                 )}
                               </AvatarFallback>
                             </Avatar>
@@ -208,14 +233,16 @@ const ManagerUsersPage = () => {
                         <TableCell>
                           <Badge
                             className={cn(
-                              status === "active" ? "bg-green-500" : "bg-gray-500",
+                              status === "active"
+                                ? "bg-green-500"
+                                : "bg-gray-500"
                             )}
                           >
                             {status === "active"
                               ? "Faol"
                               : status === "busy"
-                                ? "Band"
-                                : "Faol emas"}
+                              ? "Band"
+                              : "Faol emas"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
@@ -231,7 +258,6 @@ const ManagerUsersPage = () => {
                               variant="ghost"
                               size="icon"
                               title="Tahrirlash"
-                              disabled={!canManage}
                               onClick={() => {
                                 setSelectedUser(user);
                                 setEditUserModalOpen(true);
@@ -242,16 +268,14 @@ const ManagerUsersPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              disabled={
-                                !canManage || deleteUser.isPending || isSelf
-                              }
+                              disabled={deleteUser.isPending || isSelf}
                               title={
                                 isSelf
                                   ? "O'zingizni o'chira olmaysiz"
                                   : "O'chirish"
                               }
                               onClick={async () => {
-                                if (isSelf || !canManage) return;
+                                if (isSelf) return;
 
                                 let confirmToastId = "";
                                 confirmToastId = toast({
@@ -266,7 +290,7 @@ const ManagerUsersPage = () => {
 
                                         try {
                                           await deleteUser.mutateAsync(
-                                            user._id,
+                                            user._id
                                           );
                                           toast({
                                             title: "O'chirildi",
@@ -309,6 +333,7 @@ const ManagerUsersPage = () => {
       <ManagerAddUserModal
         open={addUserModalOpen}
         onOpenChange={setAddUserModalOpen}
+        defaultOrganizationId={organizationId}
       />
 
       <ManagerEditUserModal

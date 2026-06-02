@@ -4,12 +4,12 @@ Admin views inside the ecosystem for Murojaat24: dashboard summary, appeals list
 
 ## Entry points
 
-| Route suffix | Section component |
-| --- | --- |
+| Route suffix            | Section component                                     |
+| ----------------------- | ----------------------------------------------------- |
 | `/ecosystem/murojaat24` | Dashboard in `Murojaat24ModulePage.tsx` (this folder) |
-| `.../murojaatlar` | `MurojaatlarSection.tsx` |
-| `.../statistika` | `StatisticsSection.tsx` |
-| `.../foydalanuvchilar` | User table + modals in `Murojaat24ModulePage.tsx` |
+| `.../appeals`           | `MurojaatlarSection.tsx`                              |
+| `.../statistics`        | `StatisticsSection.tsx`                               |
+| `.../users`             | User table + modals in `Murojaat24ModulePage.tsx`     |
 
 Modals: `src/components/AddUserModal.tsx`, `EditUserModal.tsx`. API: `src/lib/api/users.ts`, `organizations.ts` (for org pickers).
 
@@ -33,18 +33,18 @@ Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → 
 
 Admin analytics in `StatisticsSection.tsx` backed by `src/lib/api/statistics.ts`:
 
-| UI block | Hook | Endpoint |
-| --- | --- | --- |
-| Filter bar + Excel yuklash | `useExportStatistics` | `GET /api/statistics/export` |
+| UI block                                    | Hook                                                                    | Endpoint                              |
+| ------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
+| Filter bar + Excel yuklash                  | `useExportStatistics`                                                   | `GET /api/statistics/export`          |
 | Rahbariyat bo'yicha statistika (admin only) | `useOrganizationStatistics` + `groupOrganizationStatisticsByGovernance` | `GET /api/statistics/by-organization` |
-| Tashkilotlar bo'yicha taqsimot (pie) | `useOrganizationStatistics` | `GET /api/statistics/by-organization` |
-| Kunlik dinamika (line) | `useDailyStatistics(days)` | `GET /api/statistics/daily?days=` |
+| Tashkilotlar bo'yicha taqsimot (pie)        | `useOrganizationStatistics`                                             | `GET /api/statistics/by-organization` |
+| Kunlik dinamika (line)                      | `useDailyStatistics(days)`                                              | `GET /api/statistics/daily?days=`     |
 
 **Not used on this page:** `GET /api/statistics/specialists` / `useSpecialistStatistics` (no Mutaxassislar table).
 
 Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export query param only). Rahbariyat card renders when `currentUser.role === "admin"` and governance data is non-empty.
 
-**Roles:** admin ecosystem (`/ecosystem/murojaat24/statistika`).
+**Roles:** admin ecosystem (`/ecosystem/murojaat24/statistics`).
 
 **Edge cases:** response normalizers tolerate varying envelope shapes; export opens `GET /api/statistics/export` in a new tab so the backend serves the `.xlsx` directly (session cookie on the API origin).
 

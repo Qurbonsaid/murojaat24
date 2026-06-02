@@ -4,18 +4,18 @@ Admin-only `/ecosystem` layout: sidebar menu, module catalog, nested routes for 
 
 ## User-facing behavior
 
-After login as `admin`, user lands on module grid (`modullar`), navigates sidebar to Murojaat24 or Sozlamalar sections, or opens placeholder modules. Header shows date/time; mobile uses sheet menu.
+After login as `admin`, user lands on module grid (`/ecosystem/modules`), navigates sidebar to Murojaat24 or Settings sections, or opens placeholder modules. Header shows date/time; mobile uses sheet menu.
 
 ## Entry points
 
-| Concern | Path |
-| --- | --- |
-| Router nest | `src/App.tsx` (`/ecosystem`) |
-| Menu + flat routes | `src/modules/ecosystem/config/menu.ts` |
-| Layout | `src/modules/ecosystem/layouts/EcosystemLayout.tsx` |
-| Module grid | `src/modules/ecosystem/pages/modullar/ModullarPage.tsx` |
-| Placeholder | `src/modules/ecosystem/pages/coming-soon/ComingSoonPage.tsx` |
-| Admin profile | `/ecosystem/profile` in `App.tsx` |
+| Concern            | Path                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| Router nest        | `src/App.tsx` (`/ecosystem`)                                 |
+| Menu + flat routes | `src/modules/ecosystem/config/menu.ts`                       |
+| Layout             | `src/modules/ecosystem/layouts/EcosystemLayout.tsx`          |
+| Module grid        | `src/modules/ecosystem/pages/modullar/ModullarPage.tsx`      |
+| Placeholder        | `src/modules/ecosystem/pages/coming-soon/ComingSoonPage.tsx` |
+| Admin profile      | `/ecosystem/profile` in `App.tsx`                            |
 
 Child feature READMEs:
 

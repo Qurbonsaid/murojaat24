@@ -14,18 +14,18 @@ Staff sign in with phone + password on `/login`. Successful login redirects by r
 
 ## Entry points
 
-| Concern | Path |
-| --- | --- |
-| Hooks & roles | `auth.ts` |
-| Appeals (list + operator create) | `requests.ts` |
-| Assignments (dispatcher) | `assignments.ts` |
-| Admin statistics | `statistics.ts` |
-| File uploads | `uploads.ts` |
-| HTTP transport | `client.ts` |
-| Login page | `src/pages/login/Login.tsx` |
-| Route guard | `src/components/ProtectedRoute.tsx` |
-| Profile update | `src/pages/profile/Profile.tsx` (see `src/pages/profile/README.md`) |
-| Route list | `src/modules/murojaat24/config/routes.tsx` |
+| Concern                          | Path                                                                |
+| -------------------------------- | ------------------------------------------------------------------- |
+| Hooks & roles                    | `auth.ts`                                                           |
+| Appeals (list + operator create) | `requests.ts`                                                       |
+| Assignments (dispatcher)         | `assignments.ts`                                                    |
+| Admin statistics                 | `statistics.ts`                                                     |
+| File uploads                     | `uploads.ts`                                                        |
+| HTTP transport                   | `client.ts`                                                         |
+| Login page                       | `src/pages/login/Login.tsx`                                         |
+| Route guard                      | `src/components/ProtectedRoute.tsx`                                 |
+| Profile update                   | `src/pages/profile/Profile.tsx` (see `src/pages/profile/README.md`) |
+| Route list                       | `src/modules/murojaat24/config/routes.tsx`                          |
 
 ## Data flow
 
@@ -71,28 +71,28 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 Specialist completion (see `docs/api/openapi.json`):
 
-| Hook / helper | Endpoint | Notes |
-| --- | --- | --- |
-| `uploadCompletionImages` | `POST /api/uploads/images` | `FormData` field `files` per file; response `data.urls` |
-| `useUploadCompletionImages` | same | Mutation wrapper (`src/lib/api/uploads.ts`) |
-| `completeRequest` | `PUT /api/requests/:id/complete` | Body `{ images, report, signature }` — `signature` is base64 data URL from canvas |
-| `useCompleteRequest` | same | Invalidates `["requests"]`, detail, `["assignments"]`, `["statistics"]` |
-| `submitRequestCompletion` / `useSubmitRequestCompletion` | `POST /api/uploads/images` then `PUT` complete | Used by `TaskCompletionModal` |
+| Hook / helper                                            | Endpoint                                       | Notes                                                                             |
+| -------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------- |
+| `uploadCompletionImages`                                 | `POST /api/uploads/images`                     | `FormData` field `files` per file; response `data.urls`                           |
+| `useUploadCompletionImages`                              | same                                           | Mutation wrapper (`src/lib/api/uploads.ts`)                                       |
+| `completeRequest`                                        | `PUT /api/requests/:id/complete`               | Body `{ images, report, signature }` — `signature` is base64 data URL from canvas |
+| `useCompleteRequest`                                     | same                                           | Invalidates `["requests"]`, detail, `["assignments"]`, `["statistics"]`           |
+| `submitRequestCompletion` / `useSubmitRequestCompletion` | `POST /api/uploads/images` then `PUT` complete | Used by `TaskCompletionModal`                                                     |
 
 Consumer: `src/components/specialist/TaskCompletionModal.tsx`.
 
 ## Assignments (`assignments.ts`)
 
-| Hook | Endpoint | Notes |
-| --- | --- | --- |
-| `useAssignments(params)` | `GET /api/assignments/` | Query: `page`, `limit`, `status`, `specialistId` |
-| `useAssignment(id)` | `GET /api/assignments/:id` | Detail when `id` set |
-| `useCreateAssignment` | `POST /api/assignments` | Body: `requestId`, `specialistId`, optional `notes`, `estimatedTime` |
-| `useCancelAssignment` | `PUT /api/assignments/:id/cancel` | Optional body `{ reason }` |
-| `useMyCurrentAssignments` | `GET /api/assignments/my/current` | Specialist active tasks |
-| `useMyAssignmentHistory` | `GET /api/assignments/my/history` | `useInfiniteQuery`; `page`, `limit` query |
-| `useAcceptAssignment` | `PUT /api/assignments/:id/accept` | Invalidates `["assignments"]`, `["requests"]` |
-| `useStartAssignment` | `PUT /api/assignments/:id/start` | Same invalidation as accept |
+| Hook                      | Endpoint                          | Notes                                                                |
+| ------------------------- | --------------------------------- | -------------------------------------------------------------------- |
+| `useAssignments(params)`  | `GET /api/assignments/`           | Query: `page`, `limit`, `status`, `specialistId`                     |
+| `useAssignment(id)`       | `GET /api/assignments/:id`        | Detail when `id` set                                                 |
+| `useCreateAssignment`     | `POST /api/assignments`           | Body: `requestId`, `specialistId`, optional `notes`, `estimatedTime` |
+| `useCancelAssignment`     | `PUT /api/assignments/:id/cancel` | Optional body `{ reason }`                                           |
+| `useMyCurrentAssignments` | `GET /api/assignments/my/current` | Specialist active tasks                                              |
+| `useMyAssignmentHistory`  | `GET /api/assignments/my/history` | `useInfiniteQuery`; `page`, `limit` query                            |
+| `useAcceptAssignment`     | `PUT /api/assignments/:id/accept` | Invalidates `["assignments"]`, `["requests"]`                        |
+| `useStartAssignment`      | `PUT /api/assignments/:id/start`  | Same invalidation as accept                                          |
 
 Helpers: `resolveAssignmentRequestNumber`, `resolveAssignmentSpecialistName`, `canCancelAssignment`, `ASSIGNMENT_STATUS_OPTIONS`, `mapAssignmentToSpecialistTask`, `mapAssignmentToSpecialistHistoryItem`, `formatAssignmentRelativeTime`. Consumers: `src/pages/dispatcher-dashboard/`, `src/pages/specialist-mobile/`, `src/components/specialist/HistoryTab.tsx`.
 
@@ -102,20 +102,20 @@ Task list, accept, start, completion, and **stats** tab are API-backed (`assignm
 
 ## Specialists (`users.ts`)
 
-`useSpecialists(params)` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Used by `AssignModal` and dispatcher assignments table.
+`useUsers(params)` → `GET /api/users` with query `page`, `limit`, `role` (single value or comma-separated via `role: UserRole[]`), `search`, `organizations` (comma-separated ids), `isActive`, `status`, `quarter`, `sector`. `useSpecialists` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Consumers: admin users UI, `ManagerUsersPage`, `AssignModal`.
 
 ## Statistics (`statistics.ts`)
 
-| Hook | Endpoint | Notes |
-| --- | --- | --- |
-| `useDailyStatistics(days)` | `GET /api/statistics/daily` | Normalizes to `{ date, received, completed }[]` for charts |
-| `useOrganizationStatistics` | `GET /api/statistics/by-organization` | Organization pie + admin Rahbariyat block |
-| `useSpecialistStatistics` | `GET /api/statistics/specialists` | Rankings list; manager statistics page |
-| `useSpecialistDetailStatistics` | `GET /api/statistics/specialist/{id}?days=` | Specialist mobile `StatsTab` (`days` 1 / 7 / 30 by period) |
-| `useMonthlyStatistics` | `GET /api/statistics/monthly?year=` | Specialist `StatsTab` chart when period is **Oy** |
-| `useExportStatistics` | `GET /api/statistics/export` | Opens export URL in a new tab (backend `.xlsx`); query `startDate`, `endDate`, `organization` |
-| `useDashboardStatistics` | `GET /api/statistics/dashboard` | KPI counts for requests (manager review + statistics pages) |
-| `usePublicStatistics` | `GET /api/statistics/public` | Landing hero overview counts; no auth required |
+| Hook                            | Endpoint                                    | Notes                                                                                         |
+| ------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `useDailyStatistics(days)`      | `GET /api/statistics/daily`                 | Normalizes to `{ date, received, completed }[]` for charts                                    |
+| `useOrganizationStatistics`     | `GET /api/statistics/by-organization`       | Organization pie + admin Rahbariyat block                                                     |
+| `useSpecialistStatistics`       | `GET /api/statistics/specialists`           | Rankings list; manager statistics page                                                        |
+| `useSpecialistDetailStatistics` | `GET /api/statistics/specialist/{id}?days=` | Specialist mobile `StatsTab` (`days` 1 / 7 / 30 by period)                                    |
+| `useMonthlyStatistics`          | `GET /api/statistics/monthly?year=`         | Specialist `StatsTab` chart when period is **Oy**                                             |
+| `useExportStatistics`           | `GET /api/statistics/export`                | Opens export URL in a new tab (backend `.xlsx`); query `startDate`, `endDate`, `organization` |
+| `useDashboardStatistics`        | `GET /api/statistics/dashboard`             | KPI counts for requests (manager review + statistics pages)                                   |
+| `usePublicStatistics`           | `GET /api/statistics/public`                | Landing hero overview counts; no auth required                                                |
 
 Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normalizeSpecialistStatistics`, `mapStatisticsToChartSeries`, `groupOrganizationStatisticsByGovernance`, `downloadStatisticsExport`. Consumers: `StatisticsSection.tsx` (admin), `ManagerStatisticsPage.tsx`, `ManagerReviewPage.tsx`.
 

@@ -40,11 +40,11 @@ export type UpdateProfileInput = {
 };
 
 const roleRedirects: Record<UserRole, string> = {
-  admin: "/ecosystem/modullar",
+  admin: "/ecosystem/modules",
   operator: "/operator-dashboard/new",
   dispatcher: "/dispatcher-dashboard/appeals",
   specialist: "/specialist-mobile",
-  manager: "/manager/nazorat",
+  manager: "/manager/review",
 };
 
 const legacySessionKeys: Record<UserRole, string> = {
@@ -89,7 +89,7 @@ export const saveLegacySession = (user: CurrentUser) => {
     JSON.stringify({
       name: name || user.phone,
       role: roleLabels[user.role],
-    }),
+    })
   );
 };
 
@@ -182,7 +182,7 @@ export const useRequestOtp = () => {
         {
           method: "POST",
           body: JSON.stringify({ phone }),
-        },
+        }
       );
 
       return response.data;
@@ -198,7 +198,7 @@ export const useVerifyOtp = () => {
         {
           method: "POST",
           body: JSON.stringify(payload),
-        },
+        }
       );
 
       return response.data;

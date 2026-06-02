@@ -16,28 +16,28 @@ flowchart TD
 
 ## Public routes
 
-| Path | Component | Gate |
-| --- | --- | --- |
-| `/` | `Index` | Public |
-| `/login` | `Login` | Public |
+| Path           | Component           | Gate   |
+| -------------- | ------------------- | ------ |
+| `/`            | `Index`             | Public |
+| `/login`       | `Login`             | Public |
 | `/role-select` | redirect → `/login` | Public |
-| `*` | `NotFound` | Public |
+| `*`            | `NotFound`          | Public |
 
 ## Murojaat24 role routes
 
 Declared in `src/modules/murojaat24/config/routes.tsx`, wrapped with `ProtectedRoute` in `App.tsx` unless `public: true`.
 
-| Path | Component | Allowed roles |
-| --- | --- | --- |
-| `/operator-dashboard/*` | `OperatorDashboardRoutes` → `new`, `list` | `operator`, `admin` |
-| `/dispatcher-dashboard/*` | `DispatcherDashboardRoutes` | `dispatcher`, `admin` |
-| `/specialist-mobile` | `SpecialistMobile` | `specialist`, `admin` |
-| `/manager/nazorat` | `ManagerReviewPage` | `manager`, `admin` |
-| `/manager/statistika` | `ManagerStatisticsPage` | `manager`, `admin` |
-| `/manager-dashboard` | Redirect → `/manager/nazorat` | `manager`, `admin` |
-| `/manager/foydalanuvchilar` | `ManagerUsersPage` | `manager`, `admin` |
-| `/profile` | `Profile` | all five roles |
-| `/admin-dashboard` | redirect → `/ecosystem/modullar` | `admin` |
+| Path                      | Component                                 | Allowed roles         |
+| ------------------------- | ----------------------------------------- | --------------------- |
+| `/operator-dashboard/*`   | `OperatorDashboardRoutes` → `new`, `list` | `operator`, `admin`   |
+| `/dispatcher-dashboard/*` | `DispatcherDashboardRoutes`               | `dispatcher`, `admin` |
+| `/specialist-mobile`      | `SpecialistMobile`                        | `specialist`, `admin` |
+| `/manager/review`         | `ManagerReviewPage`                       | `manager`, `admin`    |
+| `/manager/statistics`     | `ManagerStatisticsPage`                   | `manager`, `admin`    |
+| `/manager-dashboard`      | Redirect → `/manager/review`              | `manager`, `admin`    |
+| `/manager/users`          | `ManagerUsersPage`                        | `manager`, `admin`    |
+| `/profile`                | `Profile`                                 | all five roles        |
+| `/admin-dashboard`        | redirect → `/ecosystem/modules`           | `admin`               |
 
 ### Specialist login (not a separate route)
 
@@ -47,21 +47,21 @@ Logged-in `specialist` on `/login` renders `MobileQRCode` until PWA install and 
 
 Parent `/ecosystem` requires `admin` (`ProtectedRoute` in `App.tsx`). Child paths come from `ecosystemMenuItems` flattened to `ecosystemRouteEntries`. `App.tsx` renders by `moduleKind`:
 
-| Path | Page | Kind |
-| --- | --- | --- |
-| `/ecosystem` | redirect → `modullar` | index |
-| `/ecosystem/profile` | `Profile` (embedded) | explicit in `App.tsx` |
-| `/ecosystem/modullar` | `ModullarPage` | `modullar` |
-| `/ecosystem/murojaat24` | `Murojaat24ModulePage` | `murojaat24` |
-| `/ecosystem/murojaat24/murojaatlar` | `Murojaat24ModulePage` | `murojaat24` |
-| `/ecosystem/murojaat24/statistika` | `Murojaat24ModulePage` | `murojaat24` |
-| `/ecosystem/murojaat24/foydalanuvchilar` | `Murojaat24ModulePage` | `murojaat24` |
-| `/ecosystem/sozlamalar` | `SozlamalarPage` | `sozlamalar` |
-| `/ecosystem/sozlamalar/rahbariyat` | `SozlamalarPage` | `sozlamalar` |
-| `/ecosystem/sozlamalar/tashkilotlar` | `SozlamalarPage` | `sozlamalar` |
-| `/ecosystem/sozlamalar/shablonlar` | `SozlamalarPage` | `sozlamalar` |
-| `/ecosystem/sozlamalar/umumiy` | `SozlamalarPage` | `sozlamalar` |
-| `/ecosystem/toza-hudud`, `/ecosystem/kommunal-chaqiruvlar`, `/ecosystem/nazorat-24`, `/ecosystem/shahar-passporti`, `/ecosystem/hududlar-taqsimoti` (+ children), `/ecosystem/hisobotlar` (+ children), `/ecosystem/sozlamalar/obyekt-turi`, `chaqiruv-turi`, `ish-vaqtlari` | `ComingSoonPage` | `coming-soon` |
+| Path                                                                                                                                                                                                                                                                   | Page                   | Kind                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | --------------------- |
+| `/ecosystem`                                                                                                                                                                                                                                                           | redirect → `modules`   | index                 |
+| `/ecosystem/profile`                                                                                                                                                                                                                                                   | `Profile` (embedded)   | explicit in `App.tsx` |
+| `/ecosystem/modules`                                                                                                                                                                                                                                                   | `ModullarPage`         | `modullar`            |
+| `/ecosystem/murojaat24`                                                                                                                                                                                                                                                | `Murojaat24ModulePage` | `murojaat24`          |
+| `/ecosystem/murojaat24/appeals`                                                                                                                                                                                                                                        | `Murojaat24ModulePage` | `murojaat24`          |
+| `/ecosystem/murojaat24/statistics`                                                                                                                                                                                                                                     | `Murojaat24ModulePage` | `murojaat24`          |
+| `/ecosystem/murojaat24/users`                                                                                                                                                                                                                                          | `Murojaat24ModulePage` | `murojaat24`          |
+| `/ecosystem/settings`                                                                                                                                                                                                                                                  | `SozlamalarPage`       | `sozlamalar`          |
+| `/ecosystem/settings/leadership`                                                                                                                                                                                                                                       | `SozlamalarPage`       | `sozlamalar`          |
+| `/ecosystem/settings/organizations`                                                                                                                                                                                                                                    | `SozlamalarPage`       | `sozlamalar`          |
+| `/ecosystem/settings/templates`                                                                                                                                                                                                                                        | `SozlamalarPage`       | `sozlamalar`          |
+| `/ecosystem/settings/general`                                                                                                                                                                                                                                          | `SozlamalarPage`       | `sozlamalar`          |
+| `/ecosystem/clean-territory`, `/ecosystem/utility-calls`, `/ecosystem/supervision-24`, `/ecosystem/city-passport`, `/ecosystem/territory-distribution` (+ children), `/ecosystem/reports` (+ children), `/ecosystem/settings/object-types`, `call-types`, `work-hours` | `ComingSoonPage`       | `coming-soon`         |
 
 Full menu labels and IDs: `src/modules/ecosystem/config/menu.ts`.
 

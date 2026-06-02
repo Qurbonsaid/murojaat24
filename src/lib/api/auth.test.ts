@@ -9,13 +9,13 @@ import {
 
 describe("getRoleRedirectPath", () => {
   it("returns home route for each role", () => {
-    expect(getRoleRedirectPath("admin")).toBe("/ecosystem/modullar");
+    expect(getRoleRedirectPath("admin")).toBe("/ecosystem/modules");
     expect(getRoleRedirectPath("operator")).toBe("/operator-dashboard/new");
     expect(getRoleRedirectPath("dispatcher")).toBe(
-      "/dispatcher-dashboard/appeals",
+      "/dispatcher-dashboard/appeals"
     );
     expect(getRoleRedirectPath("specialist")).toBe("/specialist-mobile");
-    expect(getRoleRedirectPath("manager")).toBe("/manager/nazorat");
+    expect(getRoleRedirectPath("manager")).toBe("/manager/review");
   });
 
   it("returns login for unknown role", () => {
@@ -50,7 +50,7 @@ describe("legacy session storage", () => {
       role,
       profile: { firstName: "Ali", lastName: "Valiyev" },
       ...overrides,
-    }) satisfies CurrentUser;
+    } satisfies CurrentUser);
 
   it("writes role-specific session key with display name", () => {
     saveLegacySession(user("dispatcher"));
@@ -63,7 +63,7 @@ describe("legacy session storage", () => {
 
   it("uses phone when profile name is missing", () => {
     saveLegacySession(
-      user("manager", { profile: undefined, phone: "+998909999999" }),
+      user("manager", { profile: undefined, phone: "+998909999999" })
     );
 
     expect(JSON.parse(storage.get("manager_session")!)).toEqual({

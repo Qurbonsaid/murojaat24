@@ -38,7 +38,11 @@ Appeals: `requests.ts` exposes operator create today; list/assignment hooks belo
 
 - Role strings: `admin`, `operator`, `dispatcher`, `specialist`, `manager` — not `dispetcher`.
 - After login, cache user at query key `["auth", "me"]`; `ProtectedRoute` reads `useCurrentUser`.
+<<<<<<< HEAD
 - Redirects: admin → `/ecosystem/modullar`; others → their dashboard paths (see `getRoleRedirectPath`).
+=======
+- Redirects: admin → `/ecosystem/modules`; others → their dashboard paths (see `getRoleRedirectPath`).
+>>>>>>> develop
 - `ProtectedRoute`: loading skeleton; 401/403 → `/login`; other errors → inline message; wrong role → `Forbidden`.
 - Logout: `POST /api/auth/logout`, remove auth query, clear legacy `localStorage` keys if present.
 - Profile update: `PUT /api/auth/profile` via `useUpdateProfile`; updates auth cache and invalidates `["users"]`.

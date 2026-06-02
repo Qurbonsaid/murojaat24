@@ -12,13 +12,13 @@ Phone intake form backed by `POST /api/requests/operator`, plus today's appeals 
 
 ## Entry points
 
-| Route | File |
-| --- | --- |
-| `/operator-dashboard/*` | `OperatorDashboardRoutes.tsx` (nested router) |
-| `/operator-dashboard/new` | `OperatorNewAppeal.tsx` |
-| `/operator-dashboard/list` | `OperatorAppealsList.tsx` |
-| Layout | `OperatorLayout.tsx` |
-| Sidebar | `src/components/OperatorSidebar.tsx` |
+| Route                      | File                                          |
+| -------------------------- | --------------------------------------------- |
+| `/operator-dashboard/*`    | `OperatorDashboardRoutes.tsx` (nested router) |
+| `/operator-dashboard/new`  | `OperatorNewAppeal.tsx`                       |
+| `/operator-dashboard/list` | `OperatorAppealsList.tsx`                     |
+| Layout                     | `OperatorLayout.tsx`                          |
+| Sidebar                    | `src/components/OperatorSidebar.tsx`          |
 
 Organizations for the combobox: `useOrganizations()` → `GET /api/organizations` (organization `_id` sent in the create payload).
 
@@ -67,7 +67,7 @@ Payload omits `images`, `priority`, address sub-fields, and coordinates.
 
 Phone is displayed as `+998 90 123 45 67` and normalized to `+998901234567` before POST (`src/lib/phone.ts`).
 
-Auth: `useCurrentUser` for sidebar/profile menu; create requires cookie session (`operator` or `admin`).
+Auth: `useCurrentUser` for header profile menu; create requires cookie session (`operator` or `admin`).
 
 ## Roles
 
@@ -75,7 +75,7 @@ Auth: `useCurrentUser` for sidebar/profile menu; create requires cookie session 
 
 ## Sidebar navigation
 
-`OperatorSidebar` links to `/operator-dashboard/new` (Yangi murojaat) and `/operator-dashboard/list` (Murojaatlar ro'yxati). Admin statistics live under `/ecosystem/murojaat24/statistika`, not in the operator shell.
+`OperatorSidebar` links to `/operator-dashboard/new` (Yangi murojaat) and `/operator-dashboard/list` (Murojaatlar ro'yxati). Admin statistics live under `/ecosystem/murojaat24/statistics`, not in the operator shell.
 
 ## Edge cases
 
