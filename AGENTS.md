@@ -104,7 +104,7 @@ Details: `docs/architecture/conventions.md` (State section).
 
 - **Layers:** routes → `pages/` or `modules/.../pages/` → workflow `components/` → `components/ui/`.
 - **Paths:** `@/` alias → `src/` (Vite + tsconfig).
-- **Routes:** declare in `App.tsx`, `menu.ts`, or `murojaat24/config/routes.tsx` — not inside page files.
+- **Routes:** declare in `App.tsx`, `menu.ts`, or `murojaat24/config/routes.tsx` — not inside page files
 - **Forms:** `react-hook-form` + `zod` schemas, usually colocated with the screen.
 - **Styling:** Tailwind utilities + shadcn/Radix under `components/ui/`; tokens in `src/index.css`.
 - **TypeScript:** strict checks are relaxed in tsconfig; do not rely on the compiler to catch unused symbols.
