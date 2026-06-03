@@ -108,7 +108,7 @@ const StatsTab = () => {
         ))}
       </div>
 
-      <ScrollArea className="h-[calc(100vh-280px)]">
+      <ScrollArea >
         <div className="space-y-4">
           {isLoading ? (
             <>

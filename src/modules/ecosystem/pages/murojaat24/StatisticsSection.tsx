@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { differenceInCalendarDays, format } from "date-fns";
-import { Download, Loader2 } from "lucide-react";
+import { BarChart3, CheckCircle, Clock, Download, Loader2, Timer } from "lucide-react";
 import {
   CartesianGrid,
   Cell,
@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
+import StatsCard from "@/components/StatsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -35,6 +36,7 @@ import {
   groupOrganizationStatisticsByGovernance,
   mapStatisticsToChartSeries,
   useDailyStatistics,
+  useDashboardStatistics,
   useExportStatistics,
   useOrganizationStatistics,
 } from "@/lib/api/statistics";
@@ -76,17 +78,26 @@ const StatisticsSection = () => {
 
   const dailyQuery = useDailyStatistics(statisticsDays);
   const organizationQuery = useOrganizationStatistics();
+  const dashboardQuery = useDashboardStatistics();
   const organizationsQuery = useOrganizations();
   const exportStatistics = useExportStatistics();
 
+  const requestStats = dashboardQuery.data?.requests;
+
+  const scopedOrganizationItems = useMemo(() => {
+    const items = organizationQuery.data ?? [];
+    if (organizationFilter === ALL_ORGANIZATIONS) return items;
+    return items.filter((item) => item.id === organizationFilter);
+  }, [organizationFilter, organizationQuery.data]);
+
   const organizationChartData = useMemo(
-    () => mapStatisticsToChartSeries(organizationQuery.data ?? []),
-    [organizationQuery.data]
+    () => mapStatisticsToChartSeries(scopedOrganizationItems),
+    [scopedOrganizationItems]
   );
 
   const governanceChartData = useMemo(
-    () => groupOrganizationStatisticsByGovernance(organizationQuery.data ?? []),
-    [organizationQuery.data]
+    () => groupOrganizationStatisticsByGovernance(scopedOrganizationItems),
+    [scopedOrganizationItems]
   );
 
   const governanceGroups = useMemo(() => {
@@ -130,9 +141,13 @@ const StatisticsSection = () => {
     }
   };
 
-  const isLoading = dailyQuery.isLoading || organizationQuery.isLoading;
+  const isLoading =
+    dailyQuery.isLoading ||
+    organizationQuery.isLoading ||
+    dashboardQuery.isLoading;
 
-  const hasError = dailyQuery.isError || organizationQuery.isError;
+  const hasError =
+    dailyQuery.isError || organizationQuery.isError || dashboardQuery.isError;
 
   const errorMessage =
     (dailyQuery.error &&
@@ -145,10 +160,42 @@ const StatisticsSection = () => {
         organizationQuery.error,
         "Tashkilotlar statistikasini yuklashda xatolik"
       )) ||
+    (dashboardQuery.error &&
+      resolveErrorMessage(
+        dashboardQuery.error,
+        "Dashboard statistikasini yuklashda xatolik"
+      )) ||
     "Statistikani yuklashda xatolik yuz berdi";
 
   return (
     <div className="space-y-8">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          icon={BarChart3}
+          label="Jami murojaatlar"
+          value={requestStats?.total ?? "—"}
+          iconColor="bg-blue-100 text-blue-600"
+        />
+        <StatsCard
+          icon={CheckCircle}
+          label="Bajarilgan"
+          value={requestStats?.completed ?? "—"}
+          iconColor="bg-green-100 text-green-600"
+        />
+        <StatsCard
+          icon={Clock}
+          label="Jarayonda"
+          value={requestStats?.inProgress ?? "—"}
+          iconColor="bg-yellow-100 text-yellow-600"
+        />
+        <StatsCard
+          icon={Timer}
+          label="Bugun"
+          value={requestStats?.today ?? "—"}
+          iconColor="bg-purple-100 text-purple-600"
+        />
+      </div>
+
       <Card>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">

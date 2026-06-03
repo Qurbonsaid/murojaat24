@@ -123,7 +123,7 @@ const HistoryTab = () => {
         </p>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-320px)]">
+      <ScrollArea >
         <div className="space-y-3">
           {historyQuery.isLoading ? (
             Array.from({ length: 4 }).map((_, index) => (

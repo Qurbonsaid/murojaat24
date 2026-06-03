@@ -10,14 +10,15 @@ User opens profile from dashboard profile menu or specialist profile tab. Edits 
 
 | Route | Layout |
 | --- | --- |
-| `/profile` | Role sidebar on operator/dispatcher/manager; standalone for specialist |
+| `/profile` | Role sidebar on operator/dispatcher/manager; standalone for specialist (with “Panelga qaytish”) |
+| Specialist mobile tab | `ProfileTab` renders `Profile` with `embedded` + `hideDashboardLink`; **Chiqish** at page bottom |
 | `/ecosystem/profile` | `Profile` with `embedded` inside `EcosystemLayout` (admin) |
 
 | File | Role |
 | --- | --- |
 | `src/pages/profile/Profile.tsx` | Main form |
 | `src/components/UserProfileMenu.tsx` | Navigation from dashboards |
-| `src/components/specialist/ProfileTab.tsx` | Link to `/profile` |
+| `src/components/specialist/ProfileTab.tsx` | Embeds `Profile` in the bottom-nav profile tab |
 | `useUpdateProfile` | `src/lib/api/auth.ts` |
 | `useUploadAvatar` | `src/lib/api/uploads.ts` |
 
@@ -30,6 +31,8 @@ Form fields sync from `useCurrentUser` via `reset()` when `user._id` / `profile`
 Login → `useLogin` seeds `["auth", "me"]` then **refetches** `GET /api/auth/me` (login payload can omit profile/org fields). Logout invalidates all queries so the next session does not reuse stale lists.
 
 Save → `useUpdateProfile` → `PUT /api/auth/profile` (includes avatar URL or `null`) → update `["auth", "me"]` → invalidate `["users"]`.
+
+**Manager only:** separate “Parolni o'zgartirish” card → `useChangePassword` → `POST /api/auth/change-password` with `{ currentPassword, newPassword }` (min 6 chars). Client confirms new password; form clears on success.
 
 Admin hitting `/profile` is redirected to `/ecosystem/profile` so the ecosystem sidebar stays visible.
 

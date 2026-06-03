@@ -1,7 +1,7 @@
-import { type ChangeEvent, useEffect, useMemo, useRef } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { type ChangeEvent, Fragment, useEffect, useMemo, useRef } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Camera, ImageUp, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, ImageUp, LogOut, Save, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -26,7 +26,9 @@ import {
   getRoleRedirectPath,
   type CurrentUser,
   type UserRole,
+  useChangePassword,
   useCurrentUser,
+  useLogout,
   useUpdateProfile,
 } from "@/lib/api/auth";
 import { resolveOrganizationName } from "@/lib/api/requests";
@@ -69,8 +71,25 @@ const formSchema = z.object({
 
 type ProfileFormData = z.infer<typeof formSchema>;
 
+const passwordFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Joriy parolni kiriting"),
+    newPassword: z
+      .string()
+      .min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+    confirmPassword: z.string().min(1, "Parolni tasdiqlang"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Parollar mos kelmayapti",
+    path: ["confirmPassword"],
+  });
+
+type PasswordFormData = z.infer<typeof passwordFormSchema>;
+
 type ProfileProps = {
   embedded?: boolean;
+  /** Hides the “Panelga qaytish” link (e.g. specialist mobile profile tab). */
+  hideDashboardLink?: boolean;
 };
 
 const getProfileDefaults = (user: CurrentUser): ProfileFormData => ({
@@ -90,12 +109,18 @@ const getInitials = (firstName?: string, lastName?: string) => {
   return initials || "FP";
 };
 
-const Profile = ({ embedded = false }: ProfileProps) => {
+const Profile = ({
+  embedded = false,
+  hideDashboardLink = false,
+}: ProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { toast } = useToast();
   const currentUserQuery = useCurrentUser();
   const updateProfile = useUpdateProfile();
+  const changePassword = useChangePassword();
   const uploadAvatar = useUploadAvatar();
+  const logoutMutation = useLogout();
   const user = currentUserQuery.data;
   const showOrganization =
     user != null && ROLES_WITH_ORGANIZATION.includes(user.role);
@@ -117,9 +142,24 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     },
   });
 
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors },
+    reset: resetPasswordForm,
+  } = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
   const firstName = watch("firstName");
   const lastName = watch("lastName");
   const avatar = watch("avatar");
+  const isManager = user?.role === "manager";
 
   useEffect(() => {
     if (!user) return;
@@ -217,6 +257,51 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     clearFileInput();
   };
 
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const onPasswordSubmit = async (data: PasswordFormData) => {
+    try {
+      await changePassword.mutateAsync({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      resetPasswordForm();
+      toast({
+        title: "Parol yangilandi",
+        description: "Yangi parol muvaffaqiyatli o'rnatildi",
+      });
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Parolni yangilashda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (data: ProfileFormData) => {
     const payload = {
       firstName: data.firstName.trim(),
@@ -247,15 +332,21 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   };
 
   if (currentUserQuery.isLoading || !user) {
+    const loading = (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-80 w-full" />
+      </div>
+    );
+
+    if (embedded) {
+      return <div className="px-4 py-4">{loading}</div>;
+    }
+
     return (
       <div className="min-h-screen bg-slate-50">
-        <main className="mx-auto max-w-5xl px-4 py-8">
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-40" />
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-80 w-full" />
-          </div>
-        </main>
+        <main className="mx-auto max-w-5xl px-4 py-8">{loading}</main>
       </div>
     );
   }
@@ -270,19 +361,31 @@ const Profile = ({ embedded = false }: ProfileProps) => {
 
   const content = (
     <div className="mx-auto max-w-6xl">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={
+          hideDashboardLink
+            ? "mb-6"
+            : "mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        }
+      >
+        {!hideDashboardLink ? (
+          <Fragment>
         <div>
           <h1 className="text-2xl font-bold text-slate-950">Profil</h1>
           <p className="text-sm text-slate-500">{roleLabel}</p>
         </div>
-        <Button asChild variant="outline">
-          <Link to={dashboardPath}>
-            <ArrowLeft className="h-4 w-4" />
-            Panelga qaytish
-          </Link>
-        </Button>
+          
+          <Button asChild variant="outline">
+            <Link to={dashboardPath}>
+              <ArrowLeft className="h-4 w-4" />
+              Panelga qaytish
+            </Link>
+          </Button>
+          </Fragment>
+        ) : null}
       </div>
 
+      <div className="space-y-6">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]"
@@ -417,22 +520,122 @@ const Profile = ({ embedded = false }: ProfileProps) => {
               ) : null}
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+          <CardFooter className="flex flex-row gap-3 border-t pt-6 sm:justify-end">
             <Button
               type="button"
               variant="outline"
+              className="flex-1 sm:flex-none"
               onClick={handleReset}
               disabled={!isDirty || isPending}
             >
               Bekor qilish
             </Button>
-            <Button type="submit" disabled={!isDirty || isAvatarBusy}>
+            <Button
+              type="submit"
+              className="flex-1 sm:flex-none"
+              disabled={!isDirty || isAvatarBusy}
+            >
               <Save className="h-4 w-4" />
               {isPending ? "Saqlanmoqda..." : "Saqlash"}
             </Button>
           </CardFooter>
         </Card>
       </form>
+
+      {isManager ? (
+        <Card className="rounded-md">
+          <CardHeader>
+            <CardTitle className="text-lg">Parolni o&apos;zgartirish</CardTitle>
+          </CardHeader>
+          <form
+            onSubmit={handlePasswordSubmit(onPasswordSubmit)}
+            autoComplete="off"
+          >
+            <CardContent className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Joriy parol</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    {...registerPassword("currentPassword")}
+                  />
+                  {passwordErrors.currentPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.currentPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">Yangi parol</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...registerPassword("newPassword")}
+                  />
+                  {passwordErrors.newPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.newPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Parolni tasdiqlash</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...registerPassword("confirmPassword")}
+                  />
+                  {passwordErrors.confirmPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.confirmPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-row gap-3 border-t pt-6 sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 sm:flex-none"
+                onClick={() => resetPasswordForm()}
+                disabled={changePassword.isPending}
+              >
+                Tozalash
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 sm:flex-none"
+                disabled={changePassword.isPending}
+              >
+                {changePassword.isPending
+                  ? "Yangilanmoqda..."
+                  : "Parolni yangilash"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      ) : null}
+      </div>
+
+      {hideDashboardLink ? (
+        <div className="mx-6">
+        <Button
+          type="button"
+          variant="destructive"
+          className="mt-6 w-full"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {logoutMutation.isPending ? "Chiqilmoqda..." : "Chiqish"}
+        </Button>
+        </div>
+      ) : null}
     </div>
   );
 

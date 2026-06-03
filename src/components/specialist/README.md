@@ -6,7 +6,7 @@ Components for the specialist experience: post-login **PWA install gate** (`Mobi
 
 **Login gate (`MobileQRCode`):** After specialist login, desktop users see a QR to open `/login` on a phone; mobile users walk through install → standalone app → notifications/camera/location, then redirect to `/specialist-mobile`. Logout returns to `/`.
 
-**In-app (`SpecialistMobile`):** Assigned tasks from API, detail, accept/start, complete with photo + report + signature via `useSubmitRequestCompletion` (`POST /api/uploads/images`, `PUT` complete with base64 signature). History tab paginates via infinite scroll. Stats tab uses `GET /api/statistics/specialist/{id}` (and `GET /api/statistics/monthly` for the Oy chart). Profile tab links to `/profile` for real edits and API logout.
+**In-app (`SpecialistMobile`):** Assigned tasks from API, detail, accept/start, complete with photo + report + signature via `useSubmitRequestCompletion` (`POST /api/uploads/images`, `PUT` complete with base64 signature). History tab paginates via infinite scroll. Stats tab uses `GET /api/statistics/specialist/{id}` (and `GET /api/statistics/monthly` for the Oy chart). Profile tab embeds `src/pages/profile/Profile.tsx` (API-backed name, avatar, organization, **Chiqish** at bottom).
 
 ## Entry points
 
@@ -76,7 +76,6 @@ Completion: `TaskCompletionModal` → `POST /api/uploads/images`, then `PUT /api
 - `tel:` and Google Maps from task detail.
 - `HistoryTab` period filter is UI-only — does not filter API rows.
 - Change-password modal: local validation + toast only (not forgot-password API).
-- `ProfileTab` may read `user.profile` before `user` is defined while loading — see `docs/architecture/gotchas.md`.
 - SW cache name in `public/sw.js` may differ from `SPECIALIST_PWA_CACHE` in `pwa.ts` (unregister only deletes the constant in `pwa.ts`).
 
 ## Related docs

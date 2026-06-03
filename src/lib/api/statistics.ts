@@ -580,13 +580,14 @@ const normalizeDashboardStatistics = (payload: unknown): DashboardStatistics => 
   };
 };
 
-export const useDashboardStatistics = () => {
+export const useDashboardStatistics = (options: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: ["statistics", "dashboard"],
     queryFn: async () => {
       const response = await apiRequest<unknown>("/api/statistics/dashboard");
       return normalizeDashboardStatistics(response.data);
     },
+    enabled: options.enabled ?? true,
     staleTime: 60_000,
     retry: false,
   });
