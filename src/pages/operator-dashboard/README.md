@@ -4,7 +4,7 @@ Phone intake form backed by `POST /api/requests/operator`, plus today's appeals 
 
 ## User-facing behavior
 
-**New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization from the API, saves, sees a success toast with the server `requestNumber`, form resets.
+**New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization and priority, saves, sees a success toast with the server `requestNumber`, form resets.
 
 **Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id`; appeal photos open full-size in `ImagePreviewDialog` on click.
 
@@ -34,7 +34,7 @@ sequenceDiagram
   Form->>Orgs: GET /api/organizations
   Form->>Form: zod validate + toOperatorCreatePayload
   Form->>Hook: mutateAsync
-  Hook->>API: citizenName, citizenPhone, organization, description, address.full
+  Hook->>API: citizenName, citizenPhone, organization, description, address.full, priority
   API-->>Form: requestNumber
   Form->>Form: toast + reset
 ```
@@ -63,7 +63,7 @@ sequenceDiagram
   API-->>Modal: citizen, address, timeline, images
 ```
 
-Payload omits `images`, `priority`, address sub-fields, and coordinates.
+Payload omits `images`, address sub-fields, and coordinates. Default priority in the form is `medium` (API default).
 
 Phone is displayed as `+998 90 123 45 67` and normalized to `+998901234567` before POST (`src/lib/phone.ts`).
 

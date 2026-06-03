@@ -171,7 +171,7 @@ const SpecialistMobile = () => {
               <h2 className="text-xl font-bold text-foreground mb-4">
                 Faol topshiriqlar
               </h2>
-              <ScrollArea className="h-[calc(100vh-280px)]">
+              <ScrollArea >
                 <div className="space-y-4">
                   {currentAssignmentsQuery.isLoading ? (
                     Array.from({ length: 3 }).map((_, index) => (

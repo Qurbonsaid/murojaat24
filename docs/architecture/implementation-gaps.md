@@ -15,7 +15,7 @@ Snapshot of what is **wired to the backend** versus **local/mock/UI-only** in th
 | Organizations CRUD (settings)                | API-backed (delete uses `AlertDialog` confirmation)                                                                                           |
 | Operator: create appeal + today’s list       | Partially API-backed (KPI cards still static; list detail via `GET /api/requests/:id`)                                                        |
 | Admin: appeals list + row detail             | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination)                                                           |
-| Admin: dashboard KPIs                        | Still mock/local                                                                                                                              |
+| Admin: dashboard KPIs                        | **API-backed** (`useDashboardStatistics`, active users via `useUsers`)                                                                        |
 | Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics`                                                  |
 | Appeal lifecycle (assign → execute → review) | Dispatcher assign/cancel **API-backed**; specialist list/accept/start/history **API-backed**; completion submit and manager review still mock |
 | Citizen in-app flows                         | Built but **not routed**; production landing uses an external portal                                                                          |
@@ -62,7 +62,7 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 
 | Piece               | Path                                                              | Reality                                                                                                                                                        |
 | ------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dashboard KPI cards | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | Static numbers (e.g. 45 users, 145 appeals)                                                                                                                    |
+| Dashboard KPI cards | `src/modules/ecosystem/pages/murojaat24/Murojaat24ModulePage.tsx` | **API-backed**: active users (`useUsers`), request KPIs (`useDashboardStatistics`)                                                                             |
 | Foydalanuvchilar    | Same + `AddUserModal` / `EditUserModal`                           | **API-backed** (`useUsers`, create/update/delete)                                                                                                              |
 | Murojaatlar         | `MurojaatlarSection.tsx`                                          | **API-backed**: `useRequests` (paginated, `search`, `status`, `organization`, `priority`, `startDate`, `endDate`); `OperatorRequestDetailModal` → `useRequest` |
 | Statistika          | `StatisticsSection.tsx`                                           | **API-backed** via `statistics.ts` (daily, by-organization, export, admin Rahbariyat); does not call `useSpecialistStatistics`                                 |

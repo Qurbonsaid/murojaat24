@@ -35,6 +35,7 @@ Admin analytics in `StatisticsSection.tsx` backed by `src/lib/api/statistics.ts`
 
 | UI block                                    | Hook                                                                    | Endpoint                              |
 | ------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
+| KPI cards (Jami, Bajarilgan, Jarayonda, Bugun) | `useDashboardStatistics`                                             | `GET /api/statistics/dashboard`       |
 | Filter bar + Excel yuklash                  | `useExportStatistics`                                                   | `GET /api/statistics/export`          |
 | Rahbariyat bo'yicha statistika (admin only) | `useOrganizationStatistics` + `groupOrganizationStatisticsByGovernance` | `GET /api/statistics/by-organization` |
 | Tashkilotlar bo'yicha taqsimot (pie)        | `useOrganizationStatistics`                                             | `GET /api/statistics/by-organization` |
@@ -42,7 +43,9 @@ Admin analytics in `StatisticsSection.tsx` backed by `src/lib/api/statistics.ts`
 
 **Not used on this page:** `GET /api/statistics/specialists` / `useSpecialistStatistics` (no Mutaxassislar table).
 
-Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export query param only). Rahbariyat card renders when `currentUser.role === "admin"` and governance data is non-empty.
+Filters: date range (`DatePicker` → export `startDate`/`endDate`; daily `days` computed from range, default 7), organization select (export query param + client-side filter on org/governance charts). Rahbariyat card renders when `currentUser.role === "admin"` and governance data is non-empty.
+
+**Dashboard** (`/ecosystem/murojaat24`): KPI cards use `useDashboardStatistics` (request counts) and `useUsers` with `isActive: true` (active staff total from pagination).
 
 **Roles:** admin ecosystem (`/ecosystem/murojaat24/statistics`).
 

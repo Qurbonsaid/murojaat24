@@ -39,6 +39,11 @@ export type UpdateProfileInput = {
   avatar?: string | null;
 };
 
+export type ChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 const roleRedirects: Record<UserRole, string> = {
   admin: "/ecosystem/modules",
   operator: "/operator-dashboard/new",
@@ -170,6 +175,17 @@ export const useUpdateProfile = () => {
       });
 
       await queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: async (payload: ChangePasswordInput) => {
+      await apiRequest<null>("/api/auth/change-password", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
     },
   });
 };

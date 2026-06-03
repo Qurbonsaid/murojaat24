@@ -36,6 +36,7 @@ import { ApiError } from "@/lib/api/client";
 import type { UserRole } from "@/lib/api/auth";
 import { useCurrentUser } from "@/lib/api/auth";
 import type { StaffUser } from "@/lib/api/users";
+import { useDashboardStatistics } from "@/lib/api/statistics";
 import { useDeleteUser, useUsers } from "@/lib/api/users";
 
 import MurojaatlarSection from "./MurojaatlarSection";
@@ -118,7 +119,17 @@ const Murojaat24ModulePage = () => {
     role: userFilter === "all" ? undefined : userFilter,
     search: deferredSearch.length ? deferredSearch : undefined,
   });
+  const activeUsersQuery = useUsers(
+    { limit: 1, isActive: true },
+    { enabled: section === "dashboard" },
+  );
+  const dashboardQuery = useDashboardStatistics({
+    enabled: section === "dashboard",
+  });
   const deleteUser = useDeleteUser();
+
+  const requestStats = dashboardQuery.data?.requests;
+  const activeUsersTotal = activeUsersQuery.data?.pagination?.total;
 
   const users = usersQuery.data?.data ?? [];
 
@@ -164,7 +175,11 @@ const Murojaat24ModulePage = () => {
                     <p className="mb-1 text-sm text-muted-foreground">
                       Faol foydalanuvchilar
                     </p>
-                    <p className="text-3xl font-bold text-foreground">45</p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {activeUsersQuery.isLoading
+                        ? "…"
+                        : (activeUsersTotal ?? "—")}
+                    </p>
                   </div>
                   <div className="rounded-lg bg-blue-100 p-3 text-blue-600">
                     <Users className="h-6 w-6" />
@@ -180,7 +195,11 @@ const Murojaat24ModulePage = () => {
                     <p className="mb-1 text-sm text-muted-foreground">
                       Bugungi murojaatlar
                     </p>
-                    <p className="text-3xl font-bold text-foreground">145</p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {dashboardQuery.isLoading
+                        ? "…"
+                        : (requestStats?.today ?? "—")}
+                    </p>
                   </div>
                   <div className="rounded-lg bg-green-100 p-3 text-green-600">
                     <FileText className="h-6 w-6" />
@@ -194,11 +213,13 @@ const Murojaat24ModulePage = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="mb-1 text-sm text-muted-foreground">
-                      Tizim holati
+                      Jami murojaatlar
                     </p>
-                    <Badge className="mt-2 bg-green-500 hover:bg-green-600">
-                      Yaxshi
-                    </Badge>
+                    <p className="text-3xl font-bold text-foreground">
+                      {dashboardQuery.isLoading
+                        ? "…"
+                        : (requestStats?.total ?? "—")}
+                    </p>
                   </div>
                   <div className="rounded-lg bg-green-100 p-3 text-green-600">
                     <CheckCircle className="h-6 w-6" />
@@ -212,10 +233,12 @@ const Murojaat24ModulePage = () => {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="mb-1 text-sm text-muted-foreground">
-                      Oxirgi yangilanish
+                      Shu oy
                     </p>
-                    <p className="mt-1 text-lg font-semibold text-foreground">
-                      2 soat oldin
+                    <p className="mt-1 text-3xl font-bold text-foreground">
+                      {dashboardQuery.isLoading
+                        ? "…"
+                        : (requestStats?.thisMonth ?? "—")}
                     </p>
                   </div>
                   <div className="rounded-lg bg-gray-100 p-3 text-gray-600">
@@ -225,6 +248,14 @@ const Murojaat24ModulePage = () => {
               </CardContent>
             </Card>
           </div>
+
+          {dashboardQuery.isError ? (
+            <p className="text-sm text-destructive">
+              {dashboardQuery.error instanceof ApiError
+                ? dashboardQuery.error.message
+                : "Dashboard statistikasini yuklashda xatolik"}
+            </p>
+          ) : null}
 
           <Card>
             <CardHeader>
