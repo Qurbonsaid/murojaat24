@@ -10,14 +10,15 @@ User opens profile from dashboard profile menu or specialist profile tab. Edits 
 
 | Route | Layout |
 | --- | --- |
-| `/profile` | Role sidebar on operator/dispatcher/manager; standalone for specialist |
+| `/profile` | Role sidebar on operator/dispatcher/manager; standalone for specialist (with “Panelga qaytish”) |
+| Specialist mobile tab | `ProfileTab` renders `Profile` with `embedded` + `hideDashboardLink`; **Chiqish** at page bottom |
 | `/ecosystem/profile` | `Profile` with `embedded` inside `EcosystemLayout` (admin) |
 
 | File | Role |
 | --- | --- |
 | `src/pages/profile/Profile.tsx` | Main form |
 | `src/components/UserProfileMenu.tsx` | Navigation from dashboards |
-| `src/components/specialist/ProfileTab.tsx` | Link to `/profile` |
+| `src/components/specialist/ProfileTab.tsx` | Embeds `Profile` in the bottom-nav profile tab |
 | `useUpdateProfile` | `src/lib/api/auth.ts` |
 | `useUploadAvatar` | `src/lib/api/uploads.ts` |
 

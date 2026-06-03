@@ -1,7 +1,7 @@
-import { type ChangeEvent, useEffect, useMemo, useRef } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { type ChangeEvent, Fragment, useEffect, useMemo, useRef } from "react";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Camera, ImageUp, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, Camera, ImageUp, LogOut, Save, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -27,6 +27,7 @@ import {
   type CurrentUser,
   type UserRole,
   useCurrentUser,
+  useLogout,
   useUpdateProfile,
 } from "@/lib/api/auth";
 import { resolveOrganizationName } from "@/lib/api/requests";
@@ -71,6 +72,8 @@ type ProfileFormData = z.infer<typeof formSchema>;
 
 type ProfileProps = {
   embedded?: boolean;
+  /** Hides the “Panelga qaytish” link (e.g. specialist mobile profile tab). */
+  hideDashboardLink?: boolean;
 };
 
 const getProfileDefaults = (user: CurrentUser): ProfileFormData => ({
@@ -90,12 +93,17 @@ const getInitials = (firstName?: string, lastName?: string) => {
   return initials || "FP";
 };
 
-const Profile = ({ embedded = false }: ProfileProps) => {
+const Profile = ({
+  embedded = false,
+  hideDashboardLink = false,
+}: ProfileProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { toast } = useToast();
   const currentUserQuery = useCurrentUser();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
+  const logoutMutation = useLogout();
   const user = currentUserQuery.data;
   const showOrganization =
     user != null && ROLES_WITH_ORGANIZATION.includes(user.role);
@@ -217,6 +225,27 @@ const Profile = ({ embedded = false }: ProfileProps) => {
     clearFileInput();
   };
 
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Chiqildi",
+        description: "Tizimdan muvaffaqiyatli chiqdingiz",
+      });
+      navigate("/login");
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Chiqishda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (data: ProfileFormData) => {
     const payload = {
       firstName: data.firstName.trim(),
@@ -247,15 +276,21 @@ const Profile = ({ embedded = false }: ProfileProps) => {
   };
 
   if (currentUserQuery.isLoading || !user) {
+    const loading = (
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-80 w-full" />
+      </div>
+    );
+
+    if (embedded) {
+      return <div className="px-4 py-4">{loading}</div>;
+    }
+
     return (
       <div className="min-h-screen bg-slate-50">
-        <main className="mx-auto max-w-5xl px-4 py-8">
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-40" />
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-80 w-full" />
-          </div>
-        </main>
+        <main className="mx-auto max-w-5xl px-4 py-8">{loading}</main>
       </div>
     );
   }
@@ -270,17 +305,28 @@ const Profile = ({ embedded = false }: ProfileProps) => {
 
   const content = (
     <div className="mx-auto max-w-6xl">
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div
+        className={
+          hideDashboardLink
+            ? "mb-6"
+            : "mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        }
+      >
+        {!hideDashboardLink ? (
+          <Fragment>
         <div>
           <h1 className="text-2xl font-bold text-slate-950">Profil</h1>
           <p className="text-sm text-slate-500">{roleLabel}</p>
         </div>
-        <Button asChild variant="outline">
-          <Link to={dashboardPath}>
-            <ArrowLeft className="h-4 w-4" />
-            Panelga qaytish
-          </Link>
-        </Button>
+          
+          <Button asChild variant="outline">
+            <Link to={dashboardPath}>
+              <ArrowLeft className="h-4 w-4" />
+              Panelga qaytish
+            </Link>
+          </Button>
+          </Fragment>
+        ) : null}
       </div>
 
       <form
@@ -417,22 +463,42 @@ const Profile = ({ embedded = false }: ProfileProps) => {
               ) : null}
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">
+          <CardFooter className="flex flex-row gap-3 border-t pt-6 sm:justify-end">
             <Button
               type="button"
               variant="outline"
+              className="flex-1 sm:flex-none"
               onClick={handleReset}
               disabled={!isDirty || isPending}
             >
               Bekor qilish
             </Button>
-            <Button type="submit" disabled={!isDirty || isAvatarBusy}>
+            <Button
+              type="submit"
+              className="flex-1 sm:flex-none"
+              disabled={!isDirty || isAvatarBusy}
+            >
               <Save className="h-4 w-4" />
               {isPending ? "Saqlanmoqda..." : "Saqlash"}
             </Button>
           </CardFooter>
         </Card>
       </form>
+
+      {hideDashboardLink ? (
+        <div className="mx-6">
+        <Button
+          type="button"
+          variant="destructive"
+          className="mt-6 w-full"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {logoutMutation.isPending ? "Chiqilmoqda..." : "Chiqish"}
+        </Button>
+        </div>
+      ) : null}
     </div>
   );
 
