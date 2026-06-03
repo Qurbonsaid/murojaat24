@@ -26,6 +26,7 @@ import {
   getRoleRedirectPath,
   type CurrentUser,
   type UserRole,
+  useChangePassword,
   useCurrentUser,
   useLogout,
   useUpdateProfile,
@@ -70,6 +71,21 @@ const formSchema = z.object({
 
 type ProfileFormData = z.infer<typeof formSchema>;
 
+const passwordFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Joriy parolni kiriting"),
+    newPassword: z
+      .string()
+      .min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+    confirmPassword: z.string().min(1, "Parolni tasdiqlang"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Parollar mos kelmayapti",
+    path: ["confirmPassword"],
+  });
+
+type PasswordFormData = z.infer<typeof passwordFormSchema>;
+
 type ProfileProps = {
   embedded?: boolean;
   /** Hides the “Panelga qaytish” link (e.g. specialist mobile profile tab). */
@@ -102,6 +118,7 @@ const Profile = ({
   const { toast } = useToast();
   const currentUserQuery = useCurrentUser();
   const updateProfile = useUpdateProfile();
+  const changePassword = useChangePassword();
   const uploadAvatar = useUploadAvatar();
   const logoutMutation = useLogout();
   const user = currentUserQuery.data;
@@ -125,9 +142,24 @@ const Profile = ({
     },
   });
 
+  const {
+    register: registerPassword,
+    handleSubmit: handlePasswordSubmit,
+    formState: { errors: passwordErrors },
+    reset: resetPasswordForm,
+  } = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
   const firstName = watch("firstName");
   const lastName = watch("lastName");
   const avatar = watch("avatar");
+  const isManager = user?.role === "manager";
 
   useEffect(() => {
     if (!user) return;
@@ -246,6 +278,30 @@ const Profile = ({
     }
   };
 
+  const onPasswordSubmit = async (data: PasswordFormData) => {
+    try {
+      await changePassword.mutateAsync({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      resetPasswordForm();
+      toast({
+        title: "Parol yangilandi",
+        description: "Yangi parol muvaffaqiyatli o'rnatildi",
+      });
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? error.message
+          : "Parolni yangilashda xatolik yuz berdi";
+      toast({
+        title: "Xatolik",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (data: ProfileFormData) => {
     const payload = {
       firstName: data.firstName.trim(),
@@ -329,6 +385,7 @@ const Profile = ({
         ) : null}
       </div>
 
+      <div className="space-y-6">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]"
@@ -484,6 +541,86 @@ const Profile = ({
           </CardFooter>
         </Card>
       </form>
+
+      {isManager ? (
+        <Card className="rounded-md">
+          <CardHeader>
+            <CardTitle className="text-lg">Parolni o&apos;zgartirish</CardTitle>
+          </CardHeader>
+          <form
+            onSubmit={handlePasswordSubmit(onPasswordSubmit)}
+            autoComplete="off"
+          >
+            <CardContent className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Joriy parol</Label>
+                  <Input
+                    id="currentPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    {...registerPassword("currentPassword")}
+                  />
+                  {passwordErrors.currentPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.currentPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">Yangi parol</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...registerPassword("newPassword")}
+                  />
+                  {passwordErrors.newPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.newPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Parolni tasdiqlash</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...registerPassword("confirmPassword")}
+                  />
+                  {passwordErrors.confirmPassword ? (
+                    <p className="text-sm text-destructive">
+                      {passwordErrors.confirmPassword.message}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-row gap-3 border-t pt-6 sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 sm:flex-none"
+                onClick={() => resetPasswordForm()}
+                disabled={changePassword.isPending}
+              >
+                Tozalash
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 sm:flex-none"
+                disabled={changePassword.isPending}
+              >
+                {changePassword.isPending
+                  ? "Yangilanmoqda..."
+                  : "Parolni yangilash"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      ) : null}
+      </div>
 
       {hideDashboardLink ? (
         <div className="mx-6">

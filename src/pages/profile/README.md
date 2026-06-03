@@ -32,6 +32,8 @@ Login → `useLogin` seeds `["auth", "me"]` then **refetches** `GET /api/auth/me
 
 Save → `useUpdateProfile` → `PUT /api/auth/profile` (includes avatar URL or `null`) → update `["auth", "me"]` → invalidate `["users"]`.
 
+**Manager only:** separate “Parolni o'zgartirish” card → `useChangePassword` → `POST /api/auth/change-password` with `{ currentPassword, newPassword }` (min 6 chars). Client confirms new password; form clears on success.
+
 Admin hitting `/profile` is redirected to `/ecosystem/profile` so the ecosystem sidebar stays visible.
 
 ## Roles

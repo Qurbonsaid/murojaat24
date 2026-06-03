@@ -93,6 +93,7 @@ export type OperatorCreateRequestInput = {
   description: string;
   organization: string;
   address: { full: string };
+  priority?: RequestPriority;
 };
 
 export type AppealRequest = {
@@ -117,6 +118,7 @@ export type OperatorAppealFormValues = {
   organizationId: string;
   description: string;
   address: string;
+  priority: RequestPriority;
 };
 
 const ROLES_WITHOUT_ORG_FILTER: UserRole[] = ["operator"];
@@ -299,6 +301,7 @@ export const toOperatorCreatePayload = (
   description: values.description.trim(),
   organization: values.organizationId,
   address: { full: values.address.trim() },
+  priority: values.priority,
 });
 
 export const useCreateOperatorRequest = () => {

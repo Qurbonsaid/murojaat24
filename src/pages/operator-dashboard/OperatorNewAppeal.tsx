@@ -24,9 +24,18 @@ import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
 import { useOrganizations } from "@/lib/api/organizations";
 import {
+  REQUEST_PRIORITY_OPTIONS,
+  type RequestPriority,
   toOperatorCreatePayload,
   useCreateOperatorRequest,
 } from "@/lib/api/requests";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { formatPhoneInput } from "@/lib/phone";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +53,9 @@ const formSchema = z.object({
     .min(20, "Kamida 20 ta belgi kiriting")
     .max(1000, "Tavsif 1000 ta belgidan oshmasligi kerak"),
   address: z.string().min(1, "Manzil majburiy"),
+  priority: z.enum(["low", "medium", "high", "urgent"], {
+    required_error: "Muhimlikni tanlang",
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -54,6 +66,7 @@ const defaultFormValues: FormData = {
   organizationId: "",
   description: "",
   address: "",
+  priority: "medium",
 };
 
 const OperatorNewAppeal = () => {
@@ -78,6 +91,7 @@ const OperatorNewAppeal = () => {
 
   const phoneValue = watch("phone");
   const organizationId = watch("organizationId");
+  const priorityValue = watch("priority");
   const organizations = organizationsQuery.data ?? [];
 
   const selectedOrganization = organizations.find(
@@ -106,6 +120,7 @@ const OperatorNewAppeal = () => {
           organizationId: data.organizationId,
           description: data.description,
           address: data.address,
+          priority: data.priority,
         }),
       );
 
@@ -254,6 +269,34 @@ const OperatorNewAppeal = () => {
               {errors.organizationId && (
                 <p className="text-sm text-destructive">
                   {errors.organizationId.message}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="priority">Muhimlik *</Label>
+              <Select
+                value={priorityValue}
+                onValueChange={(value) =>
+                  setValue("priority", value as RequestPriority, {
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger id="priority">
+                  <SelectValue placeholder="Muhimlikni tanlang" />
+                </SelectTrigger>
+                <SelectContent>
+                  {REQUEST_PRIORITY_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.priority && (
+                <p className="text-sm text-destructive">
+                  {errors.priority.message}
                 </p>
               )}
             </div>
