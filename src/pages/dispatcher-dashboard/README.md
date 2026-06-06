@@ -53,7 +53,7 @@ Contract: `docs/api/openapi.json`. Shared client patterns: `src/lib/api/README.m
 ## Edge cases
 
 - Assign requires `request._id` from the list API; disabled when missing.
-- Specialists list can be scoped by appeal organization (`organizations` query on users).
+- Specialists list can be scoped by appeal organization (`organizations` query on users). `inactive` specialists (and `isActive: false`) are excluded from `AssignModal`.
 - Cancel is only enabled for `pending`, `accepted`, and `in-progress` assignments.
 - Request/specialist fields on assignments may be string ids or populated objects; helpers in `assignments.ts` resolve display labels.
 

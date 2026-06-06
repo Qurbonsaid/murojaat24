@@ -16,7 +16,7 @@ Modals: `ManagerAddUserModal.tsx`, `ManagerEditUserModal.tsx`. API: `src/lib/api
 - Search and role tabs: **Hammasi** → `role=dispatcher,specialist`; **Dispetcherlar** / **Mutaxassislar** → single role. All requests include `organizations` and optional `search`.
 - List is scoped to the signed-in manager’s organization id (`organizations` query param from `GET /api/auth/me`).
 - Add user: role choices limited to dispatcher and specialist; new users default to the manager’s organization when set on profile.
-- Edit / delete: same flows as admin; cannot delete your own row.
+- Edit / delete: same flows as admin; edit modal includes work **status** (`active`, `busy`, `inactive`) via `PUT /api/users/:id/status`; cannot delete your own row.
 
 ## Data flow
 

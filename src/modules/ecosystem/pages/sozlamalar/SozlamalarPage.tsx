@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Clock3, Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Clock3, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 import {
   AlertDialog,
@@ -453,10 +453,12 @@ const TashkilotlarSection = () => {
                   <Button
                     variant="ghost"
                     size="icon"
+                    type="button"
+                    aria-label="Tahrirlash"
                     onClick={() => openEditDialog(org)}
                     disabled={isMutating}
                   >
-                    <Edit className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -601,8 +603,13 @@ const ShablonlarSection = () => (
         <div key={template.id} className="rounded-lg border p-4">
           <div className="mb-2 flex items-start justify-between">
             <h4 className="font-semibold">{template.name}</h4>
-            <Button variant="ghost" size="icon">
-              <Edit className="h-4 w-4" />
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              aria-label="Tahrirlash"
+            >
+              <Pencil className="h-4 w-4" />
             </Button>
           </div>
           <p className="text-sm text-muted-foreground">{template.content}</p>

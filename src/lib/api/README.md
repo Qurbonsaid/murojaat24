@@ -68,6 +68,8 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 `useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` (operator appeals list and admin `MurojaatlarSection`).
 
+`useUpdateRequest` → `PUT /api/requests/:id` with `{ organization }`. Invalidates `["requests"]` and detail. Used by `OperatorEditRequestModal` on the operator list (`new` only) and admin `MurojaatlarSection` (any status).
+
 `useVerifyRequest` → `PUT /api/requests/:id/verify` with body `{ status: "approved" | "rejected", comment? }`. On success invalidates `["requests"]`, detail, and `["statistics"]`. Used by `ReviewModal` on the manager review page.
 
 Specialist completion (see `docs/api/openapi.json`):
@@ -103,7 +105,7 @@ Task list, accept, start, completion, and **stats** tab are API-backed (`assignm
 
 ## Specialists (`users.ts`)
 
-`useUsers(params)` → `GET /api/users` with query `page`, `limit`, `role` (single value or comma-separated via `role: UserRole[]`), `search`, `organizations` (comma-separated ids), `isActive`, `status`, `quarter`, `sector`. `useSpecialists` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Consumers: admin users UI, `ManagerUsersPage`, `AssignModal`.
+`useUsers(params)` → `GET /api/users` with query `page`, `limit`, `role` (single value or comma-separated via `role: UserRole[]`), `search`, `organizations` (comma-separated ids), `isActive`, `status`, `quarter`, `sector`. `useUpdateUserStatus` → `PUT /api/users/:id/status` with `{ status: "active" | "busy" | "inactive" }`. `WORK_STATUS_OPTIONS` / `getWorkStatusLabel` for display. `useSpecialists` wraps `useUsers` with `role=specialist` and default `isActive: true`. `getStaffUserDisplayName` formats list labels. Consumers: admin users UI, `ManagerUsersPage`, `AssignModal`.
 
 ## Statistics (`statistics.ts`)
 
@@ -115,7 +117,7 @@ Task list, accept, start, completion, and **stats** tab are API-backed (`assignm
 | `useSpecialistDetailStatistics` | `GET /api/statistics/specialist/{id}?days=` | Specialist mobile `StatsTab` (`days` 1 / 7 / 30 by period)                                    |
 | `useMonthlyStatistics`          | `GET /api/statistics/monthly?year=`         | Specialist `StatsTab` chart when period is **Oy**                                             |
 | `useExportStatistics`           | `GET /api/statistics/export`                | Opens export URL in a new tab (backend `.xlsx`); query `startDate`, `endDate`, `organization` |
-| `useDashboardStatistics`        | `GET /api/statistics/dashboard`             | KPI counts for requests (manager review + statistics pages)                                   |
+| `useDashboardStatistics`        | `GET /api/statistics/dashboard`             | KPI counts (operator appeals list, manager review, admin Murojaat24 dashboard)                |
 | `usePublicStatistics`           | `GET /api/statistics/public`                | Landing hero overview counts; no auth required                                                |
 
 Helpers: `normalizeDailyStatistics`, `normalizeOrganizationStatistics`, `normalizeSpecialistStatistics`, `mapStatisticsToChartSeries`, `groupOrganizationStatisticsByGovernance`, `downloadStatisticsExport`. Consumers: `StatisticsSection.tsx` (admin), `ManagerStatisticsPage.tsx`, `ManagerReviewPage.tsx`.

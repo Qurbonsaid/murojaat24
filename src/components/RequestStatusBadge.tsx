@@ -8,6 +8,10 @@ const getStatusBadge = (status: string) => {
       return (
         <Badge className="bg-orange-500 hover:bg-orange-600">Tayinlangan</Badge>
       );
+    case "accepted":
+      return (
+        <Badge className="bg-green-500 hover:bg-green-600">Qabul qilindi</Badge>
+      );
     case "in-progress":
       return (
         <Badge className="bg-yellow-500 hover:bg-yellow-600">

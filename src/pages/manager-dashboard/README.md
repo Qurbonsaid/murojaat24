@@ -4,7 +4,7 @@ API-backed review queue and statistics for the manager role. Staff user manageme
 
 ## User-facing behavior
 
-- **Nazorat qilish** (`/manager/review`): appeals list scoped to the signed-in manager’s organization (`GET /api/requests/` with `organization`), default status filter `completed`, search and status tabs, KPI cards from `GET /api/statistics/dashboard`. Row opens `ReviewModal` for verify/reject.
+- **Nazorat qilish** (`/manager/review`): appeals list scoped to the signed-in manager’s organization (`GET /api/requests/` with `organization`), default status filter **Barcha holatlar**, search and status dropdown, KPI cards from `GET /api/statistics/dashboard`. Table includes citizen name column. Row opens `ReviewModal` for verify/reject.
 - **Statistika** (`/manager/statistics`): dashboard KPIs, daily line chart, organization pie (scoped to manager org when id is known), specialist bar chart and table, Excel export for the manager organization.
 - **Foydalanuvchilar** (`/manager/users`): see `src/pages/manager-users/README.md`.
 

@@ -112,6 +112,10 @@ export type VerifyRequestInput = {
   comment?: string;
 };
 
+export type UpdateRequestInput = {
+  organization: string;
+};
+
 export type OperatorAppealFormValues = {
   fullName: string;
   phone: string;
@@ -320,7 +324,40 @@ export const useCreateOperatorRequest = () => {
       return response.data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["requests"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({ queryKey: ["statistics", "dashboard"] }),
+      ]);
+    },
+  });
+};
+
+export const useUpdateRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: UpdateRequestInput & { id: string }) => {
+      const response = await apiRequest<AppealRequestDetail>(
+        `/api/requests/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["requests", "detail", variables.id],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["statistics", "dashboard"] }),
+      ]);
     },
   });
 };

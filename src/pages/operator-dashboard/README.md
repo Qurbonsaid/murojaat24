@@ -6,7 +6,7 @@ Phone intake form backed by `POST /api/requests/operator`, plus today's appeals 
 
 **New appeal** (`/operator-dashboard/new`): operator enters citizen details, picks an organization and priority, saves, sees a success toast with the server `requestNumber`, form resets.
 
-**Appeals list** (`/operator-dashboard/list`): static KPI cards; table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id`; appeal photos open full-size in `ImagePreviewDialog` on click.
+**Appeals list** (`/operator-dashboard/list`): KPI cards from `useDashboardStatistics` → `GET /api/statistics/dashboard` (`today`, `inProgress`, `completed`+`verified`, `thisMonth`); table loads today's appeals via `useRequests` (`startDate`/`endDate` = today, `organization` query param omitted for operator role). Organization names resolved from `useOrganizations`. Row **Eye** opens detail modal; row **Pencil** opens `OperatorEditRequestModal` for **`new`** appeals only → `PUT /api/requests/:id` with `{ organization }`.
 
 `/operator-dashboard` redirects to `new`.
 
@@ -42,6 +42,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   participant List as OperatorAppealsList
+  participant Stats as useDashboardStatistics
+  participant API as GET_statistics_dashboard
+
+  List->>Stats: mount
+  Stats->>API: GET /api/statistics/dashboard
+  API-->>List: requests.today, inProgress, completed, thisMonth
+```
+
+```mermaid
+sequenceDiagram
+  participant List as OperatorAppealsList
   participant Hook as useRequests
   participant API as GET_requests
 
@@ -63,6 +74,20 @@ sequenceDiagram
   API-->>Modal: citizen, address, timeline, images
 ```
 
+```mermaid
+sequenceDiagram
+  participant List as OperatorAppealsList
+  participant Modal as OperatorEditRequestModal
+  participant Hook as useUpdateRequest
+  participant API as PUT_request_by_id
+
+  List->>Modal: new status request, open
+  Modal->>Hook: organization id
+  Hook->>API: PUT /api/requests/:id { organization }
+  API-->>Modal: updated request
+  Hook->>Hook: invalidate requests
+```
+
 Payload omits `images`, address sub-fields, and coordinates. Default priority in the form is `medium` (API default).
 
 Phone is displayed as `+998 90 123 45 67` and normalized to `+998901234567` before POST (`src/lib/phone.ts`).
@@ -81,6 +106,7 @@ Auth: `useCurrentUser` for header profile menu; create requires cookie session (
 
 - Description min 20 / max 1000 characters (matches backend validation).
 - Organization combobox disabled while org list loads or on fetch error.
+- Edit (pencil) enabled only when appeal `status` is `new`; only `organization` is sent on update.
 - `ApiError` message shown in destructive toast on submit failure.
 
 ## Related docs

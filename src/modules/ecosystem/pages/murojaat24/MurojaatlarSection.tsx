@@ -1,7 +1,8 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { Eye, Loader2, Search } from "lucide-react";
+import { Eye, Loader2, Pencil, Search } from "lucide-react";
 
+import OperatorEditRequestModal from "@/components/OperatorEditRequestModal";
 import OperatorRequestDetailModal from "@/components/OperatorRequestDetailModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import {
 import { ApiError } from "@/lib/api/client";
 import { useOrganizations } from "@/lib/api/organizations";
 import {
+  type AppealRequestListItem,
   formatRequestDateTime,
   getRequestPriorityLabel,
   REQUEST_PRIORITY_OPTIONS,
@@ -49,6 +51,9 @@ const MurojaatlarSection = () => {
     null,
   );
   const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingRequest, setEditingRequest] =
+    useState<AppealRequestListItem | null>(null);
 
   const deferredSearch = useDeferredValue(searchValue.trim());
 
@@ -114,6 +119,12 @@ const MurojaatlarSection = () => {
     setDetailOpen(true);
   };
 
+  const openRequestEdit = (request: AppealRequestListItem) => {
+    if (!request._id) return;
+    setEditingRequest(request);
+    setEditOpen(true);
+  };
+
   const resetFilters = () => {
     setSearchValue("");
     setStatusFilter(ALL_FILTER);
@@ -126,6 +137,15 @@ const MurojaatlarSection = () => {
 
   return (
     <>
+      <OperatorEditRequestModal
+        request={editingRequest}
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          if (!open) setEditingRequest(null);
+        }}
+      />
+
       <OperatorRequestDetailModal
         requestId={selectedRequestId}
         open={detailOpen}
@@ -282,16 +302,29 @@ const MurojaatlarSection = () => {
                       <RequestStatusBadge status={request.status} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        aria-label="Batafsil ko'rish"
-                        disabled={!request._id}
-                        onClick={() => openRequestDetail(request._id)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="button"
+                          aria-label="Tahrirlash"
+                          title="Tashkilotni o'zgartirish"
+                          disabled={!request._id}
+                          onClick={() => openRequestEdit(request)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="button"
+                          aria-label="Batafsil ko'rish"
+                          disabled={!request._id}
+                          onClick={() => openRequestDetail(request._id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

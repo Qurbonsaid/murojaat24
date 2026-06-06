@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import OperatorEditRequestModal from "@/components/OperatorEditRequestModal";
 import OperatorRequestDetailModal from "@/components/OperatorRequestDetailModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import StatsCard from "@/components/StatsCard";
@@ -19,20 +20,38 @@ import {
   Timer,
   Eye,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { ApiError } from "@/lib/api/client";
 import { useOrganizations } from "@/lib/api/organizations";
+import { useDashboardStatistics } from "@/lib/api/statistics";
 import {
   formatRequestTime,
   getTodayDateRange,
+  resolveOrganizationName,
+  type AppealRequestListItem,
   useRequests,
 } from "@/lib/api/requests";
+
+const canOperatorEditRequest = (status: string) => status === "new";
+
+const formatDashboardStatValue = (
+  isLoading: boolean,
+  value: number | undefined
+): string | number => {
+  if (isLoading) return "…";
+  if (value === undefined) return "—";
+  return value;
+};
 
 const OperatorAppealsList = () => {
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null
   );
   const [detailOpen, setDetailOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingRequest, setEditingRequest] =
+    useState<AppealRequestListItem | null>(null);
   const today = getTodayDateRange();
   const requestsQuery = useRequests(
     {
@@ -44,6 +63,7 @@ const OperatorAppealsList = () => {
     { role: "operator" }
   );
   const organizationsQuery = useOrganizations();
+  const dashboardQuery = useDashboardStatistics();
 
   const organizationNameById = useMemo(() => {
     const map = new Map<string, string>();
@@ -53,12 +73,23 @@ const OperatorAppealsList = () => {
     return map;
   }, [organizationsQuery.data]);
   const requests = requestsQuery.data?.data ?? [];
+  const requestStats = dashboardQuery.data?.requests;
+  const completedTotal =
+    requestStats === undefined
+      ? undefined
+      : (requestStats.completed ?? 0) + (requestStats.verified ?? 0);
   const errorMessage =
     requestsQuery.error instanceof ApiError
       ? requestsQuery.error.message
       : requestsQuery.error instanceof Error
       ? requestsQuery.error.message
       : "Murojaatlarni yuklashda xatolik";
+  const dashboardErrorMessage =
+    dashboardQuery.error instanceof ApiError
+      ? dashboardQuery.error.message
+      : dashboardQuery.error instanceof Error
+        ? dashboardQuery.error.message
+        : "Statistikani yuklashda xatolik";
 
   const openRequestDetail = (requestId: string | undefined) => {
     if (!requestId) return;
@@ -66,8 +97,23 @@ const OperatorAppealsList = () => {
     setDetailOpen(true);
   };
 
+  const openRequestEdit = (request: AppealRequestListItem) => {
+    if (!request._id || !canOperatorEditRequest(request.status)) return;
+    setEditingRequest(request);
+    setEditOpen(true);
+  };
+
   return (
     <>
+      <OperatorEditRequestModal
+        request={editingRequest}
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          if (!open) setEditingRequest(null);
+        }}
+      />
+
       <OperatorRequestDetailModal
         requestId={selectedRequestId}
         open={detailOpen}
@@ -90,28 +136,44 @@ const OperatorAppealsList = () => {
         <StatsCard
           icon={CheckCircle}
           label="Bugun qabul qilindi"
-          value={23}
+          value={formatDashboardStatValue(
+            dashboardQuery.isLoading,
+            requestStats?.today
+          )}
           iconColor="bg-blue-100 text-blue-600"
         />
         <StatsCard
           icon={Clock}
           label="Jarayonda"
-          value={8}
+          value={formatDashboardStatValue(
+            dashboardQuery.isLoading,
+            requestStats?.inProgress
+          )}
           iconColor="bg-yellow-100 text-yellow-600"
         />
         <StatsCard
           icon={AlertCircle}
           label="Bajarilgan"
-          value={15}
+          value={formatDashboardStatValue(
+            dashboardQuery.isLoading,
+            completedTotal
+          )}
           iconColor="bg-green-100 text-green-600"
         />
         <StatsCard
           icon={Timer}
-          label="O'rtacha vaqt"
-          value="3.5 soat"
+          label="Shu oy qabul qilindi"
+          value={formatDashboardStatValue(
+            dashboardQuery.isLoading,
+            requestStats?.thisMonth
+          )}
           iconColor="bg-gray-100 text-gray-600"
         />
       </div>
+
+      {dashboardQuery.isError ? (
+        <p className="mb-6 text-sm text-destructive">{dashboardErrorMessage}</p>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -162,10 +224,10 @@ const OperatorAppealsList = () => {
                     </TableCell>
                     <TableCell>{request.citizen?.name ?? "—"}</TableCell>
                     <TableCell>
-                      {request.organization
-                        ? organizationNameById.get(request.organization._id) ??
-                          "—"
-                        : "—"}
+                      {resolveOrganizationName(
+                        request.organization,
+                        organizationNameById
+                      )}
                     </TableCell>
                     <TableCell>
                       {formatRequestTime(request.createdAt)}
@@ -174,16 +236,36 @@ const OperatorAppealsList = () => {
                       <RequestStatusBadge status={request.status} />
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        type="button"
-                        aria-label="Batafsil ko'rish"
-                        disabled={!request._id}
-                        onClick={() => openRequestDetail(request._id)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="button"
+                          aria-label="Tahrirlash"
+                          disabled={
+                            !request._id ||
+                            !canOperatorEditRequest(request.status)
+                          }
+                          title={
+                            canOperatorEditRequest(request.status)
+                              ? "Tashkilotni o'zgartirish"
+                              : "Faqat yangi murojaatlarni tahrirlash mumkin"
+                          }
+                          onClick={() => openRequestEdit(request)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          type="button"
+                          aria-label="Batafsil ko'rish"
+                          disabled={!request._id}
+                          onClick={() => openRequestDetail(request._id)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

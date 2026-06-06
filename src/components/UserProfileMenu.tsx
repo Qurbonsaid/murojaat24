@@ -32,7 +32,7 @@ const UserProfileMenu = ({
   className,
   variant = "outline",
   size,
-  showRoleInTrigger = false,
+  showRoleInTrigger = true,
   nameClassName,
   subLabelClassName,
   avatarFallbackClassName,
@@ -111,7 +111,10 @@ const UserProfileMenu = ({
           type="button"
           variant={variant}
           size={size}
-          className={cn("flex items-center gap-2", className)}
+          className={cn(
+            "flex items-center gap-2 hover:bg-muted hover:text-foreground",
+            className,
+          )}
           disabled={logoutMutation.isPending}
         >
           <Avatar className="h-7 w-7">
