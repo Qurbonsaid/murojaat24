@@ -28,7 +28,7 @@ type ReviewModalProps = {
 };
 
 const resolveAssignmentFromRequest = (
-  assignment: unknown,
+  assignment: unknown
 ): Assignment | undefined => {
   if (!assignment || typeof assignment !== "object") return undefined;
   return assignment as Assignment;
@@ -58,9 +58,9 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     () =>
       resolveAssignmentSpecialistName(
         assignment?.specialist as AssignmentUserRef | undefined,
-        new Map(),
+        new Map()
       ),
-    [assignment?.specialist],
+    [assignment?.specialist]
   );
 
   const imageUrls = useMemo(
@@ -68,7 +68,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
       (request?.images ?? [])
         .map((image) => resolveAssetUrl(image))
         .filter((url): url is string => Boolean(url)),
-    [request?.images],
+    [request?.images]
   );
 
   const beforeImage = imageUrls[0];
@@ -104,8 +104,8 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     requestQuery.error instanceof ApiError
       ? requestQuery.error.message
       : requestQuery.error instanceof Error
-        ? requestQuery.error.message
-        : "Murojaat ma'lumotlarini yuklashda xatolik";
+      ? requestQuery.error.message
+      : "Murojaat ma'lumotlarini yuklashda xatolik";
 
   const handleVerify = async (status: "approved" | "rejected") => {
     if (!requestId) return;
@@ -180,7 +180,10 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                       type="button"
                       className="w-full rounded-lg overflow-hidden border border-border"
                       onClick={() =>
-                        setPreviewImage({ src: beforeImage, alt: "Dastlabki holat" })
+                        setPreviewImage({
+                          src: beforeImage,
+                          alt: "Dastlabki holat",
+                        })
                       }
                     >
                       <img
@@ -193,17 +196,23 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Manzil:</p>
-                    <p className="text-foreground">{request.address?.full ?? "—"}</p>
+                    <p className="text-foreground">
+                      {request.address?.full ?? "—"}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Mutaxassis:</p>
-                    <p className="text-foreground font-medium">{specialistName}</p>
+                    <p className="text-foreground font-medium">
+                      {specialistName}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Fuqaro:</p>
-                    <p className="text-foreground">{request.citizen?.name ?? "—"}</p>
+                    <p className="text-foreground">
+                      {request.citizen?.name ?? "—"}
+                    </p>
                   </div>
                 </div>
 
@@ -217,7 +226,10 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                       type="button"
                       className="w-full rounded-lg overflow-hidden border border-border"
                       onClick={() =>
-                        setPreviewImage({ src: afterImage, alt: "Bajarilgan ish" })
+                        setPreviewImage({
+                          src: afterImage,
+                          alt: "Bajarilgan ish",
+                        })
                       }
                     >
                       <img
@@ -229,7 +241,9 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                   ) : null}
 
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Muammo tavsifi:</p>
+                    <p className="text-sm text-muted-foreground">
+                      Muammo tavsifi:
+                    </p>
                     <Textarea
                       value={request.description ?? ""}
                       readOnly
@@ -241,7 +255,9 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
 
               {timelineEntries.length > 0 ? (
                 <div className="mt-6 space-y-2">
-                  <p className="text-sm font-medium text-foreground">Vaqt chizig&apos;i</p>
+                  <p className="text-sm font-medium text-foreground">
+                    Vaqt chizig&apos;i
+                  </p>
                   <ul className="space-y-2">
                     {timelineEntries.map((entry, index) => (
                       <li
@@ -299,8 +315,8 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                 </div>
               ) : (
                 <p className="mt-6 text-sm text-muted-foreground">
-                  Faqat &quot;Yakunlangan&quot; holatidagi murojaatlarni tasdiqlash yoki rad
-                  etish mumkin.
+                  Faqat &quot;Yakunlangan&quot; holatidagi murojaatlarni
+                  tasdiqlash yoki rad etish mumkin.
                 </p>
               )}
             </>

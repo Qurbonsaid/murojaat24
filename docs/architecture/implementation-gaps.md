@@ -13,7 +13,7 @@ Snapshot of what is **wired to the backend** versus **local/mock/UI-only** in th
 | Auth, profile, avatar upload                 | API-backed                                                                                                                                    |
 | Staff users CRUD (admin + manager routes)    | API-backed                                                                                                                                    |
 | Organizations CRUD (settings)                | API-backed (delete uses `AlertDialog` confirmation)                                                                                           |
-| Operator: create appeal + today’s list       | Partially API-backed (KPI cards still static; list detail via `GET /api/requests/:id`)                                                        |
+| Operator: create appeal + today’s list       | **API-backed** (list, detail, edit org, KPI cards via `useDashboardStatistics`) |
 | Admin: appeals list + row detail             | **API-backed** (`GET /api/requests/`, `GET /api/requests/:id`, filters, pagination)                                                           |
 | Admin: dashboard KPIs                        | **API-backed** (`useDashboardStatistics`, active users via `useUsers`)                                                                        |
 | Admin: statistics page (`StatisticsSection`) | API-backed; UI: daily + org charts, export, Rahbariyat (admin); no `useSpecialistStatistics`                                                  |
@@ -54,7 +54,7 @@ Forgot-password hooks exist in `auth.ts` (`useRequestOtp`, `useVerifyOtp`, `useR
 | ---------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | New appeal form        | `src/pages/operator-dashboard/OperatorNewAppeal.tsx`   | `POST /api/requests/operator` via `useCreateOperatorRequest`; orgs from `useOrganizations`                                                |
 | Today’s appeals table  | `src/pages/operator-dashboard/OperatorAppealsList.tsx` | `useRequests` with today’s date range; org names from API                                                                                 |
-| KPI cards on list page | Same file                                              | **Hardcoded** values (23, 8, 15, `"3.5 soat"`) — not derived from `useRequests`                                                           |
+| KPI cards on list page | Same file                                              | `useDashboardStatistics` → `GET /api/statistics/dashboard` |
 | Row “Eye” action       | Same file                                              | Opens `OperatorRequestDetailModal` → `useRequest` / `GET /api/requests/:id`                                                               |
 | Organization column    | Same file                                              | Assumes `request.organization._id`; OpenAPI list often returns **string id** — may show `"—"` (admin list uses `resolveOrganizationName`) |
 
@@ -206,7 +206,7 @@ Placeholder pages: `ComingSoonPage.tsx` for top-level coming-soon modules.
 
 | Location                                     | Control  | Effect                                                 |
 | -------------------------------------------- | -------- | ------------------------------------------------------ |
-| `OperatorAppealsList` / `MurojaatlarSection` | Eye icon | `OperatorRequestDetailModal` → `GET /api/requests/:id` |
+| `OperatorAppealsList` / `MurojaatlarSection` | Eye / Pencil | Detail: `OperatorRequestDetailModal`; edit org: `OperatorEditRequestModal` → `PUT /api/requests/:id` (operator: `new` only; admin: any status) |
 | `SozlamalarPage` (Tashkilotlar)              | Trash    | `AlertDialog` confirm → `useDeleteOrganization`        |
 
 ---

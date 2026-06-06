@@ -1,5 +1,5 @@
 import { useDeferredValue, useMemo, useState } from "react";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 
 import ManagerSidebar from "@/components/ManagerSidebar";
 import UserProfileMenu from "@/components/UserProfileMenu";
@@ -257,13 +257,15 @@ const ManagerUsersPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
+                              type="button"
+                              aria-label="Tahrirlash"
                               title="Tahrirlash"
                               onClick={() => {
                                 setSelectedUser(user);
                                 setEditUserModalOpen(true);
                               }}
                             >
-                              <Edit className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"

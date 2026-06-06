@@ -16,7 +16,12 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreateAssignment } from "@/lib/api/assignments";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
-import { getStaffUserDisplayName, useSpecialists } from "@/lib/api/users";
+import {
+  getStaffUserDisplayName,
+  getWorkStatusLabel,
+  isAssignableSpecialist,
+  useSpecialists,
+} from "@/lib/api/users";
 import { Loader2 } from "lucide-react";
 
 interface AssignModalProps {
@@ -48,7 +53,11 @@ const AssignModal = ({
     { enabled: open },
   );
 
-  const specialists = specialistsQuery.data?.data ?? [];
+  const specialists = useMemo(
+    () =>
+      (specialistsQuery.data?.data ?? []).filter(isAssignableSpecialist),
+    [specialistsQuery.data?.data],
+  );
 
   useEffect(() => {
     if (!open) {
@@ -212,8 +221,8 @@ const AssignModal = ({
                       {specialist.name}
                     </Label>
                     {specialist.status && (
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {specialist.status}
+                      <p className="text-xs text-muted-foreground">
+                        {getWorkStatusLabel(specialist.status)}
                       </p>
                     )}
                   </div>

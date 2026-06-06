@@ -67,7 +67,7 @@ const DispatcherAssignments = () => {
   );
 
   const assignmentsQuery = useAssignments(listParams);
-  const specialistsQuery = useSpecialists({ limit: 200 });
+  const specialistsQuery = useSpecialists({ limit: 100 });
   const cancelAssignment = useCancelAssignment();
 
   const specialistNameById = useMemo(() => {

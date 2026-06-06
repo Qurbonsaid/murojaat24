@@ -17,7 +17,7 @@ User opens profile from dashboard profile menu or specialist profile tab. Edits 
 | File | Role |
 | --- | --- |
 | `src/pages/profile/Profile.tsx` | Main form |
-| `src/components/UserProfileMenu.tsx` | Navigation from dashboards |
+| `src/components/UserProfileMenu.tsx` | Navigation from dashboards; trigger shows name + role |
 | `src/components/specialist/ProfileTab.tsx` | Embeds `Profile` in the bottom-nav profile tab |
 | `useUpdateProfile` | `src/lib/api/auth.ts` |
 | `useUploadAvatar` | `src/lib/api/uploads.ts` |

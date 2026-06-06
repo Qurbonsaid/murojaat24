@@ -42,7 +42,7 @@ HTTP via `src/lib/api/client.ts` and hooks in `src/lib/api/auth.ts`, `users.ts`,
 
 | Backed by API | Mock / local only |
 | --- | --- |
-| Auth session, profile | Operator list KPI cards (static) |
+| Auth session, profile | — |
 | Operator appeal create + today’s list | Specialist tasks & completion |
 | Dispatcher assignment (create/list/cancel) | Manager approve/reject |
 | Staff users CRUD | Specialist mobile history/stats (mock) |

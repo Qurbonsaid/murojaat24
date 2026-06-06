@@ -115,6 +115,30 @@ export const getStaffUserDisplayName = (user: StaffUser | undefined): string => 
   return fromProfile || user.phone || "—";
 };
 
+export const WORK_STATUS_OPTIONS: { value: WorkStatus; label: string }[] = [
+  { value: "active", label: "Faol" },
+  { value: "busy", label: "Band" },
+  { value: "inactive", label: "Faol emas" },
+];
+
+export const getWorkStatusLabel = (
+  status: WorkStatus | string | undefined,
+): string => {
+  const match = WORK_STATUS_OPTIONS.find((option) => option.value === status);
+  if (match) return match.label;
+  return status ?? "—";
+};
+
+export const isAssignableSpecialist = (user: StaffUser): boolean => {
+  if (user.isActive === false) return false;
+  return (user.status ?? "active") !== "inactive";
+};
+
+export type UpdateUserStatusInput = {
+  id: string;
+  status: WorkStatus;
+};
+
 export const useSpecialists = (
   params: Omit<UsersQueryParams, "role"> = {},
   options: { enabled?: boolean } = {},
@@ -219,6 +243,24 @@ export const useDeleteUser = () => {
     mutationFn: async (id: string) => {
       const response = await apiRequest<null>(`/api/users/${id}`, {
         method: "DELETE",
+      });
+
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+};
+
+export const useUpdateUserStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, status }: UpdateUserStatusInput) => {
+      const response = await apiRequest<StaffUser>(`/api/users/${id}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status }),
       });
 
       return response.data;

@@ -36,7 +36,7 @@ import { useDashboardStatistics } from "@/lib/api/statistics";
 
 const ALL_FILTER = "all";
 const PAGE_SIZE = 20;
-const DEFAULT_STATUS = "completed";
+const DEFAULT_STATUS = ALL_FILTER;
 
 const resolveListAssignment = (assignment: unknown): Assignment | undefined => {
   if (!assignment || typeof assignment !== "object") return undefined;
@@ -186,6 +186,7 @@ const ManagerReviewPage = () => {
                   <TableRow>
                     <TableHead>Raqam</TableHead>
                     <TableHead>Holat</TableHead>
+                    <TableHead>Fuqaro</TableHead>
                     <TableHead>Mutaxassis</TableHead>
                     <TableHead>Manzil</TableHead>
                     <TableHead>Yakunlangan</TableHead>
@@ -204,6 +205,10 @@ const ManagerReviewPage = () => {
                       populatedRequest?.address?.full ??
                       request.description ??
                       "—";
+                    const citizenName =
+                      request.citizen?.name ??
+                      populatedRequest?.citizen?.name ??
+                      "—";
                     const specialistName = resolveAssignmentSpecialistName(
                       assignment?.specialist as AssignmentUserRef | undefined,
                       new Map(),
@@ -217,6 +222,7 @@ const ManagerReviewPage = () => {
                         <TableCell>
                           <RequestStatusBadge status={request.status} />
                         </TableCell>
+                        <TableCell>{citizenName}</TableCell>
                         <TableCell>{specialistName}</TableCell>
                         <TableCell className="max-w-xs truncate">
                           {addressLabel}

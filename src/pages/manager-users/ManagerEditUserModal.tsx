@@ -23,8 +23,13 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { ApiError } from "@/lib/api/client";
 import { useOrganizations } from "@/lib/api/organizations";
-import type { StaffUser } from "@/lib/api/users";
-import { useResetUserPassword, useUpdateUser } from "@/lib/api/users";
+import type { StaffUser, WorkStatus } from "@/lib/api/users";
+import {
+  useResetUserPassword,
+  useUpdateUser,
+  useUpdateUserStatus,
+  WORK_STATUS_OPTIONS,
+} from "@/lib/api/users";
 
 const formSchema = z
   .object({
@@ -36,6 +41,7 @@ const formSchema = z
       .string()
       .min(2, "Familiya kamida 2 ta belgidan iborat bo'lishi kerak"),
     role: z.enum(["dispatcher", "specialist"]),
+    status: z.enum(["active", "inactive", "busy"]),
     organization: z.string().optional(),
     quarter: z.string().optional(),
     sector: z.string().optional(),
@@ -88,6 +94,7 @@ const ManagerEditUserModal = ({
   const { toast } = useToast();
   const organizationsQuery = useOrganizations();
   const updateUser = useUpdateUser();
+  const updateUserStatus = useUpdateUserStatus();
   const resetPassword = useResetUserPassword();
 
   const {
@@ -101,6 +108,7 @@ const ManagerEditUserModal = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       organization: "none",
+      status: "active" as WorkStatus,
       newPassword: "",
       confirmPassword: "",
     },
@@ -121,6 +129,7 @@ const ManagerEditUserModal = ({
       firstName: user?.profile?.firstName ?? "",
       lastName: user?.profile?.lastName ?? "",
       role,
+      status: user?.status ?? "active",
       organization: resolveOrganizationId(user?.organization) ?? "none",
       quarter: user?.quarter ?? "",
       sector: user?.sector ?? "",
@@ -165,6 +174,14 @@ const ManagerEditUserModal = ({
 
       await updateUser.mutateAsync(updatePayload);
 
+      const previousStatus = user.status ?? "active";
+      if (data.status !== previousStatus) {
+        await updateUserStatus.mutateAsync({
+          id: user._id,
+          status: data.status,
+        });
+      }
+
       if (data.newPassword) {
         await resetPassword.mutateAsync({
           id: user._id,
@@ -190,7 +207,10 @@ const ManagerEditUserModal = ({
     }
   };
 
-  const isPending = updateUser.isPending || resetPassword.isPending;
+  const isPending =
+    updateUser.isPending ||
+    updateUserStatus.isPending ||
+    resetPassword.isPending;
 
   return (
     <Dialog
@@ -269,6 +289,34 @@ const ManagerEditUserModal = ({
             </Select>
             {errors.role && (
               <p className="text-sm text-destructive">{errors.role.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="manager-edit-status">Status *</Label>
+            <Select
+              value={watch("status")}
+              onValueChange={(value) =>
+                setValue("status", value as FormData["status"], {
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger id="manager-edit-status">
+                <SelectValue placeholder="Statusni tanlang" />
+              </SelectTrigger>
+              <SelectContent>
+                {WORK_STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.status && (
+              <p className="text-sm text-destructive">
+                {errors.status.message}
+              </p>
             )}
           </div>
 

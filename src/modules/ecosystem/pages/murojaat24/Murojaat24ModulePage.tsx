@@ -3,8 +3,8 @@ import { useLocation } from "react-router-dom";
 import {
   CheckCircle,
   Clock,
-  Edit,
   FileText,
+  Pencil,
   Plus,
   Search,
   Trash2,
@@ -411,13 +411,15 @@ const Murojaat24ModulePage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
+                              type="button"
+                              aria-label="Tahrirlash"
                               title="Tahrirlash"
                               onClick={() => {
                                 setSelectedUser(user);
                                 setEditUserModalOpen(true);
                               }}
                             >
-                              <Edit className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
