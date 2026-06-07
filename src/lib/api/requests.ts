@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { addDays, format, isValid, parseISO } from "date-fns";
 
 import { normalizePhone } from "@/lib/phone";
@@ -32,6 +37,7 @@ export type AppealRequestListItem = {
   requestNumber: string;
   status: string;
   priority?: RequestPriority;
+  incorrectOrganization?: boolean;
   organization?: OrganizationRef;
   citizen?: {
     name: string;
@@ -60,9 +66,17 @@ export type AppealRequestTimelineEntry = {
   comment?: string | null;
 };
 
+export type AppealRequestCompletionData = {
+  completedAt?: string | null;
+  images?: string[];
+  report?: string | null;
+  signature?: string | null;
+};
+
 export type AppealRequestDetail = AppealRequestListItem & {
   address?: AppealRequestAddress;
   images?: string[];
+  completionData?: AppealRequestCompletionData | null;
   timeline?: AppealRequestTimelineEntry[];
   updatedAt?: string;
 };
@@ -72,6 +86,7 @@ export type RequestsQueryParams = {
   limit?: number;
   status?: string;
   organization?: string;
+  incorrectOrganization?: boolean;
   priority?: string;
   search?: string;
   startDate?: string;
@@ -110,6 +125,11 @@ export type VerifyRequestStatus = "approved" | "rejected";
 export type VerifyRequestInput = {
   status: VerifyRequestStatus;
   comment?: string;
+};
+
+export type UpdateRequestInput = {
+  organization?: string;
+  incorrectOrganization?: boolean;
 };
 
 export type OperatorAppealFormValues = {
@@ -225,6 +245,9 @@ export const buildRequestsQueryString = (params: RequestsQueryParams) => {
   if (params.organization)
     searchParams.set("organization", params.organization);
   if (params.priority) searchParams.set("priority", params.priority);
+  if (params.incorrectOrganization === true) {
+    searchParams.set("incorrectOrganization", "true");
+  }
   if (params.search) searchParams.set("search", params.search);
   if (params.startDate) searchParams.set("startDate", params.startDate);
   if (params.endDate) searchParams.set("endDate", params.endDate);
@@ -243,6 +266,7 @@ export const useRequests = (
   const status = sanitized.status ?? "";
   const organization = sanitized.organization ?? "";
   const priority = sanitized.priority ?? "";
+  const incorrectOrganization = sanitized.incorrectOrganization === true;
   const search = sanitized.search ?? "";
   const startDate = sanitized.startDate ?? "";
   const endDate = sanitized.endDate ?? "";
@@ -255,6 +279,7 @@ export const useRequests = (
         limit,
         status,
         organization,
+        incorrectOrganization,
         priority,
         search,
         startDate,
@@ -320,7 +345,67 @@ export const useCreateOperatorRequest = () => {
       return response.data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["requests"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["requests"] }),
+        queryClient.invalidateQueries({ queryKey: ["statistics", "dashboard"] }),
+      ]);
+    },
+  });
+};
+
+const invalidateRequestQueries = async (
+  queryClient: QueryClient,
+  id: string,
+) => {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: ["requests"] }),
+    queryClient.invalidateQueries({ queryKey: ["requests", "detail", id] }),
+    queryClient.invalidateQueries({ queryKey: ["statistics"] }),
+    queryClient.invalidateQueries({ queryKey: ["statistics", "dashboard"] }),
+  ]);
+};
+
+export const useUpdateRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: UpdateRequestInput & { id: string }) => {
+      const response = await apiRequest<AppealRequestDetail>(
+        `/api/requests/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: async (_data, variables) => {
+      await invalidateRequestQueries(queryClient, variables.id);
+    },
+  });
+};
+
+export const useReturnRequestForWrongOrganization = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest<AppealRequestDetail>(
+        `/api/requests/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ incorrectOrganization: true }),
+        },
+      );
+
+      return response.data;
+    },
+    onSuccess: async (_data, id) => {
+      await invalidateRequestQueries(queryClient, id);
     },
   });
 };

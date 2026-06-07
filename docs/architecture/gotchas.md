@@ -24,7 +24,7 @@ Current traps and mismatches. Snapshot of behavior in the repo — not a backlog
 
 No backend call for: specialist task lifecycle (OpenAPI `my/current`, accept, start exist but no hooks), manager approve/reject, admin ecosystem dashboard KPIs, sozlamalar templates/general save, citizen submit/track simulations. Dispatcher assignment uses `assignments.ts`. Admin appeals list and `StatisticsSection` use API (`requests.ts`, `statistics.ts`).
 
-Operator dashboard uses `GET /api/organizations`, `POST /api/requests/operator`, and `GET /api/requests/` (list). `useRequests` omits the `organization` query param when `options.role` is `operator` or `admin`. Operator list KPI cards are still static mock values. List status badges expect API values (`new`, `assigned`, `in-progress`, etc.), not legacy mock labels like `pending`.
+Operator dashboard uses `GET /api/organizations`, `POST /api/requests/operator`, `GET /api/requests/` (list), and `GET /api/statistics/dashboard` (KPI cards). `useRequests` omits the `organization` query param when `options.role` is `operator`. List status badges expect API values (`new`, `assigned`, `in-progress`, etc.), not legacy mock labels like `pending`.
 
 Static org names in `src/lib/organizations.ts` remain for other mock screens (e.g. citizen submit), not the operator intake form.
 

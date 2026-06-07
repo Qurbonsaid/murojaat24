@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { CheckCircle, Clock, Eye, Loader2, Search } from "lucide-react";
 
+import IncorrectOrganizationBadge from "@/components/IncorrectOrganizationBadge";
 import ReviewModal from "@/components/ReviewModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import StatsCard from "@/components/StatsCard";
@@ -36,7 +37,7 @@ import { useDashboardStatistics } from "@/lib/api/statistics";
 
 const ALL_FILTER = "all";
 const PAGE_SIZE = 20;
-const DEFAULT_STATUS = "completed";
+const DEFAULT_STATUS = ALL_FILTER;
 
 const resolveListAssignment = (assignment: unknown): Assignment | undefined => {
   if (!assignment || typeof assignment !== "object") return undefined;
@@ -186,6 +187,7 @@ const ManagerReviewPage = () => {
                   <TableRow>
                     <TableHead>Raqam</TableHead>
                     <TableHead>Holat</TableHead>
+                    <TableHead>Fuqaro</TableHead>
                     <TableHead>Mutaxassis</TableHead>
                     <TableHead>Manzil</TableHead>
                     <TableHead>Yakunlangan</TableHead>
@@ -204,6 +206,10 @@ const ManagerReviewPage = () => {
                       populatedRequest?.address?.full ??
                       request.description ??
                       "—";
+                    const citizenName =
+                      request.citizen?.name ??
+                      populatedRequest?.citizen?.name ??
+                      "—";
                     const specialistName = resolveAssignmentSpecialistName(
                       assignment?.specialist as AssignmentUserRef | undefined,
                       new Map(),
@@ -215,8 +221,14 @@ const ManagerReviewPage = () => {
                           {request.requestNumber}
                         </TableCell>
                         <TableCell>
-                          <RequestStatusBadge status={request.status} />
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <RequestStatusBadge status={request.status} />
+                            {request.incorrectOrganization ? (
+                              <IncorrectOrganizationBadge />
+                            ) : null}
+                          </div>
                         </TableCell>
+                        <TableCell>{citizenName}</TableCell>
                         <TableCell>{specialistName}</TableCell>
                         <TableCell className="max-w-xs truncate">
                           {addressLabel}

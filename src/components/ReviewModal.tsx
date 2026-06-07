@@ -28,11 +28,16 @@ type ReviewModalProps = {
 };
 
 const resolveAssignmentFromRequest = (
-  assignment: unknown,
+  assignment: unknown
 ): Assignment | undefined => {
   if (!assignment || typeof assignment !== "object") return undefined;
   return assignment as Assignment;
 };
+
+const resolveImageUrls = (paths: string[] | undefined): string[] =>
+  (paths ?? [])
+    .map((image) => resolveAssetUrl(image))
+    .filter((url): url is string => Boolean(url));
 
 const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   const { toast } = useToast();
@@ -46,6 +51,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   const verifyRequest = useVerifyRequest();
   const request = requestQuery.data;
   const assignment = resolveAssignmentFromRequest(request?.assignment);
+  const completionData = request?.completionData;
 
   useEffect(() => {
     if (!open) {
@@ -58,21 +64,24 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     () =>
       resolveAssignmentSpecialistName(
         assignment?.specialist as AssignmentUserRef | undefined,
-        new Map(),
+        new Map()
       ),
-    [assignment?.specialist],
+    [assignment?.specialist]
   );
 
-  const imageUrls = useMemo(
-    () =>
-      (request?.images ?? [])
-        .map((image) => resolveAssetUrl(image))
-        .filter((url): url is string => Boolean(url)),
-    [request?.images],
+  const initialImageUrls = useMemo(
+    () => resolveImageUrls(request?.images),
+    [request?.images]
   );
 
-  const beforeImage = imageUrls[0];
-  const afterImage = imageUrls.length > 1 ? imageUrls[1] : imageUrls[0];
+  const completionImageUrls = useMemo(
+    () => resolveImageUrls(completionData?.images),
+    [completionData?.images]
+  );
+
+  const signatureUrl = completionData?.signature
+    ? resolveAssetUrl(completionData.signature)
+    : undefined;
 
   const timelineEntries = useMemo(() => {
     const entries = [...(request?.timeline ?? [])];
@@ -83,10 +92,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
         comment: null,
       });
     }
-    if (assignment?.completedAt) {
+    const completedAt =
+      completionData?.completedAt ?? assignment?.completedAt ?? null;
+    if (completedAt) {
       entries.push({
         status: "completed",
-        timestamp: assignment.completedAt,
+        timestamp: completedAt,
         comment: null,
       });
     }
@@ -95,7 +106,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
       const bTime = b.timestamp ? Date.parse(b.timestamp) : 0;
       return aTime - bTime;
     });
-  }, [assignment?.assignedAt, assignment?.completedAt, request?.timeline]);
+  }, [
+    assignment?.assignedAt,
+    assignment?.completedAt,
+    completionData?.completedAt,
+    request?.timeline,
+  ]);
 
   const canReview = request?.status === "completed";
   const isSubmitting = verifyRequest.isPending;
@@ -104,8 +120,8 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     requestQuery.error instanceof ApiError
       ? requestQuery.error.message
       : requestQuery.error instanceof Error
-        ? requestQuery.error.message
-        : "Murojaat ma'lumotlarini yuklashda xatolik";
+      ? requestQuery.error.message
+      : "Murojaat ma'lumotlarini yuklashda xatolik";
 
   const handleVerify = async (status: "approved" | "rejected") => {
     if (!requestId) return;
@@ -169,41 +185,71 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
             <p className="text-center text-destructive py-8">{errorMessage}</p>
           ) : request ? (
             <>
+              {request.incorrectOrganization ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                  Bu murojaat menejer tomonidan tashkilot noto&apos;g&apos;ri
+                  tanlangani sababli qaytarilgan
+                </div>
+              ) : null}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-foreground">
                     Dastlabki muammo
                   </h3>
 
-                  {beforeImage ? (
-                    <button
-                      type="button"
-                      className="w-full rounded-lg overflow-hidden border border-border"
-                      onClick={() =>
-                        setPreviewImage({ src: beforeImage, alt: "Dastlabki holat" })
-                      }
-                    >
-                      <img
-                        src={beforeImage}
-                        alt="Dastlabki holat"
-                        className="w-full h-64 object-cover"
-                      />
-                    </button>
+                  {initialImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {initialImageUrls.map((src, index) => (
+                        <button
+                          key={`${src}-${index}`}
+                          type="button"
+                          className="overflow-hidden rounded-lg border border-border"
+                          onClick={() =>
+                            setPreviewImage({
+                              src,
+                              alt: `Dastlabki holat ${index + 1}`,
+                            })
+                          }
+                        >
+                          <img
+                            src={src}
+                            alt={`Dastlabki holat ${index + 1}`}
+                            className="h-32 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   ) : null}
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Manzil:</p>
-                    <p className="text-foreground">{request.address?.full ?? "—"}</p>
+                    <p className="text-foreground">
+                      {request.address?.full ?? "—"}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Mutaxassis:</p>
-                    <p className="text-foreground font-medium">{specialistName}</p>
+                    <p className="text-foreground font-medium">
+                      {specialistName}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Fuqaro:</p>
-                    <p className="text-foreground">{request.citizen?.name ?? "—"}</p>
+                    <p className="text-foreground">
+                      {request.citizen?.name ?? "—"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Muammo tavsifi:
+                    </p>
+                    <p className="whitespace-pre-wrap text-foreground">
+                      {request.description?.trim() || "—"}
+                    </p>
                   </div>
                 </div>
 
@@ -212,36 +258,87 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                     Bajarilgan ish
                   </h3>
 
-                  {afterImage && afterImage !== beforeImage ? (
-                    <button
-                      type="button"
-                      className="w-full rounded-lg overflow-hidden border border-border"
-                      onClick={() =>
-                        setPreviewImage({ src: afterImage, alt: "Bajarilgan ish" })
-                      }
-                    >
-                      <img
-                        src={afterImage}
-                        alt="Bajarilgan ish"
-                        className="w-full h-64 object-cover"
-                      />
-                    </button>
+                  {completionData?.completedAt ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Yakunlangan vaqt:
+                      </p>
+                      <p className="text-foreground">
+                        {formatRequestDateTime(completionData.completedAt)}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {completionImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {completionImageUrls.map((src, index) => (
+                        <button
+                          key={`${src}-${index}`}
+                          type="button"
+                          className="overflow-hidden rounded-lg border border-border"
+                          onClick={() =>
+                            setPreviewImage({
+                              src,
+                              alt: `Bajarilgan ish ${index + 1}`,
+                            })
+                          }
+                        >
+                          <img
+                            src={src}
+                            alt={`Bajarilgan ish ${index + 1}`}
+                            className="h-32 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   ) : null}
 
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Muammo tavsifi:</p>
-                    <Textarea
-                      value={request.description ?? ""}
-                      readOnly
-                      className="min-h-[120px] resize-none"
-                    />
+                    <p className="text-sm text-muted-foreground">
+                      Mutaxassis hisoboti:
+                    </p>
+                    <p className="whitespace-pre-wrap text-foreground">
+                      {completionData?.report?.trim() || "—"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Fuqaro imzosi:
+                    </p>
+                    {signatureUrl ? (
+                      <button
+                        type="button"
+                        className="w-full overflow-hidden rounded-lg border border-border"
+                        onClick={() =>
+                          setPreviewImage({
+                            src: signatureUrl,
+                            alt: "Fuqaro imzosi",
+                          })
+                        }
+                      >
+                        <img
+                          src={signatureUrl}
+                          alt="Fuqaro imzosi"
+                          className="h-24 w-full object-contain bg-muted/30"
+                        />
+                      </button>
+                    ) : (
+                      <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/30">
+                        <p className="text-sm italic text-muted-foreground">
+                          Imzo mavjud emas
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {timelineEntries.length > 0 ? (
                 <div className="mt-6 space-y-2">
-                  <p className="text-sm font-medium text-foreground">Vaqt chizig&apos;i</p>
+                  <p className="text-sm font-medium text-foreground">
+                    Vaqt chizig&apos;i
+                  </p>
                   <ul className="space-y-2">
                     {timelineEntries.map((entry, index) => (
                       <li
@@ -299,8 +396,8 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                 </div>
               ) : (
                 <p className="mt-6 text-sm text-muted-foreground">
-                  Faqat &quot;Yakunlangan&quot; holatidagi murojaatlarni tasdiqlash yoki rad
-                  etish mumkin.
+                  Faqat yakunlangan tayinlashlar uchun tasdiqlash yoki rad etish
+                  mumkin.
                 </p>
               )}
             </>

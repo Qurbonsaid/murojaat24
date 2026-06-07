@@ -21,11 +21,13 @@ Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → 
 
 **Filters (query params):** `search`, `status`, `organization`, `priority`, `startDate`, `endDate` (`yyyy-MM-dd` from `DatePicker` in `components/ui/date-picker.tsx`). Options from `REQUEST_STATUS_OPTIONS` and `REQUEST_PRIORITY_OPTIONS`; organizations from `useOrganizations`. Pass `options.role: "admin"` so `organization` is sent when filtered. Changing any filter resets to page 1.
 
-**Table columns:** request number, citizen name, organization (via `resolveOrganizationName`), priority label, created time (`formatRequestDateTime`), `RequestStatusBadge`, Eye action.
+**Table columns:** request number, citizen name, organization (via `resolveOrganizationName`), priority label, created time (`formatRequestDateTime`), `RequestStatusBadge`, Pencil (edit organization) + Eye (detail).
+
+**Edit:** row Pencil opens `OperatorEditRequestModal` → `useUpdateRequest` → `PUT /api/requests/:id` with `{ organization }` only (all statuses; unlike operator list which limits edit to `new`).
 
 **Roles:** admin only (via ecosystem gate).
 
-**Edge cases:** loading spinner, `ApiError` message, empty “Murojaatlar topilmadi”; Eye disabled when `_id` missing; pagination Prev/Next when `pagination.pages > 1`. Detail modal images open in `ImagePreviewDialog` on click.
+**Edge cases:** loading spinner, `ApiError` message, empty “Murojaatlar topilmadi”; Eye/Pencil disabled when `_id` missing; pagination Prev/Next when `pagination.pages > 1`. Detail modal images open in `ImagePreviewDialog` on click. Edit modal only changes organization; list refreshes after save via query invalidation.
 
 ---
 
