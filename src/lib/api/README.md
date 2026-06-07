@@ -62,13 +62,15 @@ All five roles. Redirect targets defined in `getRoleRedirectPath` in `auth.ts`.
 
 ## Appeals (`requests.ts`)
 
-`useRequests` → `GET /api/requests/` with optional query params: `page`, `limit`, `status`, `organization`, `priority`, `search`, `startDate`, `endDate`. React Query key `["requests", params]`. Pass `options.role` of `operator` to strip `organization` from the query string (`omitOrganizationForRole`); admin passes all filters including `organization`. Filter labels: `REQUEST_STATUS_OPTIONS`, `REQUEST_PRIORITY_OPTIONS`. Helpers `getTodayDateRange()` (`date-fns` `format`, `yyyy-MM-dd`), `formatRequestTime()` (`HH:mm`), and `formatRequestDateTime()` (`dd.MM.yyyy HH:mm`) for list display.
+`useRequests` → `GET /api/requests/` with optional query params: `page`, `limit`, `status`, `organization`, `incorrectOrganization`, `priority`, `search`, `startDate`, `endDate`. React Query key `["requests", params]`. Pass `options.role` of `operator` to strip `organization` from the query string (`omitOrganizationForRole`); admin passes all filters including `organization`. Operator returned queue: `incorrectOrganization: true` without date filters. Filter labels: `REQUEST_STATUS_OPTIONS`, `REQUEST_PRIORITY_OPTIONS`. Helpers `getTodayDateRange()` (`date-fns` `format`, `yyyy-MM-dd`), `formatRequestTime()` (`HH:mm`), and `formatRequestDateTime()` (`dd.MM.yyyy HH:mm`) for list display.
 
 `useCreateOperatorRequest` → `POST /api/requests/operator` (operator/admin session). On success invalidates `["requests"]`. Mapper `toOperatorCreatePayload` builds `citizenName`, `citizenPhone` (`normalizePhone`), `organization` (id), `description`, `address.full`, `priority`. Used by `src/pages/operator-dashboard/` — see that folder's README.
 
 `useRequest(id)` → `GET /api/requests/:id` when `id` is set. React Query key `["requests", "detail", id]`. Used by `OperatorRequestDetailModal` (operator appeals list and admin `MurojaatlarSection`).
 
-`useUpdateRequest` → `PUT /api/requests/:id` with `{ organization }`. Invalidates `["requests"]` and detail. Used by `OperatorEditRequestModal` on the operator list (`new` only) and admin `MurojaatlarSection` (any status).
+`useUpdateRequest` → `PUT /api/requests/:id` with `{ organization }` (and other optional fields per OpenAPI). Invalidates `["requests"]` and detail. Used by `OperatorEditRequestModal` on the operator list (`new` or returned appeals) and admin `MurojaatlarSection` (any status).
+
+`useReturnRequestForWrongOrganization` → `PUT /api/requests/:id` with `{ incorrectOrganization: true }`. Invalidates requests and statistics caches. List/detail items may include `incorrectOrganization: boolean` on the response (not yet in OpenAPI response schemas; present on PUT body and as a GET list filter query param).
 
 `useVerifyRequest` → `PUT /api/requests/:id/verify` with body `{ status: "approved" | "rejected", comment? }`. On success invalidates `["requests"]`, detail, and `["statistics"]`. Used by `ReviewModal` on the manager review page.
 

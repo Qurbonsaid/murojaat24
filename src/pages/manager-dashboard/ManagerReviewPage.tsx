@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { CheckCircle, Clock, Eye, Loader2, Search } from "lucide-react";
 
+import IncorrectOrganizationBadge from "@/components/IncorrectOrganizationBadge";
 import ReviewModal from "@/components/ReviewModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import StatsCard from "@/components/StatsCard";
@@ -220,7 +221,12 @@ const ManagerReviewPage = () => {
                           {request.requestNumber}
                         </TableCell>
                         <TableCell>
-                          <RequestStatusBadge status={request.status} />
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <RequestStatusBadge status={request.status} />
+                            {request.incorrectOrganization ? (
+                              <IncorrectOrganizationBadge />
+                            ) : null}
+                          </div>
                         </TableCell>
                         <TableCell>{citizenName}</TableCell>
                         <TableCell>{specialistName}</TableCell>

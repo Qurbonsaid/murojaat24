@@ -24,15 +24,16 @@ Public: `/`, `/login`, `/role-select`.
 - View dashboard KPI cards on the list page via `useDashboardStatistics`.
 - Submit intake form (name, phone, organization, priority, description, address) → `POST /api/requests/operator`; success toast shows `requestNumber`.
 - Pick organization from `GET /api/organizations` (stores organization `_id`).
-- View today's appeals list (`useRequests` with today's `startDate`/`endDate`).
+- View today's appeals list (`useRequests` with today's `startDate`/`endDate`; returned rows shown only in the amber returned card).
+- View returned appeals queue when present (`useRequests` with `incorrectOrganization: true`, all dates).
 - Open appeal detail from the list (Eye) → `GET /api/requests/:id` via `useRequest`.
-- Edit organization on **new** appeals from the list (Pencil) → `PUT /api/requests/:id` via `useUpdateRequest`.
+- Edit organization on **new** or **returned** appeals (Pencil) → `PUT /api/requests/:id` via `useUpdateRequest`.
 
 ## Data read / write
 
 **Reads:** `CurrentUser`; organizations via `useOrganizations`; appeals list via `useRequests`; dashboard KPIs via `useDashboardStatistics` on list page.
 
-**Writes:** auth/profile API; operator appeal create via `useCreateOperatorRequest`; organization update on new appeals via `useUpdateRequest`.
+**Writes:** auth/profile API; operator appeal create via `useCreateOperatorRequest`; organization update on new/returned appeals via `useUpdateRequest` (clears `incorrectOrganization` when fixing a return).
 
 ## Feature docs
 

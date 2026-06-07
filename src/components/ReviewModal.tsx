@@ -34,6 +34,11 @@ const resolveAssignmentFromRequest = (
   return assignment as Assignment;
 };
 
+const resolveImageUrls = (paths: string[] | undefined): string[] =>
+  (paths ?? [])
+    .map((image) => resolveAssetUrl(image))
+    .filter((url): url is string => Boolean(url));
+
 const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   const { toast } = useToast();
   const [rejectComment, setRejectComment] = useState("");
@@ -46,6 +51,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   const verifyRequest = useVerifyRequest();
   const request = requestQuery.data;
   const assignment = resolveAssignmentFromRequest(request?.assignment);
+  const completionData = request?.completionData;
 
   useEffect(() => {
     if (!open) {
@@ -63,16 +69,19 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     [assignment?.specialist]
   );
 
-  const imageUrls = useMemo(
-    () =>
-      (request?.images ?? [])
-        .map((image) => resolveAssetUrl(image))
-        .filter((url): url is string => Boolean(url)),
+  const initialImageUrls = useMemo(
+    () => resolveImageUrls(request?.images),
     [request?.images]
   );
 
-  const beforeImage = imageUrls[0];
-  const afterImage = imageUrls.length > 1 ? imageUrls[1] : imageUrls[0];
+  const completionImageUrls = useMemo(
+    () => resolveImageUrls(completionData?.images),
+    [completionData?.images]
+  );
+
+  const signatureUrl = completionData?.signature
+    ? resolveAssetUrl(completionData.signature)
+    : undefined;
 
   const timelineEntries = useMemo(() => {
     const entries = [...(request?.timeline ?? [])];
@@ -83,10 +92,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
         comment: null,
       });
     }
-    if (assignment?.completedAt) {
+    const completedAt =
+      completionData?.completedAt ?? assignment?.completedAt ?? null;
+    if (completedAt) {
       entries.push({
         status: "completed",
-        timestamp: assignment.completedAt,
+        timestamp: completedAt,
         comment: null,
       });
     }
@@ -95,7 +106,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
       const bTime = b.timestamp ? Date.parse(b.timestamp) : 0;
       return aTime - bTime;
     });
-  }, [assignment?.assignedAt, assignment?.completedAt, request?.timeline]);
+  }, [
+    assignment?.assignedAt,
+    assignment?.completedAt,
+    completionData?.completedAt,
+    request?.timeline,
+  ]);
 
   const canReview = request?.status === "completed";
   const isSubmitting = verifyRequest.isPending;
@@ -169,29 +185,41 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
             <p className="text-center text-destructive py-8">{errorMessage}</p>
           ) : request ? (
             <>
+              {request.incorrectOrganization ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                  Bu murojaat menejer tomonidan tashkilot noto&apos;g&apos;ri
+                  tanlangani sababli qaytarilgan
+                </div>
+              ) : null}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-foreground">
                     Dastlabki muammo
                   </h3>
 
-                  {beforeImage ? (
-                    <button
-                      type="button"
-                      className="w-full rounded-lg overflow-hidden border border-border"
-                      onClick={() =>
-                        setPreviewImage({
-                          src: beforeImage,
-                          alt: "Dastlabki holat",
-                        })
-                      }
-                    >
-                      <img
-                        src={beforeImage}
-                        alt="Dastlabki holat"
-                        className="w-full h-64 object-cover"
-                      />
-                    </button>
+                  {initialImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {initialImageUrls.map((src, index) => (
+                        <button
+                          key={`${src}-${index}`}
+                          type="button"
+                          className="overflow-hidden rounded-lg border border-border"
+                          onClick={() =>
+                            setPreviewImage({
+                              src,
+                              alt: `Dastlabki holat ${index + 1}`,
+                            })
+                          }
+                        >
+                          <img
+                            src={src}
+                            alt={`Dastlabki holat ${index + 1}`}
+                            className="h-32 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   ) : null}
 
                   <div className="space-y-2">
@@ -214,6 +242,15 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                       {request.citizen?.name ?? "—"}
                     </p>
                   </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Muammo tavsifi:
+                    </p>
+                    <p className="whitespace-pre-wrap text-foreground">
+                      {request.description?.trim() || "—"}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="space-y-4">
@@ -221,34 +258,78 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                     Bajarilgan ish
                   </h3>
 
-                  {afterImage && afterImage !== beforeImage ? (
-                    <button
-                      type="button"
-                      className="w-full rounded-lg overflow-hidden border border-border"
-                      onClick={() =>
-                        setPreviewImage({
-                          src: afterImage,
-                          alt: "Bajarilgan ish",
-                        })
-                      }
-                    >
-                      <img
-                        src={afterImage}
-                        alt="Bajarilgan ish"
-                        className="w-full h-64 object-cover"
-                      />
-                    </button>
+                  {completionData?.completedAt ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Yakunlangan vaqt:
+                      </p>
+                      <p className="text-foreground">
+                        {formatRequestDateTime(completionData.completedAt)}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {completionImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {completionImageUrls.map((src, index) => (
+                        <button
+                          key={`${src}-${index}`}
+                          type="button"
+                          className="overflow-hidden rounded-lg border border-border"
+                          onClick={() =>
+                            setPreviewImage({
+                              src,
+                              alt: `Bajarilgan ish ${index + 1}`,
+                            })
+                          }
+                        >
+                          <img
+                            src={src}
+                            alt={`Bajarilgan ish ${index + 1}`}
+                            className="h-32 w-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   ) : null}
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      Muammo tavsifi:
+                      Mutaxassis hisoboti:
                     </p>
-                    <Textarea
-                      value={request.description ?? ""}
-                      readOnly
-                      className="min-h-[120px] resize-none"
-                    />
+                    <p className="whitespace-pre-wrap text-foreground">
+                      {completionData?.report?.trim() || "—"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                      Fuqaro imzosi:
+                    </p>
+                    {signatureUrl ? (
+                      <button
+                        type="button"
+                        className="w-full overflow-hidden rounded-lg border border-border"
+                        onClick={() =>
+                          setPreviewImage({
+                            src: signatureUrl,
+                            alt: "Fuqaro imzosi",
+                          })
+                        }
+                      >
+                        <img
+                          src={signatureUrl}
+                          alt="Fuqaro imzosi"
+                          className="h-24 w-full object-contain bg-muted/30"
+                        />
+                      </button>
+                    ) : (
+                      <div className="flex h-24 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted/30">
+                        <p className="text-sm italic text-muted-foreground">
+                          Imzo mavjud emas
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -315,8 +396,8 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                 </div>
               ) : (
                 <p className="mt-6 text-sm text-muted-foreground">
-                  Faqat &quot;Yakunlangan&quot; holatidagi murojaatlarni
-                  tasdiqlash yoki rad etish mumkin.
+                  Faqat yakunlangan tayinlashlar uchun tasdiqlash yoki rad etish
+                  mumkin.
                 </p>
               )}
             </>

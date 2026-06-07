@@ -176,18 +176,6 @@ const ManagerAddUserModal = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="manager-add-phone">Telefon raqami *</Label>
-            <Input
-              id="manager-add-phone"
-              value={phoneValue}
-              onChange={handlePhoneChange}
-              placeholder="+998 90 123 45 67"
-            />
-            {errors.phone && (
-              <p className="text-sm text-destructive">{errors.phone.message}</p>
-            )}
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="manager-add-role">Rol *</Label>
@@ -252,7 +240,18 @@ const ManagerAddUserModal = ({
               {...register("sector")}
             />
           </div>
-
+          <div className="space-y-2">
+            <Label htmlFor="manager-add-phone">Telefon raqami *</Label>
+            <Input
+              id="manager-add-phone"
+              value={phoneValue}
+              onChange={handlePhoneChange}
+              placeholder="+998 90 123 45 67"
+            />
+            {errors.phone && (
+              <p className="text-sm text-destructive">{errors.phone.message}</p>
+            )}
+          </div>
           <div className="space-y-2">
             <Label htmlFor="manager-add-password">Parol *</Label>
             <Input

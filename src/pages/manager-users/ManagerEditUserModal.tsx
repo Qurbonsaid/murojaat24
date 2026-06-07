@@ -56,7 +56,7 @@ const formSchema = z
     {
       message: "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
       path: ["newPassword"],
-    },
+    }
   )
   .refine(
     (data) => {
@@ -66,7 +66,7 @@ const formSchema = z
     {
       message: "Parollar mos kelmayapti",
       path: ["confirmPassword"],
-    },
+    }
   );
 
 type FormData = z.infer<typeof formSchema>;
@@ -163,13 +163,13 @@ const ManagerEditUserModal = ({
         ...(quarterValue
           ? { quarter: quarterValue }
           : hadQuarter
-            ? { quarter: "" }
-            : {}),
+          ? { quarter: "" }
+          : {}),
         ...(sectorValue
           ? { sector: sectorValue }
           : hadSector
-            ? { sector: "" }
-            : {}),
+          ? { sector: "" }
+          : {}),
       };
 
       await updateUser.mutateAsync(updatePayload);
@@ -236,11 +236,6 @@ const ManagerEditUserModal = ({
           className="space-y-4"
           autoComplete="off"
         >
-          <div className="space-y-2">
-            <Label htmlFor="manager-edit-phone">Telefon raqami</Label>
-            <Input id="manager-edit-phone" disabled {...register("phone")} />
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="manager-edit-firstName">Ism *</Label>
             <Input
@@ -321,7 +316,9 @@ const ManagerEditUserModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="manager-edit-organization">Tashkilotni tanlang</Label>
+            <Label htmlFor="manager-edit-organization">
+              Tashkilotni tanlang
+            </Label>
             <Select
               value={organizationValue || "none"}
               onValueChange={(value) =>
@@ -356,12 +353,19 @@ const ManagerEditUserModal = ({
             <Input
               id="manager-edit-sector"
               placeholder="Masalan: 3-sektor (ixtiyoriy)"
+              autoComplete="off"
+              aria-autocomplete="none"
               {...register("sector")}
             />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="manager-edit-newPassword">Yangi parol (ixtiyoriy)</Label>
+            <Label htmlFor="manager-edit-phone">Telefon raqami</Label>
+            <Input id="manager-edit-phone" disabled {...register("phone")} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="manager-edit-newPassword">
+              Yangi parol (ixtiyoriy)
+            </Label>
             <Input
               id="manager-edit-newPassword"
               type="password"
