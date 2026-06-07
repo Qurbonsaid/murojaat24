@@ -96,6 +96,9 @@ const OperatorEditRequestModal = ({
       await updateRequest.mutateAsync({
         id: request._id,
         organization: data.organizationId,
+        ...(request.incorrectOrganization
+          ? { incorrectOrganization: false }
+          : {}),
       });
 
       toast({

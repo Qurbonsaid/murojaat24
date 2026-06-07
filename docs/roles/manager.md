@@ -24,6 +24,7 @@ Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/us
 - Login, logout, update profile.
 - List appeals for their organization (`GET /api/requests/`).
 - Open review modal; approve or reject completed work (`PUT /api/requests/{id}/verify`).
+- Return misrouted appeals to the operator (`PUT /api/requests/{id}` with `{ incorrectOrganization: true }`); operator reassigns organization when status is `new`.
 - View statistics and export Excel for their organization.
 - List, search, and filter staff on `/manager/users` via `GET /api/users` (`organizations`, `role`, `search`); add/edit/delete dispatcher and specialist (mutations may return **403** until backend allows manager access).
 
@@ -31,7 +32,7 @@ Managers cannot access `/ecosystem/*` (including admin `/ecosystem/murojaat24/us
 
 **Reads:** `CurrentUser`; `GET /api/requests` (organization filter); `GET /api/requests/:id`; statistics endpoints (`dashboard`, `daily`, `by-organization`, `specialists`); `GET /api/users` (`organizations`, `role`, `search`).
 
-**Writes:** auth/profile API; verify request; `POST`/`PUT`/`DELETE` users via manager modals (subject to backend role checks).
+**Writes:** auth/profile API; verify request; return wrong-organization appeal (`incorrectOrganization: true`); `POST`/`PUT`/`DELETE` users via manager modals (subject to backend role checks).
 
 ## Feature docs
 
