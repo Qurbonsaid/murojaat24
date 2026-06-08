@@ -32,7 +32,7 @@ flowchart TD
   Verify --> Invalidate["invalidate requests + statistics"]
 ```
 
-Verify body: `{ status: "approved" | "rejected", comment? }`. When a request was returned for wrong organization (`incorrectOrganization: true` on list/detail), `ReviewModal` shows an info note; operator reassigns organization via `OperatorEditRequestModal` on `new` appeals. Wrong-org return API (`PUT /api/requests/:id` with `{ incorrectOrganization: true }`) remains in `useReturnRequestForWrongOrganization` for future UI.
+Verify body: `{ status: "approved" | "rejected", comment? }`. Wrong-organization card (manager-only): warning card in `ReviewModal` with **Operatorga qaytarish** (hidden when already returned); confirm dialog → `PUT /api/requests/:id` with `{ incorrectOrganization: true }`. When `incorrectOrganization: true`, an info note appears below the modal title. Operator reassigns organization via `OperatorEditRequestModal` on `new` appeals.
 
 `ReviewModal` left column: initial `description` and `images`; right column: `completionData` (`report`, `images`, `signature`, `completedAt` on `AppealRequestDetail`).
 
@@ -48,7 +48,7 @@ Statistics endpoints (`daily`, `specialists`, `dashboard`) do not yet accept an 
 
 - Manager without `organization` on profile: list query disabled; error message shown.
 - Verify/reject shown only when request `status` is `completed`.
-- Info note in `ReviewModal` when `incorrectOrganization` is true on the detail response.
+- Wrong-org warning card hidden for `verified` and `rejected`; when already returned (`incorrectOrganization: true`), the card is hidden and an info note shows below the modal title.
 - Verify errors surface via destructive toast (`ApiError`).
 - Statistics export requires organization id on the manager profile.
 - Reject comment is optional on verify.

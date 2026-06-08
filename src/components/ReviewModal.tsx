@@ -3,6 +3,15 @@ import { Loader2 } from "lucide-react";
 
 import ImagePreviewDialog from "@/components/ImagePreviewDialog";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,12 +21,17 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import type { Assignment, AssignmentUserRef } from "@/lib/api/assignments";
 import { resolveAssignmentSpecialistName } from "@/lib/api/assignments";
+import { useCurrentUser } from "@/lib/api/auth";
 import { ApiError, resolveAssetUrl } from "@/lib/api/client";
+import { useOrganizations } from "@/lib/api/organizations";
 import {
   formatRequestDateTime,
+  resolveOrganizationName,
   useRequest,
+  useReturnRequestForWrongOrganization,
   useVerifyRequest,
 } from "@/lib/api/requests";
 
@@ -42,13 +56,17 @@ const resolveImageUrls = (paths: string[] | undefined): string[] =>
 const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   const { toast } = useToast();
   const [rejectComment, setRejectComment] = useState("");
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<{
     src: string;
     alt: string;
   } | null>(null);
 
+  const currentUserQuery = useCurrentUser();
+  const organizationsQuery = useOrganizations();
   const requestQuery = useRequest(open ? requestId : null);
   const verifyRequest = useVerifyRequest();
+  const returnRequest = useReturnRequestForWrongOrganization();
   const request = requestQuery.data;
   const assignment = resolveAssignmentFromRequest(request?.assignment);
   const completionData = request?.completionData;
@@ -56,9 +74,18 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   useEffect(() => {
     if (!open) {
       setRejectComment("");
+      setReturnDialogOpen(false);
       setPreviewImage(null);
     }
   }, [open]);
+
+  const organizationNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const org of organizationsQuery.data ?? []) {
+      map.set(org._id, org.name);
+    }
+    return map;
+  }, [organizationsQuery.data]);
 
   const specialistName = useMemo(
     () =>
@@ -114,7 +141,17 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   ]);
 
   const canReview = request?.status === "completed";
-  const isSubmitting = verifyRequest.isPending;
+  const isManager = currentUserQuery.data?.role === "manager";
+  const canShowWrongOrgCard =
+    isManager &&
+    request &&
+    request.status !== "verified" &&
+    request.status !== "rejected";
+  const organizationName = resolveOrganizationName(
+    request?.organization,
+    organizationNameById,
+  );
+  const isSubmitting = verifyRequest.isPending || returnRequest.isPending;
 
   const errorMessage =
     requestQuery.error instanceof ApiError
@@ -156,6 +193,28 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     }
   };
 
+  const handleReturnToOperator = async () => {
+    if (!requestId) return;
+
+    try {
+      await returnRequest.mutateAsync(requestId);
+      toast({
+        title: "Murojaat operatorga qaytarildi",
+      });
+      setReturnDialogOpen(false);
+      onOpenChange(false);
+    } catch (error) {
+      toast({
+        title: "Xatolik",
+        description:
+          error instanceof ApiError
+            ? error.message
+            : "Murojaatni operatorga qaytarishda xatolik yuz berdi",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <ImagePreviewDialog
@@ -175,6 +234,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                 <RequestStatusBadge status={request.status} />
               ) : null}
             </div>
+            {request?.incorrectOrganization ? (
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
+                Bu murojaat menejer tomonidan tashkilot noto&apos;g&apos;ri
+                tanlangani sababli qaytarilgan
+              </p>
+            ) : null}
           </DialogHeader>
 
           {requestQuery.isLoading ? (
@@ -185,13 +250,6 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
             <p className="text-center text-destructive py-8">{errorMessage}</p>
           ) : request ? (
             <>
-              {request.incorrectOrganization ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
-                  Bu murojaat menejer tomonidan tashkilot noto&apos;g&apos;ri
-                  tanlangani sababli qaytarilgan
-                </div>
-              ) : null}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-foreground">
@@ -355,6 +413,41 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                 </div>
               ) : null}
 
+              {canShowWrongOrgCard ? (
+                <div
+                  className={cn(
+                    "mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/30",
+                    request.incorrectOrganization && "hidden",
+                  )}
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-2">
+                      <p className="font-medium text-foreground">
+                        Tashkilot noto&apos;g&apos;ri tanlanganmi?
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Agar murojaat sizning tashkilotingizga tegishli
+                        bo&apos;lmasa, uni operatorga qaytaring. Operator
+                        murojaatni boshqa tashkilotga qayta biriktiradi.
+                      </p>
+                      <p className="text-sm text-foreground">
+                        Joriy tashkilot:{" "}
+                        <span className="font-medium">{organizationName}</span>
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="shrink-0 border-amber-300 hover:bg-amber-100 hover:text-amber-900 dark:border-amber-800 dark:hover:bg-amber-950/50 dark:hover:text-amber-200"
+                      disabled={isSubmitting}
+                      onClick={() => setReturnDialogOpen(true)}
+                    >
+                      Operatorga qaytarish
+                    </Button>
+                  </div>
+                </div>
+              ) : null}
+
               {canReview ? (
                 <div className="mt-6 space-y-3">
                   <div className="space-y-2">
@@ -371,7 +464,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      className="flex-1 border-red-500 text-red-500 hover:bg-red-50"
+                      className="flex-1 border-red-500 text-red-500 hover:text-red-900 hover:bg-red-50"
                       disabled={isSubmitting}
                       onClick={() => void handleVerify("rejected")}
                     >
@@ -404,6 +497,36 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
           ) : null}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={returnDialogOpen} onOpenChange={setReturnDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Murojaatni operatorga qaytarish</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu murojaat operatorga qaytariladi va boshqa tashkilotga qayta
+              biriktiriladi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={returnRequest.isPending}>
+              Bekor qilish
+            </AlertDialogCancel>
+            <Button
+              disabled={returnRequest.isPending}
+              onClick={() => void handleReturnToOperator()}
+            >
+              {returnRequest.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Qaytarilmoqda...
+                </>
+              ) : (
+                "Qaytarish"
+              )}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
