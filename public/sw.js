@@ -4,7 +4,7 @@ const APP_SHELL = [
   "/login",
   "/specialist-mobile",
   "/offline.html",
-  "/qr-scan.svg",
+  "/specialist_instruction.mp4",
   "/termiz-aqlli-shahar-logo.svg",
 ];
 
