@@ -71,15 +71,14 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-300">
                 Mutaxassis ilovasini o'rnatish
               </p>
-              <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
-                Brauzer menyusidan o'rnating
-              </h1>
-              <p className="mt-3 text-sm text-slate-200 sm:text-base">
-                Ushbu sahifa brauzerda ochilgan. Chrome menyusidan "Bosh ekranga
-                qo'shish" (Add to homescreen / Добавить на главный экран) bosing
-                va "Ilovani o'rnatish" (Install app / Установить приложение)
-                bandini tanlab ilovani o'rnating.
-              </p>
+              <video
+                src="/specialist_instruction.mp4"
+                className="h-full w-full object-contain"
+                autoPlay
+                muted
+                loop
+                controls
+              />
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -108,10 +107,13 @@ export const MobileQRCode = ({ loginUrl }: Props) => {
     <div className="min-h-dvh bg-slate-100 p-4 md:p-8">
       <div className="mx-auto flex h-[calc(100dvh-2rem)] w-full max-w-7xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl md:h-[calc(100dvh-4rem)] lg:flex-row">
         <div className="flex h-56 items-center justify-center bg-slate-900 p-5 sm:h-72 md:h-80 lg:h-auto lg:w-1/2 lg:p-8">
-          <img
-            src="/qr-scan.svg"
-            alt="QR kodni skanerlash rasmi"
+          <video
+            src="/specialist_instruction.mp4"
             className="h-full w-full object-contain"
+            autoPlay
+            muted
+            loop
+            controls
           />
         </div>
         <div className="flex w-full flex-1 items-center justify-center overflow-auto p-5 sm:p-6 md:p-8 lg:w-1/2 lg:p-12">
