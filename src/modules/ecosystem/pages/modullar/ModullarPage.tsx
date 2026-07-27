@@ -5,6 +5,7 @@ import {
   Clock3,
   FileBarChart2,
   MapPinned,
+  ThermometerSun,
   PhoneCall,
   Recycle,
   Settings2,
@@ -79,14 +80,14 @@ const modules: ModuleEntry[] = [
     available: false,
   },
   {
-    id: "shahar-passporti",
-    label: "Shahar passporti",
+    id: "termo24",
+    label: "Termo24",
     description:
-      "Termiz shahri infratuzilmasi va obyektlari yagona ma'lumot bazasi.",
-    path: "/ecosystem/city-passport",
-    icon: MapPinned,
+      "Termiz shahridagi issiqlik ta'minoti tizimi va u bilan bog'liq jarayonlarni kuzatish.",
+    path: "/ecosystem/termo24",
+    icon: ThermometerSun,
     accent: "bg-rose-600",
-    available: false,
+    available: true,
   },
   {
     id: "hududlar-taqsimoti",

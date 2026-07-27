@@ -9,8 +9,10 @@ import EcosystemLayout from "./modules/ecosystem/layouts/EcosystemLayout";
 import ComingSoonPage from "./modules/ecosystem/pages/coming-soon/ComingSoonPage";
 import ModullarPage from "./modules/ecosystem/pages/modullar/ModullarPage";
 import Murojaat24ModulePage from "./modules/ecosystem/pages/murojaat24/Murojaat24ModulePage";
+import Termo24ModulePage from "./modules/ecosystem/pages/termo24/Termo24ModulePage";
 import SozlamalarPage from "./modules/ecosystem/pages/sozlamalar/SozlamalarPage";
 import { murojaat24Routes } from "./modules/murojaat24/config/routes";
+import { termo24Routes } from "./modules/termo24/config/routes";
 import Index from "./pages/landing/Index";
 import NotFound from "./pages/errors/NotFound";
 import Profile from "./pages/profile/Profile";
@@ -41,6 +43,8 @@ const App = () => (
                   <ModullarPage />
                 ) : routeEntry.moduleKind === "murojaat24" ? (
                   <Murojaat24ModulePage />
+                ) : routeEntry.moduleKind === "termo24" ? (
+                  <Termo24ModulePage />
                 ) : routeEntry.moduleKind === "sozlamalar" ? (
                   <SozlamalarPage />
                 ) : (
@@ -57,6 +61,19 @@ const App = () => (
             })}
           </Route>
           {murojaat24Routes.map((route) => {
+            const element = route.public ? (
+              route.element
+            ) : (
+              <ProtectedRoute requiredRoles={route.requiredRoles}>
+                {route.element}
+              </ProtectedRoute>
+            );
+
+            return (
+              <Route key={route.path} path={route.path} element={element} />
+            );
+          })}
+          {termo24Routes.map((route) => {
             const element = route.public ? (
               route.element
             ) : (

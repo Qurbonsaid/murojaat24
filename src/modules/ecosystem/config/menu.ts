@@ -8,11 +8,13 @@ import {
   Settings2,
   ShieldCheck,
   TextSearch,
+  ThermometerSun,
 } from "lucide-react";
 
 export type EcosystemModuleKind =
   | "modullar"
   | "murojaat24"
+  | "termo24"
   | "sozlamalar"
   | "coming-soon";
 
@@ -56,7 +58,7 @@ export const getVisibleEcosystemMenuItems = (): EcosystemMenuItem[] =>
       return {
         ...item,
         children: item.children.filter(
-          (child) => !isEcosystemMenuComingSoon(child.moduleKind)
+          (child) => !isEcosystemMenuComingSoon(child.moduleKind),
         ),
       };
     });
@@ -96,7 +98,27 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
       },
     ],
   },
-
+  {
+    id: "termo24",
+    label: "Termo24",
+    path: "/ecosystem/termo24",
+    icon: ThermometerSun,
+    moduleKind: "termo24",
+    children: [
+      {
+        id: "xarita",
+        label: "Xarita",
+        path: "/ecosystem/termo24/map",
+        moduleKind: "termo24",
+      },
+      {
+        id: "qurilmalar",
+        label: "Qurilmalar",
+        path: "/ecosystem/termo24/devices",
+        moduleKind: "termo24",
+      },
+    ],
+  },
   {
     id: "toza-hudud",
     label: "Toza hudud",
@@ -116,13 +138,6 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     label: "Nazorat 24",
     path: "/ecosystem/supervision-24",
     icon: ShieldCheck,
-    moduleKind: "coming-soon",
-  },
-  {
-    id: "shahar-passporti",
-    label: "Shahar Passporti",
-    path: "/ecosystem/city-passport",
-    icon: MapPinned,
     moduleKind: "coming-soon",
   },
   {
@@ -262,6 +277,6 @@ const normalizePath = (path: string) => {
 export const getEcosystemEntryByPath = (pathname: string) => {
   const normalizedPath = normalizePath(pathname);
   return ecosystemRouteEntries.find(
-    (entry) => normalizePath(entry.path) === normalizedPath
+    (entry) => normalizePath(entry.path) === normalizedPath,
   );
 };
