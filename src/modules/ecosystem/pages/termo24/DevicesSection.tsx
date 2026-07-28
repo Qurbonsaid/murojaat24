@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { PencilLine } from "lucide-react";
-import { format, isValid, parseISO } from "date-fns";
+import { differenceInMinutes, format, isValid, parseISO } from "date-fns";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -32,6 +33,15 @@ const formatRatingDate = (value: unknown): string => {
   const parsed = parseISO(value);
   if (!isValid(parsed)) return value.trim();
   return format(parsed, "HH:mm:ss dd.MM.yyyy");
+};
+
+const isStaleUpdate = (timestamp?: string) => {
+  if (!timestamp) return false;
+
+  const parsedValue = parseISO(timestamp);
+  if (Number.isNaN(parsedValue.getTime())) return false;
+
+  return differenceInMinutes(new Date(), parsedValue) > 30;
 };
 
 const DevicesSection = () => {
@@ -94,6 +104,7 @@ const DevicesSection = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nomi</TableHead>
+                <TableHead>Holati</TableHead>
                 <TableHead>Kirish harorati</TableHead>
                 <TableHead>Chiqish harorati</TableHead>
                 <TableHead>To'liq manzil</TableHead>
@@ -113,10 +124,20 @@ const DevicesSection = () => {
                       <span title={displayName}>{displayName}</span>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      {device.input.toFixed(1)}°C
+                      {device.status === "both_fault" ||
+                      isStaleUpdate(device.timestamp) ? (
+                        <Badge variant="destructive">Uzilgan</Badge>
+                      ) : device.status === "ok" ? (
+                        <Badge variant="default">Normal</Badge>
+                      ) : (
+                        <Badge variant="secondary">Nosoz sensor</Badge>
+                      )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      {device.output.toFixed(1)}°C
+                      {device.input.toFixed(2)}°C
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {device.output.toFixed(2)}°C
                     </TableCell>
                     <TableCell className="max-w-[28rem] truncate whitespace-nowrap">
                       <span title={fullAddress}>{fullAddress}</span>

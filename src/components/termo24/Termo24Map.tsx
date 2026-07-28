@@ -104,17 +104,17 @@ const isStaleUpdate = (timestamp?: string) => {
 const getMarkerStyle = (point: Termo24MapPoint) => {
   const isStale = isStaleUpdate(point.timestamp);
 
+  if (point.status === "both_fault" || isStale) {
+    return {
+      color: "#dc2626",
+      fillColor: "#ef4444",
+    };
+  }
+
   if (point.status === "ok") {
     return {
       color: "#16a34a",
       fillColor: "#22c55e",
-    };
-  }
-
-  if (point.status === "both_fault" && isStale) {
-    return {
-      color: "#dc2626",
-      fillColor: "#ef4444",
     };
   }
 
