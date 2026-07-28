@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -10,10 +10,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Termo24Map from "@/components/termo24/Termo24Map";
 import type {
   Termo24Device,
   Termo24DeviceUpdateInput,
 } from "@/lib/api/termo24";
+
+type SelectedCoordinates = {
+  lat: number;
+  lng: number;
+};
 
 type DeviceFormState = {
   name?: string;
@@ -47,25 +53,30 @@ const defaultFormState: DeviceFormState = {
     street: "",
     house: "",
     coordinates: {
-      lat: "41.3111",
-      lng: "69.2797",
+      lat: "",
+      lng: "",
     },
   },
   quarter: "",
   sector: "",
 };
 
-const buildMapUrl = (latitude?: string, longitude?: string) => {
-  const fallbackLatitude =
-    latitude?.trim() || defaultFormState.address?.coordinates?.lat || "41.3111";
-  const fallbackLongitude =
-    longitude?.trim() ||
-    defaultFormState.address?.coordinates?.lng ||
-    "69.2797";
+const normalizeText = (value?: string | null) => {
+  const trimmedValue = value?.trim();
+  return trimmedValue ? trimmedValue : null;
+};
 
-  return `https://www.google.com/maps?q=${encodeURIComponent(
-    `${fallbackLatitude},${fallbackLongitude}`,
-  )}&z=15&output=embed`;
+const normalizeCoordinate = (value: number | null | undefined) =>
+  typeof value === "number" && Number.isFinite(value) ? value : null;
+
+const isValidDeviceCoordinate = (value: number | null | undefined) =>
+  typeof value === "number" && Number.isFinite(value) && value !== 0;
+
+const defaultMapCenter = {
+  lat: 37.2242,
+  lng: 67.2788,
+  label: "Termiz shahri",
+  description: "Qurilma koordinatalari mavjud emas",
 };
 
 const EditTermo24DeviceModal = ({
@@ -76,6 +87,9 @@ const EditTermo24DeviceModal = ({
   isSaving = false,
 }: EditTermo24DeviceModalProps) => {
   const [formState, setFormState] = useState<DeviceFormState>(defaultFormState);
+  const [selectedCoordinates, setSelectedCoordinates] =
+    useState<SelectedCoordinates | null>(null);
+  const [mapCenter, setMapCenter] = useState(defaultMapCenter);
 
   useEffect(() => {
     if (!open || !device) return;
@@ -91,16 +105,57 @@ const EditTermo24DeviceModal = ({
       quarter: device.quarter,
       sector: device.sector,
     });
-  }, [device, open]);
 
-  const mapSrc = useMemo(
-    () =>
-      buildMapUrl(
-        formState.address?.coordinates?.lat,
-        formState.address?.coordinates?.lng,
-      ),
-    [formState.address?.coordinates?.lat, formState.address?.coordinates?.lng],
-  );
+    const latitude = device.address.coordinates.lat;
+    const longitude = device.address.coordinates.lng;
+    const deviceCenter =
+      isValidDeviceCoordinate(latitude) && isValidDeviceCoordinate(longitude)
+        ? { lat: latitude, lng: longitude }
+        : null;
+
+    if (deviceCenter) {
+      setMapCenter({
+        lat: deviceCenter.lat,
+        lng: deviceCenter.lng,
+        label: device.name?.trim() || "Qurilma",
+        description: device.address.full?.trim() || "Qurilma joylashuvi",
+      });
+      setSelectedCoordinates(deviceCenter);
+      return;
+    }
+
+    let cancelled = false;
+    setSelectedCoordinates(null);
+    setMapCenter(defaultMapCenter);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (cancelled) return;
+
+          const currentLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            label: "Mening joylashuvim",
+            description: "Brauzer joylashuvi",
+          };
+
+          setMapCenter(currentLocation);
+          setSelectedCoordinates(null);
+        },
+        () => {
+          if (cancelled) return;
+
+          setMapCenter(defaultMapCenter);
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
+      );
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [device, open]);
 
   const handleClose = () => {
     onOpenChange(false);
@@ -111,18 +166,18 @@ const EditTermo24DeviceModal = ({
 
     await onSave({
       id: device._id,
-      name: formState.name?.trim() || null,
+      name: normalizeText(formState.name),
       address: {
-        full: formState.address?.full?.trim() || null,
-        street: formState.address?.street?.trim() || null,
-        house: formState.address?.house?.trim() || null,
+        full: normalizeText(formState.address?.full),
+        street: normalizeText(formState.address?.street),
+        house: normalizeText(formState.address?.house),
         coordinates: {
-          lat: device.address.coordinates.lat,
-          lng: device.address.coordinates.lng,
+          lat: normalizeCoordinate(selectedCoordinates?.lat),
+          lng: normalizeCoordinate(selectedCoordinates?.lng),
         },
       },
-      quarter: formState.quarter?.trim() || null,
-      sector: formState.sector?.trim() || null,
+      quarter: normalizeText(formState.quarter),
+      sector: normalizeText(formState.sector),
     });
 
     handleClose();
@@ -130,12 +185,12 @@ const EditTermo24DeviceModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>Qurilmani tahrirlash</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-5">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="device-name">Nomi</Label>
@@ -245,28 +300,28 @@ const EditTermo24DeviceModal = ({
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <p className="text-sm font-semibold text-foreground">Xarita</p>
-              <p className="text-sm text-muted-foreground">
-                Kenglik va uzunlik maydonlarini o'zgartirib, xarita previewini
-                yangilang.
-              </p>
-            </div>
-
-            <div className="overflow-hidden rounded-lg border bg-muted/20">
-              <iframe
-                title="Termo24 device map preview"
-                src={mapSrc}
-                className="h-[320px] w-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-foreground">Xarita</p>
+            <div className="overflow-hidden rounded-xl border bg-muted/20">
+              <Termo24Map
+                className="h-[460px] w-full"
+                center={mapCenter}
+                selectionMode
+                showLocateControl
+                onSelectionChange={(point) => {
+                  setSelectedCoordinates(point);
+                  setMapCenter({
+                    lat: point.lat,
+                    lng: point.lng,
+                    label: "Tanlangan joy",
+                    description: "Tanlangan koordinata",
+                  });
+                }}
+                onSelectionClear={() => {
+                  setSelectedCoordinates(null);
+                  setMapCenter(defaultMapCenter);
+                }}
               />
-            </div>
-
-            <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
-              Koordinata tanlash faqat simulyatsiya qilingan. Hozircha xarita
-              previewi Google Maps iframe orqali ko'rsatiladi.
             </div>
           </div>
         </div>
