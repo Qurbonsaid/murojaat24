@@ -27,7 +27,7 @@ export type Termo24MapPoint = {
   status?: "ok" | "input_fault" | "output_fault" | "both_fault";
   input?: number;
   output?: number;
-  updatedAt?: string;
+  timestamp?: string;
 };
 
 type Termo24MapProps = {
@@ -86,10 +86,10 @@ const formatDateTime = (value?: string) => {
 };
 
 const statusLabelMap: Record<NonNullable<Termo24MapPoint["status"]>, string> = {
-  ok: "OK",
-  input_fault: "Input fault",
-  output_fault: "Output fault",
-  both_fault: "Both fault",
+  ok: "Normal",
+  input_fault: "Kirish xatosi",
+  output_fault: "Chiqish xatosi",
+  both_fault: "Sensorlar xatosi",
 };
 
 const MapCenterSync = ({ center }: MapCenterSyncProps) => {
@@ -323,7 +323,7 @@ const Termo24Map = ({
                   <div className="rounded-md border bg-muted/30 px-2 py-1.5">
                     <p className="text-muted-foreground">Yangilanish</p>
                     <p className="font-medium text-foreground">
-                      {formatDateTime(point.updatedAt)}
+                      {formatDateTime(point.timestamp)}
                     </p>
                   </div>
                   <div className="rounded-md border bg-muted/30 px-2 py-1.5">

@@ -58,7 +58,7 @@ const MapSection = () => {
           status: device.status,
           input: device.input,
           output: device.output,
-          updatedAt: device.updatedAt,
+          timestamp: device.timestamp,
         })) ?? [],
     [devicesQuery.data],
   );
