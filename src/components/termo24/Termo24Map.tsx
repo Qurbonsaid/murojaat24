@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { format, parseISO } from "date-fns";
+import { differenceInMinutes, format, parseISO } from "date-fns";
 
 import { LocateFixed, Trash2 } from "lucide-react";
 import { divIcon } from "leaflet";
@@ -90,6 +90,38 @@ const statusLabelMap: Record<NonNullable<Termo24MapPoint["status"]>, string> = {
   input_fault: "Kirish xatosi",
   output_fault: "Chiqish xatosi",
   both_fault: "Sensorlar xatosi",
+};
+
+const isStaleUpdate = (timestamp?: string) => {
+  if (!timestamp) return false;
+
+  const parsedValue = parseISO(timestamp);
+  if (Number.isNaN(parsedValue.getTime())) return false;
+
+  return differenceInMinutes(new Date(), parsedValue) > 30;
+};
+
+const getMarkerStyle = (point: Termo24MapPoint) => {
+  const isStale = isStaleUpdate(point.timestamp);
+
+  if (point.status === "ok") {
+    return {
+      color: "#16a34a",
+      fillColor: "#22c55e",
+    };
+  }
+
+  if (point.status === "both_fault" && isStale) {
+    return {
+      color: "#dc2626",
+      fillColor: "#ef4444",
+    };
+  }
+
+  return {
+    color: "#f97316",
+    fillColor: "#fb923c",
+  };
 };
 
 const MapCenterSync = ({ center }: MapCenterSyncProps) => {
@@ -296,8 +328,7 @@ const Termo24Map = ({
             center={[point.lat, point.lng]}
             radius={9}
             pathOptions={{
-              color: "#0f766e",
-              fillColor: "#14b8a6",
+              ...getMarkerStyle(point),
               fillOpacity: 0.85,
               weight: 2,
             }}
@@ -317,7 +348,11 @@ const Termo24Map = ({
                   <div className="rounded-md border bg-muted/30 px-2 py-1.5">
                     <p className="text-muted-foreground">Status</p>
                     <p className="font-medium text-foreground">
-                      {point.status ? statusLabelMap[point.status] : "—"}
+                      {point.status
+                        ? isStaleUpdate(point.timestamp)
+                          ? "Uzilgan"
+                          : statusLabelMap[point.status]
+                        : "—"}
                     </p>
                   </div>
                   <div className="rounded-md border bg-muted/30 px-2 py-1.5">
