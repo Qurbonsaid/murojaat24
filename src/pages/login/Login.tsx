@@ -110,7 +110,8 @@ const Login = () => {
       const message =
         error instanceof ApiError
           ? error.message
-          : "Telefon raqam yoki parol noto'g'ri";
+          : "Tizim xatosi yuz berdi. Iltimos, keyinroq urinib ko'ring.";
+
       toast({
         title: "Xatolik",
         description: message,
