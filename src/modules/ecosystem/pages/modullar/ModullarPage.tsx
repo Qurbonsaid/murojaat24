@@ -32,7 +32,7 @@ type ModuleEntry = {
 const modules: ModuleEntry[] = [
   {
     id: "hudud",
-    label: "Hudud",
+    label: "Obodonlashtirish",
     description:
       "Shahar hududlari va obyektlari haqida umumiy ma'lumotlar moduli.",
     path: "/ecosystem/territory",
@@ -62,7 +62,7 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "kommunal-chaqiruvlar",
-    label: "Kommunal chaqiruvlar",
+    label: "Kommunal xizmat",
     description:
       "Kommunal xizmatlar bo'yicha chaqiruvlar va ularning bajarilishi.",
     path: "/ecosystem/utility-calls",
@@ -72,7 +72,7 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "nazorat-24",
-    label: "Nazorat 24",
+    label: "Ijtimoiy soha",
     description: "Shahar xavfsizligi va jamoat tartibi nazorati.",
     path: "/ecosystem/supervision-24",
     icon: ShieldCheck,
@@ -91,7 +91,7 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "hududlar-taqsimoti",
-    label: "Hududlar taqsimoti",
+    label: "Obodonlashtirish",
     description:
       "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
     path: "/ecosystem/territory-distribution",
@@ -101,7 +101,7 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "hisobotlar",
-    label: "Hisobotlar",
+    label: "Hisobot",
     description:
       "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
     path: "/ecosystem/reports",
