@@ -32,9 +32,9 @@ type ModuleEntry = {
 const modules: ModuleEntry[] = [
   {
     id: "hudud",
-    label: "Hudud",
+    label: "Obodonlashtirish",
     description:
-      "Shahar hududlari va obyektlari haqida umumiy ma'lumotlar moduli.",
+      "Shahar hududlarini obodonlashtirish va infratuzilma holatini kuzatish moduli.",
     path: "/ecosystem/territory",
     icon: Building2,
     accent: "bg-sky-600",
@@ -44,7 +44,7 @@ const modules: ModuleEntry[] = [
     id: "toza-hudud",
     label: "Toza hudud",
     description:
-      "Tozalik muammolari va ularga javob berish jarayonini kuzatish.",
+      "Sanitariya va tozalik bo'yicha murojaatlar hamda ijro jarayonlarini yuritish.",
     path: "/ecosystem/clean-territory",
     icon: Recycle,
     accent: "bg-emerald-600",
@@ -62,9 +62,9 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "kommunal-chaqiruvlar",
-    label: "Kommunal chaqiruvlar",
+    label: "Kommunal xizmat",
     description:
-      "Kommunal xizmatlar bo'yicha chaqiruvlar va ularning bajarilishi.",
+      "Kommunal xizmatlar bo'yicha so'rovlar, murojaatlar va ularning bajarilishini boshqarish.",
     path: "/ecosystem/utility-calls",
     icon: TextSearch,
     accent: "bg-amber-600",
@@ -72,8 +72,9 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "nazorat-24",
-    label: "Nazorat 24",
-    description: "Shahar xavfsizligi va jamoat tartibi nazorati.",
+    label: "Ijtimoiy soha",
+    description:
+      "Ijtimoiy xizmatlar yo'nalishidagi murojaatlar va ularning ijrosi monitoringi.",
     path: "/ecosystem/supervision-24",
     icon: ShieldCheck,
     accent: "bg-indigo-700",
@@ -91,9 +92,9 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "hududlar-taqsimoti",
-    label: "Hududlar taqsimoti",
+    label: "Obodonlashtirish",
     description:
-      "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
+      "Hududlar kesimida obodonlashtirish ishlarining taqsimoti va statistikasi.",
     path: "/ecosystem/territory-distribution",
     icon: MapPinned,
     accent: "bg-purple-600",
@@ -101,9 +102,9 @@ const modules: ModuleEntry[] = [
   },
   {
     id: "hisobotlar",
-    label: "Hisobotlar",
+    label: "Hisobot",
     description:
-      "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
+      "Kunlik, oylik va yillik ko'rsatkichlar bo'yicha hisobotlarni shakllantirish va eksport qilish.",
     path: "/ecosystem/reports",
     icon: FileBarChart2,
     accent: "bg-teal-600",
@@ -122,8 +123,20 @@ const modules: ModuleEntry[] = [
 ];
 
 const ModullarPage = () => {
-  const availableCount = modules.filter((module) => module.available).length;
-  const comingSoonCount = modules.length - availableCount;
+  const visibleModules = modules.filter((module) => {
+    if (module.available) {
+      return true;
+    }
+
+    const firstMatchingIndex = modules.findIndex(
+      (entry) => !entry.available && entry.label === module.label,
+    );
+
+    return firstMatchingIndex === modules.indexOf(module);
+  });
+
+  const availableCount = visibleModules.filter((module) => module.available).length;
+  const comingSoonCount = visibleModules.length - availableCount;
 
   return (
     <div className="space-y-6">
@@ -144,7 +157,7 @@ const ModullarPage = () => {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {modules.map((module) => {
+        {visibleModules.map((module) => {
           const Icon = module.icon;
           return (
             <Card
