@@ -4,7 +4,7 @@ Admin-only `/ecosystem` layout: sidebar menu, module catalog, nested routes for 
 
 ## User-facing behavior
 
-After login as `admin`, user lands on module grid (`/ecosystem/modules`), navigates sidebar to Murojaat24 or Settings sections, or opens placeholder modules. Header shows date/time; mobile uses sheet menu.
+After login as `admin`, user lands on module catalog (`/ecosystem/modules`), which displays the 7 smart city module cards with brief descriptions. Users can navigate into active modules (Murojaat24, Termo24) or open unimplemented modules to view their detailed description, problem analysis, and practical solution in `ComingSoonPage`. Header shows user profile; mobile uses sheet menu.
 
 ## Entry points
 

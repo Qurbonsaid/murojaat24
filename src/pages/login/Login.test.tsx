@@ -75,7 +75,7 @@ describe("Login", () => {
     await user.type(screen.getByLabelText("Telefon raqam"), "901234570");
     await user.type(screen.getByLabelText("Parol"), "murojaat24");
     await user.click(
-      within(form as HTMLElement).getByRole("button", { name: "Kirish" }),
+      within(form as HTMLElement).getByRole("button", { name: "Kirish" })
     );
 
     await waitFor(() => {

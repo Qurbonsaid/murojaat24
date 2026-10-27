@@ -9,6 +9,9 @@ import {
   ShieldCheck,
   TextSearch,
   ThermometerSun,
+  Trees,
+  Users,
+  Zap,
 } from "lucide-react";
 
 export type EcosystemModuleKind =
@@ -58,7 +61,7 @@ export const getVisibleEcosystemMenuItems = (): EcosystemMenuItem[] =>
       return {
         ...item,
         children: item.children.filter(
-          (child) => !isEcosystemMenuComingSoon(child.moduleKind),
+          (child) => !isEcosystemMenuComingSoon(child.moduleKind)
         ),
       };
     });
@@ -120,17 +123,31 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
     ],
   },
   {
-    id: "toza-hudud",
-    label: "Toza hudud",
+    id: "chiqindi-boshqaruvi",
+    label: "Chiqindi boshqaruvi",
     path: "/ecosystem/clean-territory",
     icon: Recycle,
     moduleKind: "coming-soon",
   },
   {
-    id: "kommunal-chaqiruvlar",
-    label: "Kommunal chaqiruvlar",
+    id: "kommunal-xizmatlar",
+    label: "Kommunal xizmatlar",
     path: "/ecosystem/utility-calls",
-    icon: TextSearch,
+    icon: Zap,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "obodonlashtirish",
+    label: "Obodonlashtirish",
+    path: "/ecosystem/landscaping",
+    icon: Trees,
+    moduleKind: "coming-soon",
+  },
+  {
+    id: "ijtimoiy-soha",
+    label: "Ijtimoiy soha",
+    path: "/ecosystem/social-sphere",
+    icon: Users,
     moduleKind: "coming-soon",
   },
   {
@@ -163,7 +180,7 @@ export const ecosystemMenuItems: EcosystemMenuItem[] = [
   },
   {
     id: "hisobotlar",
-    label: "Hisobotlar",
+    label: "Topshiriqlar va hisobotlar",
     path: "/ecosystem/reports",
     icon: FileBarChart2,
     moduleKind: "coming-soon",
@@ -277,6 +294,6 @@ const normalizePath = (path: string) => {
 export const getEcosystemEntryByPath = (pathname: string) => {
   const normalizedPath = normalizePath(pathname);
   return ecosystemRouteEntries.find(
-    (entry) => normalizePath(entry.path) === normalizedPath,
+    (entry) => normalizePath(entry.path) === normalizedPath
   );
 };
