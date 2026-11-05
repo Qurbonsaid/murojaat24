@@ -1,4 +1,4 @@
-import { ArrowUpRight, Clock3 } from "lucide-react";
+import { ArrowUpRight, Clock3, MapPinned, Recycle, PhoneCall, TextSearch, ShieldCheck, ThermometerSun, FileBarChart2, Settings2} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
