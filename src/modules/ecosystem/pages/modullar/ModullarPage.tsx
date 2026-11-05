@@ -5,7 +5,98 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ecosystemModules, type ModuleEntry } from "../../config/modules";
+
+type ModuleEntry = {
+  id: string;
+  label: string;
+  description: string;
+  path: string;
+  icon: LucideIcon;
+  accent: string;
+  available: boolean;
+};
+
+const modules: ModuleEntry[] = [
+  {
+    id: "hududlar-taqsimoti",
+    label: "Hududlar taqsimoti",
+    description:
+      "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
+    path: "/ecosystem/territory-distribution",
+    icon: MapPinned,
+    accent: "bg-purple-600",
+    available: false,
+  },
+  {
+    id: "toza-hudud",
+    label: "Toza hudud",
+    description:
+      "Tozalik muammolari va ularga javob berish jarayonini kuzatish.",
+    path: "/ecosystem/clean-territory",
+    icon: Recycle,
+    accent: "bg-emerald-600",
+    available: false,
+  },
+  {
+    id: "murojaat24",
+    label: "Murojaat24",
+    description:
+      "Fuqarolardan kelgan murojaatlarni qabul qilish, taqsimlash va nazorat qilish.",
+    path: "/ecosystem/murojaat24",
+    icon: PhoneCall,
+    accent: "bg-[#0d4c8b]",
+    available: true,
+  },
+  {
+    id: "kommunal-chaqiruvlar",
+    label: "Kommunal chaqiruvlar",
+    description:
+      "Kommunal xizmatlar bo'yicha chaqiruvlar va ularning bajarilishi.",
+    path: "/ecosystem/utility-calls",
+    icon: TextSearch,
+    accent: "bg-amber-600",
+    available: false,
+  },
+  {
+    id: "nazorat-24",
+    label: "Nazorat 24",
+    description: "Shahar xavfsizligi va jamoat tartibi nazorati.",
+    path: "/ecosystem/supervision-24",
+    icon: ShieldCheck,
+    accent: "bg-indigo-700",
+    available: false,
+  },
+  {
+    id: "termo24",
+    label: "Termo24",
+    description:
+      "Termiz shahridagi issiqlik ta'minoti tizimi va u bilan bog'liq jarayonlarni kuzatish.",
+    path: "/ecosystem/termo24",
+    icon: ThermometerSun,
+    accent: "bg-rose-600",
+    available: true,
+  },
+  {
+    id: "hisobotlar",
+    label: "Hisobotlar",
+    description:
+      "Kunlik, oylik va yillik hisobotlarni yuritish va eksport qilish.",
+    path: "/ecosystem/reports",
+    icon: FileBarChart2,
+    accent: "bg-teal-600",
+    available: false,
+  },
+  {
+    id: "sozlamalar",
+    label: "Sozlamalar",
+    description:
+      "Ekotizim uchun umumiy sozlamalar: tashkilotlar, shablonlar va boshqalar.",
+    path: "/ecosystem/settings",
+    icon: Settings2,
+    accent: "bg-slate-700",
+    available: true,
+  },
+];
 
 const ModullarPage = () => {
   const availableCount = ecosystemModules.filter(
