@@ -1,4 +1,16 @@
-import { ArrowUpRight, Clock3, MapPinned, Recycle, PhoneCall, TextSearch, ShieldCheck, ThermometerSun, FileBarChart2, Settings2} from "lucide-react";
+import {
+  type LucideIcon,
+  ArrowUpRight,
+  Clock3,
+  MapPinned,
+  Recycle,
+  PhoneCall,
+  TextSearch,
+  ShieldCheck,
+  ThermometerSun,
+  FileBarChart2,
+  Settings2,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -99,10 +111,8 @@ const modules: ModuleEntry[] = [
 ];
 
 const ModullarPage = () => {
-  const availableCount = ecosystemModules.filter(
-    (module) => module.available
-  ).length;
-  const comingSoonCount = ecosystemModules.length - availableCount;
+  const availableCount = modules.filter((module) => module.available).length;
+  const comingSoonCount = modules.length - availableCount;
 
   return (
     <div className="space-y-6">
@@ -114,7 +124,7 @@ const ModullarPage = () => {
         </p>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-100">
-            Jami yo‘nalishlar: {ecosystemModules.length}
+            Jami yo‘nalishlar: {modules.length}
           </Badge>
           <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
             Faol modullar: {availableCount}
@@ -126,7 +136,7 @@ const ModullarPage = () => {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-        {ecosystemModules.map((module) => {
+        {modules.map((module) => {
           const Icon = module.icon;
           return (
             <Card
@@ -138,7 +148,7 @@ const ModullarPage = () => {
                   <span
                     className={cn(
                       "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-xs",
-                      module.accent
+                      module.accent,
                     )}
                   >
                     <Icon className="h-6 w-6" />
@@ -160,7 +170,7 @@ const ModullarPage = () => {
                     {module.label}
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-600">
-                    {module.brief}
+                    {module.description}
                   </p>
                 </div>
 

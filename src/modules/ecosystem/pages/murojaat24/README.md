@@ -17,7 +17,7 @@ Modals: `src/components/AddUserModal.tsx`, `EditUserModal.tsx`. API: `src/lib/ap
 
 ## Appeals list (`murojaatlar`)
 
-Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` → `GET /api/requests/` and row detail via `OperatorRequestDetailModal` → `useRequest` → `GET /api/requests/:id` (`src/lib/api/requests.ts`).
+Paginated appeals table in `MurojaatlarSection.tsx` backed by `useRequests` and row detail via `ReviewModal` in read-only mode → `useRequest` (`src/lib/api/requests.ts`; contract: `docs/api/openapi.json`). The Eye action is available for every status and shows the same details as manager review: initial description/photos, citizen and address, specialist, completion report/photos, signature, and timeline. Review and return actions are hidden in this admin detail view.
 
 **Filters (query params):** `search`, `status`, `organization`, `priority`, `startDate`, `endDate` (`yyyy-MM-dd` from `DatePicker` in `components/ui/date-picker.tsx`). Options from `REQUEST_STATUS_OPTIONS` and `REQUEST_PRIORITY_OPTIONS`; organizations from `useOrganizations`. Pass `options.role: "admin"` so `organization` is sent when filtered. Changing any filter resets to page 1.
 
