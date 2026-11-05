@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { Eye, Loader2, Pencil, Search } from "lucide-react";
 
 import OperatorEditRequestModal from "@/components/OperatorEditRequestModal";
-import OperatorRequestDetailModal from "@/components/OperatorRequestDetailModal";
+import ReviewModal from "@/components/ReviewModal";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -146,8 +146,9 @@ const MurojaatlarSection = () => {
         }}
       />
 
-      <OperatorRequestDetailModal
-        requestId={selectedRequestId}
+      <ReviewModal
+        requestId={selectedRequestId ?? ""}
+        readOnly
         open={detailOpen}
         onOpenChange={(open) => {
           setDetailOpen(open);

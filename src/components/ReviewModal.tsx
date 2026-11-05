@@ -39,6 +39,7 @@ type ReviewModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   requestId: string;
+  readOnly?: boolean;
 };
 
 const resolveAssignmentFromRequest = (
@@ -53,7 +54,7 @@ const resolveImageUrls = (paths: string[] | undefined): string[] =>
     .map((image) => resolveAssetUrl(image))
     .filter((url): url is string => Boolean(url));
 
-const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
+const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: ReviewModalProps) => {
   const { toast } = useToast();
   const [rejectComment, setRejectComment] = useState("");
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
@@ -140,9 +141,10 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
     request?.timeline,
   ]);
 
-  const canReview = request?.status === "completed";
+  const canReview = !readOnly && request?.status === "completed";
   const isManager = currentUserQuery.data?.role === "manager";
   const canShowWrongOrgCard =
+    !readOnly &&
     isManager &&
     request &&
     request.status !== "verified" &&
@@ -161,7 +163,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
       : "Murojaat ma'lumotlarini yuklashda xatolik";
 
   const handleVerify = async (status: "approved" | "rejected") => {
-    if (!requestId) return;
+    if (!requestId || !canReview) return;
 
     try {
       await verifyRequest.mutateAsync({
@@ -194,7 +196,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
   };
 
   const handleReturnToOperator = async () => {
-    if (!requestId) return;
+    if (!requestId || readOnly) return;
 
     try {
       await returnRequest.mutateAsync(requestId);
@@ -228,7 +230,7 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
           <DialogHeader>
             <div className="flex items-start justify-between gap-3 pr-6">
               <DialogTitle className="text-2xl">
-                Nazorat qilish — {request?.requestNumber ?? "..."}
+                {readOnly ? "Murojaat tafsilotlari" : "Nazorat qilish"} — {request?.requestNumber ?? "..."}
               </DialogTitle>
               {request?.status ? (
                 <RequestStatusBadge status={request.status} />
@@ -494,12 +496,12 @@ const ReviewModal = ({ open, onOpenChange, requestId }: ReviewModalProps) => {
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : !readOnly ? (
                 <p className="mt-6 text-sm text-muted-foreground">
                   Faqat yakunlangan tayinlashlar uchun tasdiqlash yoki rad etish
                   mumkin.
                 </p>
-              )}
+              ) : null}
             </>
           ) : null}
         </DialogContent>
