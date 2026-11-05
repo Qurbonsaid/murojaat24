@@ -1,4 +1,4 @@
-import { ArrowUpRight, Clock3 } from "lucide-react";
+import { ArrowUpRight, Clock3, MapPinned } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
