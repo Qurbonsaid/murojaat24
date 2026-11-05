@@ -31,13 +31,13 @@ type ModuleEntry = {
 
 const modules: ModuleEntry[] = [
   {
-    id: "hudud",
-    label: "Hudud",
+    id: "hududlar-taqsimoti",
+    label: "Hududlar taqsimoti",
     description:
-      "Shahar hududlari va obyektlari haqida umumiy ma'lumotlar moduli.",
-    path: "/ecosystem/territory",
-    icon: Building2,
-    accent: "bg-sky-600",
+      "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
+    path: "/ecosystem/territory-distribution",
+    icon: MapPinned,
+    accent: "bg-purple-600",
     available: false,
   },
   {
@@ -88,16 +88,6 @@ const modules: ModuleEntry[] = [
     icon: ThermometerSun,
     accent: "bg-rose-600",
     available: true,
-  },
-  {
-    id: "hududlar-taqsimoti",
-    label: "Hududlar taqsimoti",
-    description:
-      "Tumanlar, mahallalar va sektorlar kesimidagi taqsimot va statistika.",
-    path: "/ecosystem/territory-distribution",
-    icon: MapPinned,
-    accent: "bg-purple-600",
-    available: false,
   },
   {
     id: "hisobotlar",
