@@ -63,6 +63,7 @@ export type DashboardRequestStatistics = {
   total?: number;
   new?: number;
   inProgress?: number;
+  overdue?: number;
   completed?: number;
   verified?: number;
   rejected?: number;
@@ -157,7 +158,9 @@ const formatActivityLabel = (value: unknown): string => {
   if (typeof value !== "string" || !value.trim()) return "—";
 
   const trimmed = value.trim();
-  const parsed = parseISO(trimmed.length === 10 ? `${trimmed}T00:00:00` : trimmed);
+  const parsed = parseISO(
+    trimmed.length === 10 ? `${trimmed}T00:00:00` : trimmed,
+  );
   if (isValid(parsed)) {
     return WEEKDAY_LABELS_UZ[parsed.getDay()];
   }
@@ -215,7 +218,8 @@ const resolvePersonName = (value: unknown): string => {
   const fullName = [firstName, lastName].filter(Boolean).join(" ");
   if (fullName) return fullName;
 
-  if (typeof value.name === "string" && value.name.trim()) return value.name.trim();
+  if (typeof value.name === "string" && value.name.trim())
+    return value.name.trim();
   return "—";
 };
 
@@ -266,8 +270,7 @@ const resolveOrganization = (
       (typeof row.organizationName === "string" && row.organizationName) ||
       (typeof row.name === "string" && row.name) ||
       "—",
-    governance:
-      typeof row.governance === "string" ? row.governance : undefined,
+    governance: typeof row.governance === "string" ? row.governance : undefined,
   };
 };
 
@@ -543,7 +546,8 @@ export const buildStatisticsExportQuery = (params: StatisticsExportParams) => {
   const searchParams = new URLSearchParams();
   if (params.startDate) searchParams.set("startDate", params.startDate);
   if (params.endDate) searchParams.set("endDate", params.endDate);
-  if (params.organization) searchParams.set("organization", params.organization);
+  if (params.organization)
+    searchParams.set("organization", params.organization);
   const query = searchParams.toString();
   return query ? `?${query}` : "";
 };
@@ -561,7 +565,9 @@ export const downloadStatisticsExport = (
   document.body.removeChild(anchor);
 };
 
-const normalizeDashboardStatistics = (payload: unknown): DashboardStatistics => {
+const normalizeDashboardStatistics = (
+  payload: unknown,
+): DashboardStatistics => {
   if (!isRecord(payload)) return {};
   const requests = payload.requests;
   if (!isRecord(requests)) return { requests: undefined };
@@ -571,6 +577,7 @@ const normalizeDashboardStatistics = (payload: unknown): DashboardStatistics => 
       total: toNumber(requests.total),
       new: toNumber(requests.new),
       inProgress: toNumber(requests.inProgress),
+      overdue: toNumber(requests.overdue),
       completed: toNumber(requests.completed),
       verified: toNumber(requests.verified),
       rejected: toNumber(requests.rejected),

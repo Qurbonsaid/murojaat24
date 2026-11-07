@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { differenceInCalendarDays, format } from "date-fns";
-import { BarChart3, CheckCircle, Clock, Download, Loader2, Timer } from "lucide-react";
+import {
+  BarChart3,
+  CheckCircle,
+  Clock,
+  Download,
+  Loader2,
+  Timer,
+  AlertTriangle,
+} from "lucide-react";
 import {
   CartesianGrid,
   Cell,
@@ -57,7 +65,7 @@ const StatisticsSection = () => {
     if (dateFrom && dateTo) {
       return Math.min(
         365,
-        Math.max(1, differenceInCalendarDays(dateTo, dateFrom) + 1)
+        Math.max(1, differenceInCalendarDays(dateTo, dateFrom) + 1),
       );
     }
     if (dateFrom) return 30;
@@ -73,7 +81,7 @@ const StatisticsSection = () => {
           ? organizationFilter
           : undefined,
     }),
-    [dateFrom, dateTo, organizationFilter]
+    [dateFrom, dateTo, organizationFilter],
   );
 
   const dailyQuery = useDailyStatistics(statisticsDays);
@@ -92,12 +100,12 @@ const StatisticsSection = () => {
 
   const organizationChartData = useMemo(
     () => mapStatisticsToChartSeries(scopedOrganizationItems),
-    [scopedOrganizationItems]
+    [scopedOrganizationItems],
   );
 
   const governanceChartData = useMemo(
     () => groupOrganizationStatisticsByGovernance(scopedOrganizationItems),
-    [scopedOrganizationItems]
+    [scopedOrganizationItems],
   );
 
   const governanceGroups = useMemo(() => {
@@ -111,7 +119,7 @@ const StatisticsSection = () => {
     }
 
     return Array.from(groups.entries()).sort(([a], [b]) =>
-      a.localeCompare(b, "uz")
+      a.localeCompare(b, "uz"),
     );
   }, [organizationChartData]);
 
@@ -119,8 +127,8 @@ const StatisticsSection = () => {
     error instanceof ApiError
       ? error.message
       : error instanceof Error
-      ? error.message
-      : fallback;
+        ? error.message
+        : fallback;
 
   const handleExport = async () => {
     try {
@@ -134,7 +142,7 @@ const StatisticsSection = () => {
         title: "Xatolik",
         description: resolveErrorMessage(
           error,
-          "Excel faylini yuklab olishda xatolik yuz berdi"
+          "Excel faylini yuklab olishda xatolik yuz berdi",
         ),
         variant: "destructive",
       });
@@ -153,23 +161,23 @@ const StatisticsSection = () => {
     (dailyQuery.error &&
       resolveErrorMessage(
         dailyQuery.error,
-        "Kunlik statistikani yuklashda xatolik"
+        "Kunlik statistikani yuklashda xatolik",
       )) ||
     (organizationQuery.error &&
       resolveErrorMessage(
         organizationQuery.error,
-        "Tashkilotlar statistikasini yuklashda xatolik"
+        "Tashkilotlar statistikasini yuklashda xatolik",
       )) ||
     (dashboardQuery.error &&
       resolveErrorMessage(
         dashboardQuery.error,
-        "Dashboard statistikasini yuklashda xatolik"
+        "Dashboard statistikasini yuklashda xatolik",
       )) ||
     "Statistikani yuklashda xatolik yuz berdi";
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
         <StatsCard
           icon={BarChart3}
           label="Jami murojaatlar"
@@ -187,6 +195,12 @@ const StatisticsSection = () => {
           label="Jarayonda"
           value={requestStats?.inProgress ?? "—"}
           iconColor="bg-yellow-100 text-yellow-600"
+        />
+        <StatsCard
+          icon={AlertTriangle}
+          label="Muddati o'tgan"
+          value={requestStats?.overdue ?? "—"}
+          iconColor="bg-red-100 text-red-600"
         />
         <StatsCard
           icon={Timer}

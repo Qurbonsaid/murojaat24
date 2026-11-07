@@ -195,7 +195,9 @@ const MurojaatlarSection = () => {
                   <SelectValue placeholder="Tashkilot" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_FILTER}>Barcha tashkilotlar</SelectItem>
+                  <SelectItem value={ALL_FILTER}>
+                    Barcha tashkilotlar
+                  </SelectItem>
                   {(organizationsQuery.data ?? []).map((org) => (
                     <SelectItem key={org._id} value={org._id}>
                       {org.name}
@@ -209,7 +211,9 @@ const MurojaatlarSection = () => {
                   <SelectValue placeholder="Ustuvorlik" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ALL_FILTER}>Barcha ustuvorliklar</SelectItem>
+                  <SelectItem value={ALL_FILTER}>
+                    Barcha ustuvorliklar
+                  </SelectItem>
                   {REQUEST_PRIORITY_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -300,7 +304,10 @@ const MurojaatlarSection = () => {
                       {formatRequestDateTime(request.createdAt)}
                     </TableCell>
                     <TableCell>
-                      <RequestStatusBadge status={request.status} />
+                      <RequestStatusBadge
+                        status={request.status}
+                        deadlineStatus={request.assignment?.deadlineStatus}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -353,9 +360,7 @@ const MurojaatlarSection = () => {
                 size="sm"
                 disabled={!pagination.hasNext}
                 onClick={() =>
-                  setPage((current) =>
-                    Math.min(pagination.pages, current + 1),
-                  )
+                  setPage((current) => Math.min(pagination.pages, current + 1))
                 }
               >
                 Keyingi
