@@ -186,8 +186,8 @@ const StatisticsSection = () => {
         />
         <StatsCard
           icon={CheckCircle}
-          label="Bajarilgan"
-          value={requestStats?.completed ?? "—"}
+          label="Tasdiqlangan"
+          value={requestStats?.verified ?? "—"}
           iconColor="bg-green-100 text-green-600"
         />
         <StatsCard
