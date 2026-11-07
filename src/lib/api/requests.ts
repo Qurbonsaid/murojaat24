@@ -45,7 +45,7 @@ export type AppealRequestListItem = {
   };
   description?: string;
   createdAt?: string;
-  assignment?: unknown;
+  assignment?: unknown & { deadlineStatus?: string };
 };
 
 export type AppealRequestAddress = {
@@ -192,7 +192,7 @@ export const formatRequestDateTime = (isoDate: string | undefined): string => {
 };
 
 export const resolveOrganizationId = (
-  organization: OrganizationRef | undefined
+  organization: OrganizationRef | undefined,
 ): string | undefined => {
   if (!organization) return undefined;
   if (typeof organization === "string") return organization;
@@ -201,7 +201,7 @@ export const resolveOrganizationId = (
 
 export const resolveOrganizationName = (
   organization: OrganizationRef | undefined,
-  organizationNameById: Map<string, string>
+  organizationNameById: Map<string, string>,
 ): string => {
   if (!organization) return "—";
   if (typeof organization === "string") {
@@ -218,7 +218,7 @@ const PRIORITY_LABELS: Record<RequestPriority, string> = {
 };
 
 export const getRequestPriorityLabel = (
-  priority: RequestPriority | undefined
+  priority: RequestPriority | undefined,
 ): string => {
   if (!priority) return "—";
   return PRIORITY_LABELS[priority] ?? priority;
@@ -226,7 +226,7 @@ export const getRequestPriorityLabel = (
 
 export const omitOrganizationForRole = (
   role: UserRole | undefined,
-  params: RequestsQueryParams
+  params: RequestsQueryParams,
 ): RequestsQueryParams => {
   if (!role || !ROLES_WITHOUT_ORG_FILTER.includes(role)) {
     return params;
@@ -258,7 +258,7 @@ export const buildRequestsQueryString = (params: RequestsQueryParams) => {
 
 export const useRequests = (
   params: RequestsQueryParams = {},
-  options: UseRequestsOptions = {}
+  options: UseRequestsOptions = {},
 ) => {
   const page = params.page ?? 1;
   const limit = params.limit ?? 20;
@@ -292,7 +292,7 @@ export const useRequests = (
           ...sanitized,
           page,
           limit,
-        })}`
+        })}`,
       );
 
       return response as RequestsListResponse;
@@ -308,7 +308,7 @@ export const useRequest = (id: string | null | undefined) => {
     queryKey: ["requests", "detail", id],
     queryFn: async () => {
       const response = await apiRequest<AppealRequestDetail>(
-        `/api/requests/${id}`
+        `/api/requests/${id}`,
       );
       return response.data;
     },
@@ -319,7 +319,7 @@ export const useRequest = (id: string | null | undefined) => {
 };
 
 export const toOperatorCreatePayload = (
-  values: OperatorAppealFormValues
+  values: OperatorAppealFormValues,
 ): OperatorCreateRequestInput => ({
   citizenName: values.fullName.trim(),
   citizenPhone: normalizePhone(values.phone),
@@ -339,7 +339,7 @@ export const useCreateOperatorRequest = () => {
         {
           method: "POST",
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       return response.data;
@@ -347,7 +347,9 @@ export const useCreateOperatorRequest = () => {
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["requests"] }),
-        queryClient.invalidateQueries({ queryKey: ["statistics", "dashboard"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["statistics", "dashboard"],
+        }),
       ]);
     },
   });
@@ -378,7 +380,7 @@ export const useUpdateRequest = () => {
         {
           method: "PUT",
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       return response.data;

@@ -1,12 +1,14 @@
 import { Badge } from "@/components/ui/badge";
 
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status: string, deadlineStatus?: string) => {
   switch (status) {
     case "new":
       return <Badge className="bg-blue-500 hover:bg-blue-600">Yangi</Badge>;
     case "assigned":
       return (
-        <Badge className="bg-orange-500 hover:bg-orange-600">Tayinlangan</Badge>
+        <Badge className="bg-orange-500 hover:bg-orange-600 ml-2">
+          {deadlineStatus === "overdue" ? "Kechikkan" : "Tayinlangan"}
+        </Badge>
       );
     case "accepted":
       return (
@@ -35,9 +37,12 @@ const getStatusBadge = (status: string) => {
 
 type RequestStatusBadgeProps = {
   status: string;
+  deadlineStatus?: string;
 };
 
-const RequestStatusBadge = ({ status }: RequestStatusBadgeProps) =>
-  getStatusBadge(status);
+const RequestStatusBadge = ({
+  status,
+  deadlineStatus,
+}: RequestStatusBadgeProps) => getStatusBadge(status, deadlineStatus);
 
 export default RequestStatusBadge;
