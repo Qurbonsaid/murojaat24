@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Loader2, Phone } from "lucide-react";
 
 import ImagePreviewDialog from "@/components/ImagePreviewDialog";
 import RequestStatusBadge from "@/components/RequestStatusBadge";
@@ -22,6 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { formatPhoneInput } from "@/lib/phone";
 import type { Assignment, AssignmentUserRef } from "@/lib/api/assignments";
 import { resolveAssignmentSpecialistName } from "@/lib/api/assignments";
 import { useCurrentUser } from "@/lib/api/auth";
@@ -42,8 +43,21 @@ type ReviewModalProps = {
   readOnly?: boolean;
 };
 
+const DetailField = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) => (
+  <div>
+    <p className="text-sm text-muted-foreground mb-1">{label}</p>
+    <div className="text-sm font-medium text-foreground">{children}</div>
+  </div>
+);
+
 const resolveAssignmentFromRequest = (
-  assignment: unknown
+  assignment: unknown,
 ): Assignment | undefined => {
   if (!assignment || typeof assignment !== "object") return undefined;
   return assignment as Assignment;
@@ -54,7 +68,12 @@ const resolveImageUrls = (paths: string[] | undefined): string[] =>
     .map((image) => resolveAssetUrl(image))
     .filter((url): url is string => Boolean(url));
 
-const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: ReviewModalProps) => {
+const ReviewModal = ({
+  open,
+  onOpenChange,
+  requestId,
+  readOnly = false,
+}: ReviewModalProps) => {
   const { toast } = useToast();
   const [rejectComment, setRejectComment] = useState("");
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
@@ -92,19 +111,19 @@ const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: Review
     () =>
       resolveAssignmentSpecialistName(
         assignment?.specialist as AssignmentUserRef | undefined,
-        new Map()
+        new Map(),
       ),
-    [assignment?.specialist]
+    [assignment?.specialist],
   );
 
   const initialImageUrls = useMemo(
     () => resolveImageUrls(request?.images),
-    [request?.images]
+    [request?.images],
   );
 
   const completionImageUrls = useMemo(
     () => resolveImageUrls(completionData?.images),
-    [completionData?.images]
+    [completionData?.images],
   );
 
   const signatureUrl = completionData?.signature
@@ -141,6 +160,10 @@ const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: Review
     request?.timeline,
   ]);
 
+  const formattedPhone = request?.citizen?.phone
+    ? formatPhoneInput(request.citizen.phone)
+    : "—";
+
   const canReview = !readOnly && request?.status === "completed";
   const isManager = currentUserQuery.data?.role === "manager";
   const canShowWrongOrgCard =
@@ -155,12 +178,17 @@ const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: Review
   );
   const isSubmitting = verifyRequest.isPending || returnRequest.isPending;
 
+  const handleCall = () => {
+    if (!request?.citizen?.phone) return;
+    window.location.href = `tel:${request.citizen.phone.replace(/\s/g, "")}`;
+  };
+
   const errorMessage =
     requestQuery.error instanceof ApiError
       ? requestQuery.error.message
       : requestQuery.error instanceof Error
-      ? requestQuery.error.message
-      : "Murojaat ma'lumotlarini yuklashda xatolik";
+        ? requestQuery.error.message
+        : "Murojaat ma'lumotlarini yuklashda xatolik";
 
   const handleVerify = async (status: "approved" | "rejected") => {
     if (!requestId || !canReview) return;
@@ -230,7 +258,8 @@ const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: Review
           <DialogHeader>
             <div className="flex items-start justify-between gap-3 pr-6">
               <DialogTitle className="text-2xl">
-                {readOnly ? "Murojaat tafsilotlari" : "Nazorat qilish"} — {request?.requestNumber ?? "..."}
+                {readOnly ? "Murojaat tafsilotlari" : "Nazorat qilish"} —{" "}
+                {request?.requestNumber ?? "..."}
               </DialogTitle>
               {request?.status ? (
                 <RequestStatusBadge status={request.status} />
@@ -309,6 +338,25 @@ const ReviewModal = ({ open, onOpenChange, requestId, readOnly = false }: Review
                       {request.citizen?.name ?? "—"}
                     </p>
                   </div>
+
+                  {currentUserQuery.data?.role === "admin" && (
+                    <DetailField label="Telefon">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{formattedPhone}</span>
+                        {request.citizen?.phone ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCall}
+                          >
+                            <Phone className="h-4 w-4 mr-1" />
+                            Qo&apos;ng&apos;iroq
+                          </Button>
+                        ) : null}
+                      </div>
+                    </DetailField>
+                  )}
 
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
